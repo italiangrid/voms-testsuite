@@ -1,0 +1,57 @@
+*** Settings ***
+Library       OperatingSystem
+
+
+*** Keywords ***
+
+Use a good certificate
+  Run  ln -s ${certsDir}/voms-client-cert.pem $HOME/.globus/usercert.pem
+  Run  ln -s ${certsDir}/voms-client-key.pem $HOME/.globus/userkey.pem
+  Run  chmod 400 $HOME/.globus/userkey.pem
+
+Use an expired certificate
+  Run  ln -s ${certsDir}/voms-client-cert.pem $HOME/.globus/usercert.pem
+  Run  ln -s ${certsDir}/voms-client-key.pem $HOME/.globus/userkey.pem
+
+Stop using certificate
+  Run  rm $HOME/.globus/usercert.pem
+  Run  rm -f $HOME/.globus/userkey.pem
+
+Create plain proxy
+  Run  echo "pass" | voms-proxy-init -pwstdin
+
+Get proxy info
+  Run  voms-proxy-info
+
+Destroy proxy
+  Run  voms-proxy-destroy
+
+
+*** Test Cases ***
+
+A user get the right message when trying to create a proxy without a certificate
+  ${output}  Run  echo "pass" | voms-proxy-init -pwstdin
+  Should Contain  ${output}  Unable to find user certificate or key
+
+A user get the right message when trying to create a proxy providing the wrong passphrase
+  [Setup]  Use a good certificate  
+  ${output}  Run  echo "wrongpass" | voms-proxy-init -pwstdin
+  Should Contain  ${output}  wrong pass phrase
+  [Teardown]  Stop using certificate
+
+A user can create and then destroy a plain proxy
+  [Setup]  Use a good certificate
+  Create plain proxy
+  ${uid}  Run  id -u
+  File Should Exist  /tmp/x509up_u${uid}
+  Destroy proxy
+  File Should Not Exist  /tmp/x509up_u${uid}
+  [Teardown]  Stop using certificate
+
+A user can see the info of a plain proxy
+  [Setup]  Use a good certificate
+  Create plain Proxy
+  ${output}  Run  voms-proxy-info
+  Should Contain  ${output}  subject
+  Destroy proxy
+  [Teardown]  Stop using certificate
