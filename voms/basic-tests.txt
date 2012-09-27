@@ -1,0 +1,25 @@
+*** Settings ***
+Resource   vomslib.txt
+
+*** Test Cases ***
+
+A user get the right message when trying to create a proxy without a certificate
+  [Setup]   Stop using certificate
+  ${output}   Execute and Check Failure   echo ${privateKeyPassword} | voms-proxy-init -pwstdin
+  Should Contain  ${output}  Unable to find user certificate or key
+
+A user get the right message when trying to create a proxy providing the wrong passphrase
+  [Setup]  Use certificate   test0
+  ${output}   Execute and Check Failure   echo "CAMAGHE" | voms-proxy-init -pwstdin
+  Should Contain  ${output}  wrong pass phrase
+  [Teardown]  Stop using certificate
+
+A user cannot get a proxy from a VO she does not belong to
+  [Setup]   Use certificate   test5
+  Check voms-proxy-init failure  User unknown to this VO
+  [Teardown]   Stop using certificate
+
+A user can get a proxy from a VO she belongs to
+  [Setup]   Use certificate   test0
+  Create voms proxy
+  [Teardown]   Stop using certificate 

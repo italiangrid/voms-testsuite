@@ -1,0 +1,97 @@
+*** Settings ***
+
+Library   OperatingSystem
+Resource   variables.txt
+
+*** Keywords ***
+
+Execute and Check Success   [Arguments]   ${cmd}
+  ${rc}   ${output}=   Run and Return RC And Output   ${cmd}
+  Should Be Equal As Integers   ${rc}   0   ${output}   False
+  [Return]   ${output}
+
+Execute and Check Failure   [Arguments]   ${cmd}
+  ${rc}   ${output}=   Run and Return RC And Output   ${cmd}
+  Should Not Be Equal As Integers   ${rc}   0   ${output}
+  [Return]   ${output}
+
+Use certificate   [Arguments]   ${cert}
+  File Should Exist   ${certsDir}/${cert}.cert.pem
+  File Should Exist   ${certsDir}/${cert}.key.pem
+  Stop using certificate
+  Execute and Check Success   ln -s ${certsDir}/${cert}.cert.pem %{HOME}/.globus/usercert.pem
+  Execute and Check Success   ln -s ${certsDir}/${cert}.key.pem %{HOME}/.globus/userkey.pem
+  Execute and Check Success   chmod 400 %{HOME}/.globus/userkey.pem
+
+Stop using certificate
+  Run  rm $HOME/.globus/usercert.pem
+  Run  rm -f $HOME/.globus/userkey.pem
+  Run  voms-proxy-destroy
+  
+Create plain proxy
+  Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin
+
+Destroy proxy
+  Execute and Check Success   voms-proxy-destroy
+
+Create voms proxy   [Arguments]   ${vo}=${voName}
+  ${output}   Execute and Check Success   echo ${privateKeyPassword}|voms-proxy-init -pwstdin -voms ${vo}
+
+Check voms-proxy-init failure   [Arguments]   ${failMessage}   ${vo}=${voName}
+  ${output}   Execute and Check Failure   echo ${privateKeyPassword}|voms-proxy-init -pwstdin -voms ${vo}
+  Should Contain   ${output}   ${failMessage}
+  [Return]   ${output}
+
+Use admin certificate   [Arguments]  ${adminCert}=VO_Admin  
+  Use certificate   VO_Admin
+  Create plain proxy
+
+Create user   [Arguments]   ${cert}  ${vo}=${voName} 
+  File Should Exist   ${certsDir}/${cert}.cert.pem
+  Use admin certificate
+  Execute and Check Success   voms-admin --vo ${vo} --host ${vomsHost} create-user ${certsDir}/${cert}.cert.pem
+  Stop using certificate
+
+Delete user   [Arguments]  ${cert}   ${vo}=${voName}
+  File Should Exist   ${certsDir}/${cert}.cert.pem
+  Use admin certificate 
+  Execute and Check Success   voms-admin --vo ${vo} --host ${vomsHost} delete-user ${certsDir}/${cert}.cert.pem
+  Stop using certificate
+
+Create group   [Arguments]   ${groupName}   ${vo}=${voName}
+  Use admin certificate
+  Execute and Check Success   voms-admin --vo ${vo} --host ${vomsHost} create-group ${groupName}
+  Stop using certificate
+
+Delete group   [Arguments]   ${groupName}   ${vo}=${voName}
+  Use admin certificate
+  Execute and Check Success   voms-admin --vo ${vo} --host ${vomsHost} delete-group ${groupName}
+  Stop using certificate
+
+Create role   [Arguments]   ${roleName}   ${vo}=${voName}
+  Use admin certificate
+  Execute and Check Success   voms-admin --vo ${vo} --host ${vomsHost} create-role ${roleName}
+  Stop using certificate
+
+Delete role   [Arguments]   ${roleName}   ${vo}=${voName}
+  Use admin certificate
+  Execute and Check Success   voms-admin --vo ${vo} --host ${vomsHost} delete-role ${roleName}
+  Stop using certificate
+
+Add user to group    [Arguments]   ${cert}   ${groupName}   ${vo}=${voName}
+  File Should Exist   ${certsDir}/${cert}.cert.pem
+  Use admin certificate
+  Execute and Check Success   voms-admin --vo ${vo} --host ${vomsHost} add-member ${groupName} ${certsDir}/${cert}.cert.pem
+  Stop using certificate
+
+Remove user from group   [Arguments]   ${cert}   ${groupName}   ${vo}=${voName}
+  File Should Exist   ${certsDir}/${cert}.cert.pem
+  Use admin certificate
+  Execute and Check Success   voms-admin --vo ${vo} --host ${vomsHost} remove-member ${groupName} ${certsDir}/${cert}.cert.pem
+  Stop using certificate
+
+Assign role   [Arguments]   ${cert}   ${groupName}   ${roleName}   ${vo}=${voName}
+  File Should Exist   ${certsDir}/${cert}.cert.pem
+  Use admin certificate
+  Execute and Check Success   voms-admin --vo ${vo} --host ${vomsHost} assign-role ${groupName} ${roleName} ${certsDir}/${cert}.cert.pem 
+  Stop using certificate
