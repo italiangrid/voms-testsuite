@@ -1,0 +1,24 @@
+*** Settings ***
+Resource   lib/vomslib.txt
+Resource   lib/variables.txt
+Documentation  A set of regression tests for bug https://savannah.cern.ch/bugs/?91183
+
+*** Test Cases ***
+
+Voms proxy init correctly handles missing keygen extension in certificate
+  [Documentation]   A regression test for bug https://savannah.cern.ch/bugs/?91183
+  [Tags]   regression
+  [Setup]   Use certificate   no_key_usage
+  Create plain proxy
+  ${output}   Execute and Check Success   voms-proxy-info -keyusage
+  Should End With   ${output}   key usage :${SPACE}  
+  [Teardown]   Stop using certificate
+
+Voms proxy init correctly handles present keygen extension in certificate
+  [Documentation]   A regression test for bug https://savannah.cern.ch/bugs/?91183
+  [Tags]   regression
+  [Setup]   Use certificate   test0
+  Create plain proxy
+  ${output}   Execute and Check Success   voms-proxy-info -keyusage
+  Should End With   ${output}   key usage : Digital Signature, Key Encipherment
+  [Teardown]   Stop using certificate

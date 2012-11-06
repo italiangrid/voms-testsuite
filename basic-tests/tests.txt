@@ -1,0 +1,42 @@
+*** Settings ***
+Resource   lib/vomslib.txt
+
+*** Test Cases ***
+
+A user gets the right message when trying to create a proxy without a certificate
+  [Setup]   Stop using certificate
+  ${output}   Execute and Check Failure   echo ${privateKeyPassword} | voms-proxy-init -pwstdin
+  Should Contain  ${output}  Unable to find user certificate or key
+
+A user gets the right message when trying to create a proxy providing the wrong passphrase
+  [Setup]  Use certificate   test0
+  ${output}   Execute and Check Failure   echo "CAMAGHE" | voms-proxy-init -pwstdin
+  Should Contain  ${output}  wrong pass phrase
+  [Teardown]  Stop using certificate
+
+A user cannot get a proxy from a VO she does not belong to
+  [Setup]   Use certificate   test5
+  Check voms-proxy-init failure  User unknown to this VO
+  [Teardown]   Stop using certificate
+
+A user can get a proxy from a VO she belongs to
+  [Setup]   Use certificate   test0
+  Create voms proxy
+  [Teardown]   Stop using certificate 
+
+A user cannot obtain a proxy with an expired certificate
+  [Setup]   Use certificate   expired
+  Check voms-proxy-init failure   expired
+  [Teardown]   Stop using certificate
+
+A user cannot obtain a proxy with a revoked certificate
+  [Setup]   Use certificate   revoked
+  Check voms-proxy-init failure   revoked
+  [Teardown]   Stop using certificate
+
+A user can obtain a role she holds from a VO she belongs to
+  [Tags]   debug
+  [Setup]   Use certificate   test0
+  @{roles}=   Create List   /${voName}/${voName}/R1   /${voName}/${voName}/R2
+  Create voms proxy with roles   @{roles}
+  [Teardown]   Stop using certificate

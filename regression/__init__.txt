@@ -1,0 +1,4 @@
+*** Settings ***
+
+Resource   lib/variables.txt
+Resource   lib/vomslib.txt

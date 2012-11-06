@@ -1,6 +1,7 @@
 *** Settings ***
 
 Library   OperatingSystem
+Library   Collections
 Resource   variables.txt
 
 *** Keywords ***
@@ -34,6 +35,13 @@ Create plain proxy
 Destroy proxy
   Execute and Check Success   voms-proxy-destroy
 
+Create voms proxy with roles   [Arguments]   @{roles}   
+   Should Be True   ${roles}   Please provide at least one role   
+   @{args}   Create List 
+   :FOR    ${r}   IN   ${roles}
+   \   Append To List   ${args}   -voms ${voName}:${r}
+   Log Many   @{args}   WARN
+      
 Create voms proxy   [Arguments]   ${vo}=${voName}
   ${output}   Execute and Check Success   echo ${privateKeyPassword}|voms-proxy-init -pwstdin -voms ${vo}
 
