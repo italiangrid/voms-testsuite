@@ -12,7 +12,7 @@ in /etc/grid-security/certificates and the certificate files where you prefer.
 
 # Run the `regression` test suite
 
-Execute the Robot Framework command-line passing the test certificates location in the certsDir variable  
+Execute the Robot Framework command-line passing the test certificates location in the certsDir variable:  
 
     pybot --variable certsDir:/path/to/certs regression
 
@@ -29,7 +29,8 @@ depending on your test setup:
     
     pybot --variable certsDir:/path/to/certs \
           --variable voName:NameOfTheTestVo  \
-          --variable vomsHost:HostWhereTestVomsIsRunning
+          --variable vomsHost:HostWhereTestVomsIsRunning \
+          basic-tests
 
 
 [1]: http://radiohead.cnaf.infn.it:9999/job/test-ca/os=SL5_x86_64/lastSuccessfulBuild/artifact/igi-test-ca/rpmbuild/RPMS/noarch/igi-test-ca-1.0.0-1.sl5.noarch.rpm  "The test certificates RPM package"
