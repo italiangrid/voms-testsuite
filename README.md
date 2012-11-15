@@ -6,16 +6,27 @@ A place for the VOMS testsuites. So far there are just a few tests for the CLI. 
 
 - Robot Framework https://code.google.com/p/robotframework/.
 - The voms clients package installed, i.e. voms-proxy-* commands must be available.
-- The `$HOME/.globus` directory should exist for the user that runs the test suite.
+- The `$HOME/.globus` directory should exist for the user that runs the test suite and should be *EMPTY*.
 - The test certificates must be available on the machine where the testsuite is run. Certificates
 can be installed from an [RPM] [1] or fetching the [code from github] [2] and placing the CA certs
 in /etc/grid-security/certificates and the certificate files where you prefer.
 
+
+# Getting the testsuite 
+
+
+To run this testsuite, checkout the code using the following command:
+
+    git clone git://github.com/andreaceccanti/voms-testsuite.git
+
+
 # Run the `regression` test suite
 
 Execute the Robot Framework command-line passing the test certificates location in the certsDir variable:  
-
+        
     pybot --variable certsDir:/path/to/certs regression
+
+in the directory where you have checkout the testsuite code.
 
 # Run the `basic-tests` test suite 
 
