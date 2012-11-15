@@ -20,8 +20,8 @@ Use certificate   [Arguments]   ${cert}
   File Should Exist   ${certsDir}/${cert}.cert.pem
   File Should Exist   ${certsDir}/${cert}.key.pem
   Stop using certificate
-  Execute and Check Success   ln -s ${certsDir}/${cert}.cert.pem %{HOME}/.globus/usercert.pem
-  Execute and Check Success   ln -s ${certsDir}/${cert}.key.pem %{HOME}/.globus/userkey.pem
+  Execute and Check Success   cp ${certsDir}/${cert}.cert.pem %{HOME}/.globus/usercert.pem
+  Execute and Check Success   cp ${certsDir}/${cert}.key.pem %{HOME}/.globus/userkey.pem
   Execute and Check Success   chmod 400 %{HOME}/.globus/userkey.pem
 
 Stop using certificate
