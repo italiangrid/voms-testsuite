@@ -41,7 +41,14 @@ Create voms proxy with roles   [Arguments]   @{roles}
    :FOR    ${r}   IN   ${roles}
    \   Append To List   ${args}   -voms ${voName}:${r}
    Log Many   @{args}   WARN
-      
+ 
+Get proxy info   [Arguments]   @{params} 
+   :FOR    ${option}   IN   @{params}
+   \   ${optionsList} =  Catenate   ${optionsList}   ${option}
+   Log Many   ${optionsList}
+   ${output}=   Run   echo ${privateKeyPassword}|voms-proxy-info ${optionsList}
+   [Return]   ${output}
+ 
 Create voms proxy   [Arguments]   ${vo}=${voName}
   ${output}   Execute and Check Success   echo ${privateKeyPassword}|voms-proxy-init -pwstdin -voms ${vo}
 

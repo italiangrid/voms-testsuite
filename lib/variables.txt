@@ -5,3 +5,4 @@ ${privateKeyPassword}   pass
 
 ${voName}   voms.test
 ${vomsHost}   cert-voms-01.cnaf.infn.it
+${optionsList}   ${EMPTY}

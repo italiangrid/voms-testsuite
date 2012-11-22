@@ -1,0 +1,127 @@
+*** Settings ***
+Resource   lib/vomslib.txt
+
+*** Test Cases ***
+
+A user gets the right message when trying to access an unavailable proxy
+  [Setup]   Stop using certificate
+  ${output}   Execute and Check Failure   voms-proxy-info
+  Should Contain  ${output}  Proxy not found
+
+A user can see the info of a plain proxy
+  [Setup]  Use certificate  test0
+  Create plain Proxy
+  ${output}  Get proxy info
+  Should Contain  ${output}  subject
+  [Teardown]  Stop using certificate
+
+See if a voms proxy has the right attributes
+  [Setup]  Use certificate  test0
+  Create voms proxy
+  ${output}=   Get proxy info  -all -type
+  Should Match Regexp  ${output}  subject\\s+:\\s+(\/\\w+=\\w+\\s*\\w+)+
+  Should Match Regexp  ${output}  issuer\\s+:\\s+(\/\\w+=\\w+\\s*\\w+)+
+  Should Match Regexp  ${output}  identity\\s+:\\s+(\/\\w+=\\w+\\s*\\w+)+
+  Should Match Regexp  ${output}  type\\s+:\\s+\\w+
+  Should Match Regexp  ${output}  strength\\s+:\\s+\\d+
+  Should Match Regexp  ${output}  path\\s+:\\s+(\/\\w+)+
+  Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
+  Should Match Regexp  ${output}  === VO ${voName} extension information ===
+  Should Match Regexp  ${output}  VO\\s+:\\s+\\w+
+  Should Match Regexp  ${output}  subject\\s+:\\s+(\/\\w+=\\w+\\s*\\w+)+
+  Should Match Regexp  ${output}  issuer\\s+:\\s+(\/\\w+=\\w+\\s*\\w+)+
+  Should Match Regexp  ${output}  attribute\\s+:\\s+(\\w+)+
+  Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
+  [Teardown]  Stop using certificate
+
+Check if the option '-exists -valid' works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin -valid 10:00
+  ${output}=   Get proxy info   -exists  -valid 13:00  ;echo $?
+  Should Contain  ${output}  1
+  [Teardown]  Stop using certificate
+
+Check if the option '-exists -bits' works with the stadard keysize (1024)
+  [Setup]  Use certificate  test1
+  Create plain Proxy
+  ${output} =  Get proxy info   -exists -bits 1024;echo $?
+  Should Contain  ${output}  0
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info -vo works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin --voms ${voName}
+  ${output} =   Get proxy info  -vo
+  Should Contain  ${output}  ${voName}
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info -acexists works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin --voms ${voName}
+  ${output} =   Get proxy info  -acexists ${voName};echo $?
+  Should Contain  ${output}  0
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info -acissuer works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin --voms ${voName}
+  ${output} =  Get proxy info  -acissuer
+  Should Match Regexp  ${output}  (\/\\w+=\\w+\\s*\\w+)+ 
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info -acsubject works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin --voms ${voName}
+  ${output} =  Get proxy info  -acsubject
+  Should Match Regexp  ${output}  (\/\\w+=\\w+\\s*\\w+)+
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info -actimeleft works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin --voms ${voName}
+  ${output} =  Get proxy info  -actimeleft
+  Should Match Regexp  ${output}  \\d+:\\d+:\\d+
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info -fqan works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin --voms ${voName}
+  ${output} =  Get proxy info  -fqan
+  Should Match Regexp  ${output}  (\/\\w+)+(\/\\w+=\\w+)+
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info -path works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin --voms ${voName}
+  ${output} =  Get proxy info  -path
+  Should Match Regexp  ${output}  (\/\\w+)+
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info -text works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin --voms ${voName}
+  ${output} =  Get proxy info  -text
+  Should Contain  ${output}  subject 
+  Should Contain  ${output}  Certificate chain, 2 elements:
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info -chain works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin --voms ${voName}
+  ${output} =  Get proxy info  -chain
+  Should Contain  ${output}  Certificate chain, 2 elements: 
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info -strength works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin --voms ${voName}
+  ${output} =  Get proxy info  -strength
+  Should Match Regexp  ${output}  \\d+  
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info -timeleft works
+  [Setup]  Use certificate  test0
+  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin --voms ${voName}
+  ${output} =  Get proxy info  -timeleft
+  Should Match Regexp  ${output}  \\d+:\\d+:\\d+
+  [Teardown]  Stop using certificate
