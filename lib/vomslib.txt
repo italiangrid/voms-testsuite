@@ -42,7 +42,8 @@ Create voms proxy with roles   [Arguments]   @{roles}
    \   Append To List   ${args}   -voms ${voName}:${r}
    Log Many   @{args}   WARN
  
-Get proxy info   [Arguments]   @{params} 
+Get proxy info   [Arguments]   @{params}
+   ${optionsList}  Set Variable  ${EMPTY} 
    :FOR    ${option}   IN   @{params}
    \   ${optionsList} =  Catenate   ${optionsList}   ${option}
    Log Many   ${optionsList}
