@@ -49,7 +49,7 @@ Check if the option '-exists -valid' fails when it should
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info '--exists --bits' works
-  [Setup]  Use certificate  test1
+  [Setup]  Use certificate  test0
   Create plain Proxy
   ${output} =  Get proxy info   -exists -bits 1024;echo $?
   Should Contain  ${output}  0

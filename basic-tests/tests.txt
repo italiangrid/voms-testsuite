@@ -6,7 +6,7 @@ Resource   lib/vomslib.txt
 A user gets the right message when trying to create a proxy without a certificate
   [Setup]   Stop using certificate
   ${output}   Execute and Check Failure   echo ${privateKeyPassword} | voms-proxy-init -pwstdin
-  Should Contain  ${output}  Unable to find user certificate or key
+  Should Contain  ${output}  No credentials found!
 
 A user gets the right message when trying to create a proxy providing the wrong passphrase
   [Setup]  Use certificate   test0
@@ -79,4 +79,51 @@ See if voms-proxy-init --old works
   ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-info
   Should Match Regexp  ${output}  type\\s+:\\s+full legacy globus proxy
   [Teardown]   Stop using certificate
+
+See if voms-proxy-init detects fake arguments
+  [Setup]  Use certificate  test0
+  ${output}   Execute and Check Failure   echo ${privateKeyPassword} | voms-proxy-init --voms voms1 junk
+  Should Contain  ${output}  Check your vomses configuration
+  [Teardown]  Stop using certificate
+
+See if requesting a too long proxy fails
+  [Setup]  Use certificate  test0
+  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init --voms ${voName} --valid 100:00
+  Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
+  [Teardown]  Stop using certificate
+
+Can AC validity be limited?
+  [Setup]  Use certificate  test0
+  Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init --voms ${voName} --vomslife 5:00
+  ${output}   Get proxy info  -all
+  Should Match Regexp  ${output}  timeleft\\s+:\\s+(11|12):\\d+:\\d+
+  Should Match Regexp  ${output}  timeleft\\s+:\\s+(04|05):\\d+:\\d+
+  [Teardown]  Stop using certificate
+
+See if requesting a too long ac length fails
+  [Setup]  Use certificate  test0
+  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init --voms ${voName} --vomslife 100:00
+  Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
+  [Teardown]  Stop using certificate
+
+See if a proxy type is detected correctly
+  [Setup]  Use certificate  test0
+  Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -rfc 
+  ${output}   Get proxy info  -type
+  Should Contain  ${output}   RFC3820 compliant impersonation proxy
+  Destroy proxy
+  Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -old
+  ${output}   Get proxy info  -type
+  Should Contain  ${output}   full legacy globus proxy
+  Destroy proxy
+  Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -proxyver 3
+  ${output}   Get proxy info  -type
+  Should Contain  ${output}   Proxy draft (pre-RFC) impersonation proxy
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init --quiet works
+  [Setup]  Use certificate  test0
+  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init --voms ${voName} -q 
+  Should Be Equal  ${output}  ${EMPTY}
+  [Teardown]  Stop using certificate
 
