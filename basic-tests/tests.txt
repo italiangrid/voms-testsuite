@@ -27,7 +27,7 @@ A user can get a proxy from a VO she belongs to
 A user cannot obtain a proxy with an expired certificate
   [Setup]   Use certificate   expired
   Check voms-proxy-init failure   expired
-  #[Teardown]   Stop using certificate
+  [Teardown]   Stop using certificate
 
 A user cannot obtain a proxy with a revoked certificate
   [Setup]   Use certificate   revoked
