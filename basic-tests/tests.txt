@@ -27,7 +27,7 @@ A user can get a proxy from a VO she belongs to
 A user cannot obtain a proxy with an expired certificate
   [Setup]   Use certificate   expired
   Check voms-proxy-init failure   expired
-  [Teardown]   Stop using certificate
+  #[Teardown]   Stop using certificate
 
 A user cannot obtain a proxy with a revoked certificate
   [Setup]   Use certificate   revoked
@@ -40,3 +40,43 @@ A user can obtain a role she holds from a VO she belongs to
   @{roles}=   Create List   /${voName}/${voName}/R1   /${voName}/${voName}/R2
   Create voms proxy with roles   @{roles}
   [Teardown]   Stop using certificate
+  
+See if voms-proxy-init --hours works
+  [Setup]   Use certificate   test0
+  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin -hours 3
+  Should Contain  ${output}  Created proxy
+  ${output} =  Get proxy info  -timeleft
+  Should Match Regexp  ${output}  (02|03):\\d+:\\d+
+  [Teardown]   Stop using certificate 
+
+See if voms-proxy-init --bits works
+  [Setup]   Use certificate   test0
+  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin -bits 2048
+  Should Contain  ${output}  Created proxy
+  ${output} =  Get proxy info  -strength
+  Should Match Regexp  ${output}  2048 
+  [Teardown]   Stop using certificate
+
+See if voms-proxy-init --noregen works
+  [Setup]   Use certificate   test0
+  ${output}  Create voms proxy 
+  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin -noregen
+  Should Contain  ${output}  Created proxy
+  ${output} =  Get proxy info  -chain
+  Should Match Regexp  ${output}   Subject:\\s+(CN=proxy,){2}CN=.+
+  [Teardown]   Stop using certificate
+
+See if voms-proxy-init --conf works
+  [Setup]   Use certificate   test0
+  ${output}   Execute and Check Success   echo "--voms="${voName}>/tmp/myconf.test;cat /tmp/myconf.test
+  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin -conf /tmp/myconf.test
+  Should Contain  ${output}  Created proxy
+  [Teardown]   Stop using certificate
+
+See if voms-proxy-init --old works
+  [Setup]   Use certificate   test0
+  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin -old
+  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-info
+  Should Match Regexp  ${output}  type\\s+:\\s+full legacy globus proxy
+  [Teardown]   Stop using certificate
+
