@@ -5,12 +5,12 @@ Resource   lib/vomslib.txt
 
 A user gets the right message when trying to create a proxy without a certificate
   [Setup]   Stop using certificate
-  ${output}   Execute and Check Failure   echo ${privateKeyPassword} | voms-proxy-init -pwstdin
+  ${output}  Create proxy failure  -pwstdin 
   Should Contain  ${output}  No credentials found!
 
 A user gets the right message when trying to create a proxy providing the wrong passphrase
   [Setup]  Use certificate   test0
-  ${output}   Execute and Check Failure   echo "CAMAGHE" | voms-proxy-init -pwstdin
+  ${output}  Execute and Check Failure   echo "CAMAGHE" | voms-proxy-init -pwstdin
   Should Contain  ${output}  wrong pass phrase
   [Teardown]  Stop using certificate
 
@@ -43,7 +43,7 @@ A user can obtain a role she holds from a VO she belongs to
   
 See if voms-proxy-init --hours works
   [Setup]   Use certificate   test0
-  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin -hours 3
+  ${output}   Create proxy   -hours 3
   Should Contain  ${output}  Created proxy
   ${output} =  Get proxy info  -timeleft
   Should Match Regexp  ${output}  (02|03):\\d+:\\d+
@@ -51,7 +51,7 @@ See if voms-proxy-init --hours works
 
 See if voms-proxy-init --bits works
   [Setup]   Use certificate   test0
-  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin -bits 2048
+  ${output}   Create proxy   -bits 2048
   Should Contain  ${output}  Created proxy
   ${output} =  Get proxy info  -strength
   Should Match Regexp  ${output}  2048 
@@ -59,8 +59,8 @@ See if voms-proxy-init --bits works
 
 See if voms-proxy-init --noregen works
   [Setup]   Use certificate   test0
-  ${output}  Create voms proxy 
-  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin -noregen
+  ${output}  Create voms proxy
+  ${output}   Create proxy   -noregen 
   Should Contain  ${output}  Created proxy
   ${output} =  Get proxy info  -chain
   Should Match Regexp  ${output}   Subject:\\s+(CN=proxy,){2}CN=.+
@@ -69,32 +69,32 @@ See if voms-proxy-init --noregen works
 See if voms-proxy-init --conf works
   [Setup]   Use certificate   test0
   ${output}   Execute and Check Success   echo "--voms="${voName}>/tmp/myconf.test;cat /tmp/myconf.test
-  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin -conf /tmp/myconf.test
+  ${output}   Create proxy   -conf /tmp/myconf.test
   Should Contain  ${output}  Created proxy
   [Teardown]   Stop using certificate
 
 See if voms-proxy-init --old works
   [Setup]   Use certificate   test0
-  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin -old
+  ${output}   Create proxy   -old
   ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-info
   Should Match Regexp  ${output}  type\\s+:\\s+full legacy globus proxy
   [Teardown]   Stop using certificate
 
 See if voms-proxy-init detects fake arguments
   [Setup]  Use certificate  test0
-  ${output}   Execute and Check Failure   echo ${privateKeyPassword} | voms-proxy-init --voms voms1 junk
+  ${output}   Create proxy failure  --voms voms1 junk
   Should Contain  ${output}  Check your vomses configuration
   [Teardown]  Stop using certificate
 
 See if requesting a too long proxy fails
   [Setup]  Use certificate  test0
-  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init --voms ${voName} --valid 100:00
+  ${output}   Create proxy   --voms ${voName} --valid 100:00
   Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
   [Teardown]  Stop using certificate
 
 Can AC validity be limited?
   [Setup]  Use certificate  test0
-  Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init --voms ${voName} --vomslife 5:00
+  ${output}   Create proxy   --voms ${voName} --vomslife 5:00
   ${output}   Get proxy info  -all
   Should Match Regexp  ${output}  timeleft\\s+:\\s+(11|12):\\d+:\\d+
   Should Match Regexp  ${output}  timeleft\\s+:\\s+(04|05):\\d+:\\d+
@@ -102,28 +102,28 @@ Can AC validity be limited?
 
 See if requesting a too long ac length fails
   [Setup]  Use certificate  test0
-  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init --voms ${voName} --vomslife 100:00
+  ${output}   Create proxy   --voms ${voName} --vomslife 100:00
   Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
   [Teardown]  Stop using certificate
 
 See if a proxy type is detected correctly
   [Setup]  Use certificate  test0
-  Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -rfc 
+  ${output}   Create proxy   -rfc 
   ${output}   Get proxy info  -type
   Should Contain  ${output}   RFC3820 compliant impersonation proxy
   Destroy proxy
-  Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -old
+  ${output}   Create proxy   -old
   ${output}   Get proxy info  -type
   Should Contain  ${output}   full legacy globus proxy
   Destroy proxy
-  Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -proxyver 3
+  ${output}   Create proxy   -proxyver 3
   ${output}   Get proxy info  -type
   Should Contain  ${output}   Proxy draft (pre-RFC) impersonation proxy
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --quiet works
   [Setup]  Use certificate  test0
-  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init --voms ${voName} -q 
+  ${output}   Create proxy   --voms ${voName} -q 
   Should Be Equal  ${output}  ${EMPTY}
   [Teardown]  Stop using certificate
 

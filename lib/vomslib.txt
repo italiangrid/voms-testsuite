@@ -35,6 +35,13 @@ Create plain proxy
 Destroy proxy
   Execute and Check Success   voms-proxy-destroy
 
+Get options list   [Arguments]   @{params}
+  ${optionsList}  Set Variable  ${EMPTY}
+  :FOR    ${option}   IN   @{params}
+   \   ${optionsList} =  Catenate   ${optionsList}   ${option}
+  Log Many   ${optionsList}
+  [Return]   ${optionsList}
+
 Create voms proxy with roles   [Arguments]   @{roles}   
    Should Be True   ${roles}   Please provide at least one role   
    @{args}   Create List 
@@ -43,13 +50,20 @@ Create voms proxy with roles   [Arguments]   @{roles}
    Log Many   @{args}   WARN
  
 Get proxy info   [Arguments]   @{params}
-   ${optionsList}  Set Variable  ${EMPTY} 
-   :FOR    ${option}   IN   @{params}
-   \   ${optionsList} =  Catenate   ${optionsList}   ${option}
-   Log Many   ${optionsList}
-   ${output}=   Run   echo ${privateKeyPassword}|voms-proxy-info ${optionsList}
+   ${options}=  Get options list   @{params}
+   ${output}=   Run   voms-proxy-info ${options}
    [Return]   ${output}
  
+Create proxy   [Arguments]   @{params}
+   ${options}=  Get options list   @{params}
+   ${output}   Execute and Check Success   echo ${privateKeyPassword}|voms-proxy-init -pwstdin ${options}
+   [Return]   ${output}
+
+Create proxy failure  [Arguments]   @{params}
+   ${options}=  Get options list   @{params}
+   ${output}   Execute and Check Failure   echo ${privateKeyPassword}|voms-proxy-init -pwstdin ${options}
+   [Return]   ${output}
+
 Create voms proxy   [Arguments]   ${vo}=${voName}
   ${output}   Execute and Check Success   echo ${privateKeyPassword}|voms-proxy-init -pwstdin -voms ${vo}
 

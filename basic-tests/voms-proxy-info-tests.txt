@@ -36,14 +36,14 @@ See if a voms proxy has the right attributes
 
 Check if the option '-exists -valid' works
   [Setup]  Use certificate  test0
-  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin -valid 10:00
+  Create proxy   -valid 10:00
   ${output}  Execute and Check Success   voms-proxy-info -exists -valid 09:00;echo $?
   Should Contain  ${output}  0
   [Teardown]  Stop using certificate
 
 Check if the option '-exists -valid' fails when it should
   [Setup]  Use certificate  test0
-  Run  echo ${privateKeyPassword} | voms-proxy-init -pwstdin -valid 10:00
+  Create proxy   -valid 10:00
   ${output}   Execute and Check Success   voms-proxy-info -exists -valid 13:00;echo $?
   Should Contain  ${output}  1
   [Teardown]  Stop using certificate
