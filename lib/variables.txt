@@ -1,7 +1,7 @@
 *** Variables ***
 
-${certsDir}   %{HOME}/git/test-ca/igi-test-ca/certs
+${certsDir}   /usr/share/igi-test-ca
 ${privateKeyPassword}   pass
 
-${voName}   voms.test
-${vomsHost}   cert-voms-01.cnaf.infn.it
+${voName}   test.vo
+${vomsHost}  vgrid02.cnaf.infn.it 
