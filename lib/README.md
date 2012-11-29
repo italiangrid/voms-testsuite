@@ -1,4 +1,3 @@
-
 # Library
 
 Library for VOMS related tasks, setting user credentials, creating proxies, etc.
@@ -16,4 +15,4 @@ See if voms-proxy-init --bits works
 	${output}  Get proxy openssl
 	Should Contain  ${output}  Public-Key: (512 bit)
 	[Teardown]  Stop using certificate
-```bash
+```
