@@ -54,6 +54,10 @@ Get proxy info   [Arguments]   @{params}
    ${output}=   Run   voms-proxy-info ${options}
    [Return]   ${output}
  
+Get proxy openssl
+   ${output}  Execute and Check Success  openssl x509 -in /tmp/x509up_u`id -u` -noout -text  
+   [Return]  ${output}
+
 Create proxy   [Arguments]   @{params}
    ${options}=  Get options list   @{params}
    ${output}   Execute and Check Success   echo ${privateKeyPassword}|voms-proxy-init -pwstdin ${options}

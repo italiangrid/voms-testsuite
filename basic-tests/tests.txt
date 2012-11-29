@@ -127,3 +127,47 @@ See if voms-proxy-init --quiet works
   Should Be Equal  ${output}  ${EMPTY}
   [Teardown]  Stop using certificate
 
+See if voms-proxy-init --limited (gt2) works
+	[Setup]  Use certificate  test0
+	Create Proxy  --limited
+	${output}   Get proxy info
+	Should Contain  ${output}  limited proxy
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init --hours work
+	[Setup]  Use certificate  test0
+	Create Proxy  --hours 1
+	${output}  Get proxy info
+	Should Contain  ${output}  timeleft  : 1:
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init --bits works
+	[Setup]  Use certificate  test0
+	Create Proxy  --bits 512
+	${output}  Get proxy openssl
+	Should Contain  ${output}  Public-Key: (512 bit)
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init --conf works
+	Run  echo "--version" > configFile
+	${output}  Create Proxy  --conf configFile
+	Should Contain  ${output}   voms-proxy-init
+	Run  rm configFile
+
+See if voms-proxy-init --path-length works
+	[Setup]  Use certificate  test0
+	Create Proxy  --rfc --path-length 1
+	${output}  Get proxy openssl
+	Should Contain  ${output}  Path Length Constraint: 01
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init --failonwarn works
+	[Setup]  Use certificate  test0
+	Create Proxy Failure  --failonwarn --hours 100
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init --ignorewarn works
+	[Setup]  Use certificate  test0
+	${output}  Create Proxy  --ignorewarn --hours 100
+	Should Not Contain  ${output}  Warning
+	[Teardown]  Stop using certificate
