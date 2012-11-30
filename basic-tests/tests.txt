@@ -3,15 +3,6 @@ Resource   lib/vomslib.txt
 
 *** Test Cases ***
 
-See if voms-proxy-init --hours work
-	[Setup]  Use certificate  test0
-	Create Proxy  --hours 1
-	Create Proxy  --hours 40
-	${output}  Get proxy info
-	Should Contain  ${output}  timeleft  : 1:
-	Should Match Regexp  ${output}  (39|40):\\d+:\\d+
-  [Teardown]  Stop using certificate
-
 A user gets the right message when trying to create a proxy without a certificate
   [Setup]   Stop using certificate
   ${output}  Create proxy failure  -pwstdin 
