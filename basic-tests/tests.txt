@@ -1,6 +1,16 @@
 *** Settings ***
 Resource   lib/vomslib.txt
 
+*** Keywords ***
+
+Setup for X509_CERT_DIR test   [Arguments]   ${x509CertDir}
+  Use certificate   test0
+  Set Environment Variable  X509_CERT_DIR  ${x509CertDir}
+
+Teardown for X509_CERT_DIR test
+  Remove Environment Variable  X509_CERT_DIR
+  Stop using certificate
+
 *** Test Cases ***
 
 A user gets the right message when trying to create a proxy without a certificate
@@ -33,12 +43,6 @@ A user cannot obtain a proxy with a revoked certificate
   [Setup]   Use certificate   revoked
   Check voms-proxy-init failure   revoked
   [Teardown]   Stop using certificate
-
-#A user can obtain a role she holds from a VO she belongs to
-#  [Setup]   Use certificate   test0
-#  @{roles}=   Create List   /${voName}/${voName}/R1   /${voName}/${voName}/R2
-#  Create voms proxy with roles   @{roles}
-#  [Teardown]   Stop using certificate
 
 A user can obtain a role she holds from a VO she belongs to
         [Setup]  Use certificate  test0
@@ -215,20 +219,16 @@ See if voms-proxy-init manages unrecognized options
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-info warns when X509_CERT_DIR does not point to a directory
-	[Setup]  Use certificate  test0
-	[Setup]  Set Environment Variable  X509_CERT_DIR  /unlikely/path
+	[Setup]  Setup for X509_CERT_DIR test   /unlikely/path
 	${output}  Create Proxy Failure  --verify
 	Should Contain  ${output}  is not a directory
-	[Teardown]  Remove Environment Variable  X509_CERT_DIR
-	[Teardown]  Stop using certificate
+	[Teardown]  Teardown for X509_CERT_DIR test
 
 See if voms-proxy-info writes an error message without CA certificates
-	[Setup]  Use certificate  test0
-	[Setup]  Set Environment Variable  X509_CERT_DIR  /tmp
+	[Setup]  Setup for X509_CERT_DIR test   /tmp
 	${output}  Create Proxy Failure  --verify
 	Should Contain  ${output}  No valid CRL was found for the CA which issued the chain
-	[Teardown]  Remove Environment Variable  X509_CERT_DIR
-	[Teardown]  Stop using certificate
+	[Teardown]  Teardown for X509_CERT_DIR test
 
 See if voms-proxy-info --acexists works
 	[Setup]  Use certificate  test0
