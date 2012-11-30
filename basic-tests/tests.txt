@@ -34,12 +34,19 @@ A user cannot obtain a proxy with a revoked certificate
   Check voms-proxy-init failure   revoked
   [Teardown]   Stop using certificate
 
+#A user can obtain a role she holds from a VO she belongs to
+#  [Setup]   Use certificate   test0
+#  @{roles}=   Create List   /${voName}/${voName}/R1   /${voName}/${voName}/R2
+#  Create voms proxy with roles   @{roles}
+#  [Teardown]   Stop using certificate
+
 A user can obtain a role she holds from a VO she belongs to
-  [Setup]   Use certificate   test0
-  @{roles}=   Create List   /${voName}/${voName}/R1   /${voName}/${voName}/R2
-  Create voms proxy with roles   @{roles}
-  [Teardown]   Stop using certificate
-  
+        [Setup]  Use certificate  test0
+        Create proxy   -voms ${voName}:/${voName}/G1/Role=R1
+        ${output}  Get proxy info  -fqan
+        Should Contain  ${output}  /${voName}/G1/Role=R1
+        [Teardown]  Stop using certificate
+ 
 See if voms-proxy-init --hours works
   [Setup]   Use certificate   test0
   ${output}   Create proxy   -hours 3
@@ -55,14 +62,6 @@ See if voms-proxy-init --hours work
   Should Match Regexp  ${output}  (39|40):\\d+:\\d+
   [Teardown]  Stop using certificate
 
-See if voms-proxy-init --bits works
-  [Setup]   Use certificate   test0
-  ${output}   Create proxy   -bits 2048
-  Should Contain  ${output}  Created proxy
-  ${output} =  Get proxy info  -strength
-  Should Match Regexp  ${output}  2048 
-  [Teardown]   Stop using certificate
-
 See if voms-proxy-init --noregen works
   [Setup]   Use certificate   test0
   ${output}  Create voms proxy
@@ -72,12 +71,12 @@ See if voms-proxy-init --noregen works
   Should Match Regexp  ${output}   Subject:\\s+(CN=proxy,){2}CN=.+
   [Teardown]   Stop using certificate
 
-See if voms-proxy-init --conf works
-  [Setup]   Use certificate   test0
-  ${output}   Execute and Check Success   echo "--voms="${voName}>/tmp/myconf.test;cat /tmp/myconf.test
-  ${output}   Create proxy   -conf /tmp/myconf.test
-  Should Contain  ${output}  Created proxy
-  [Teardown]   Stop using certificate
+#See if voms-proxy-init --conf works
+#  [Setup]   Use certificate   test0
+#  ${output}   Execute and Check Success   echo "--voms="${voName}>/tmp/myconf.test;cat /tmp/myconf.test
+#  ${output}   Create proxy   -conf /tmp/myconf.test
+#  Should Contain  ${output}  Created proxy
+#  [Teardown]   Stop using certificate
 
 See if voms-proxy-init --old works
   [Setup]   Use certificate   test0
@@ -148,14 +147,15 @@ See if voms-proxy-init --bits works
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --conf works
+	[Setup]  Use certificate  test0
 	Run  echo "--version" > configFile
 	${output}  Create Proxy  --conf configFile
 	Should Contain  ${output}   voms-proxy-init
 	Run  rm configFile
 
-See if voms-proxy-init --path-length works
+See if voms-proxy-init --path_length works
 	[Setup]  Use certificate  test0
-	Create Proxy  --rfc --path-length 1
+	Create Proxy  --rfc --path_length 1
 	${output}  Get proxy openssl
 	Should Contain  ${output}  Path Length Constraint: 01
 	[Teardown]  Stop using certificate
@@ -171,3 +171,34 @@ See if voms-proxy-init --ignorewarn works
 	${output}  Create Proxy  --ignorewarn --hours 100
 	Should Not Contain  ${output}  Warning
 	[Teardown]  Stop using certificate
+
+See if voms-proxy-init --order works
+        [Setup]  Use certificate  test0
+        Create proxy   -voms ${voName} -order /${voName}/G1
+        ${output}  Get proxy info  -fqan
+        ${expected}  Set Variable  /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL
+        Log  ${expected}
+        Should Be Equal As Strings  ${output}  ${expected}
+        [Teardown]  Stop using certificate
+
+See if voms-proxy-init --order works with multiple arguments
+        [Setup]  Use certificate  test0
+        Create proxy   -voms ${voName} -order /${voName}/G1,/${voName}
+        ${output}  Get proxy info  -fqan
+        ${expected}  Set Variable  /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL
+        Log  ${expected}
+        Should Be Equal As Strings  ${output}  ${expected}
+        [Teardown]  Stop using certificate
+
+See if a targets can be added to a proxy
+        [Setup]  Use certificate  test0
+	${target}  Run   hostname -f
+        ${output}  Create proxy  -voms ${voName} -target ${target}
+	Should Not Contain   ${output}  AC target check failed
+        [Teardown]  Stop using certificate
+
+See if voms-proxy-init fails with a fake target
+        [Setup]  Use certificate  test0       
+        ${output}  Create proxy  -voms ${voName} -target fake.cnaf.infn.it
+	Should Contain   ${output}  AC target check failed
+        [Teardown]  Stop using certificate
