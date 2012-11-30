@@ -3,8 +3,6 @@
 Library   OperatingSystem
 Resource   lib/variables.txt
 Resource   lib/vomslib.txt
-Suite Setup   Setup VO
-Suite Teardown   Teardown VO
 
 *** Keywords ***
 
