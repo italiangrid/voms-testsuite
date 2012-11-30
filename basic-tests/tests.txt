@@ -162,7 +162,8 @@ See if voms-proxy-init --path-length works
 
 See if voms-proxy-init --failonwarn works
 	[Setup]  Use certificate  test0
-	Create Proxy Failure  --failonwarn --valid 100:00
+	${rc}  Run and Return RC  echo ${privateKeyPassword} | voms-proxy-init -pwstdin -voms ${voName} --failonwarn --valid 100:00
+	Should Be Equal As Integers  ${rc}  1
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --ignorewarn works
