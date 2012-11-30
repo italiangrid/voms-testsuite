@@ -19,19 +19,23 @@ See if a voms proxy has the right attributes
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output}=   Get proxy info  -all
-  Should Match Regexp  ${output}  subject\\s+:\\s+(\/\\w+=\\w+\\s*\\w+)+
-  Should Match Regexp  ${output}  issuer\\s+:\\s+(\/\\w+=\\w+\\s*\\w+)+
-  Should Match Regexp  ${output}  identity\\s+:\\s+(\/\\w+=\\w+\\s*\\w+)+
-  Should Match Regexp  ${output}  type\\s+:\\s+\\w+
-  Should Match Regexp  ${output}  strength\\s+:\\s+\\d+
-  Should Match Regexp  ${output}  path\\s+:\\s+(\/\\w+)+
+  Log   ${output}
+  Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/CN=proxy
+  Should Match Regexp  ${output}  issuer\\s+:\\s+/C=IT/O=IGI/CN=test0
+  Should Match Regexp  ${output}  identity\\s+:\\s+/C=IT/O=IGI/CN=test0
+  Should Match Regexp  ${output}  type\\s+:\\s+full legacy globus proxy
+  Should Match Regexp  ${output}  strength\\s+:\\s+1024
+  Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
+  Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Key Encipherment, Data Encipherment
   Should Match Regexp  ${output}  === VO ${voName} extension information ===
-  Should Match Regexp  ${output}  VO\\s+:\\s+\\w+
-  Should Match Regexp  ${output}  subject\\s+:\\s+(\/\\w+=\\w+\\s*\\w+)+
-  Should Match Regexp  ${output}  issuer\\s+:\\s+(\/\\w+=\\w+\\s*\\w+)+
-  Should Match Regexp  ${output}  attribute\\s+:\\s+(\\w+)+
+  Should Match Regexp  ${output}  VO\\s+:\\s+${voName}
+  Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/
+  Should Match Regexp  ${output}  issuer\\s+:\\s+/C=IT/O=INFN/OU=Host/L=CNAF/CN=${vomsHost}
+  Should Match Regexp  ${output}  attribute\\s+:\\s+/${voName}/Role=NULL/Capability=NULL
+  Should Match Regexp  ${output}  attribute\\s+:\\s+/${voName}/G1/Role=NULL/Capability=NULL
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
+  Should Match Regexp  ${output}  uri\\s+:\\s+${vomsHost}:\\d+
   [Teardown]  Stop using certificate
 
 Check if the option '-exists -valid' works
@@ -73,14 +77,14 @@ See if voms-proxy-info -acissuer works
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output} =  Get proxy info  -acissuer
-  Should Match Regexp  ${output}  (\/\\w+=\\w+\\s*\\w+)+ 
+  Should Match Regexp  ${output}  /C=IT/O=INFN/OU=Host/L=CNAF/CN=${vomsHost} 
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -acsubject works
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output} =  Get proxy info  -acsubject
-  Should Match Regexp  ${output}  (\/\\w+=\\w+\\s*\\w+)+
+  Should Match Regexp  ${output}  /C=IT/O=IGI/CN=test0
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -actimeleft works
@@ -94,36 +98,57 @@ See if voms-proxy-info -fqan works
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output} =  Get proxy info  -fqan
-  Should Match Regexp  ${output}  (\/\\w+)+(\/\\w+=\\w+)+
+  Log  ${output}
+  ${expected}  Set Variable  /${voName}/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL
+  Log  ${expected}
+  Should Be Equal As Strings  ${output}  ${expected}
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -path works
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output} =  Get proxy info  -path
-  Should Match Regexp  ${output}  (\/\\w+)+
+  Should Match Regexp  ${output}  /tmp/x509up_u\\d+
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -text works
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output} =  Get proxy info  -text
-  Should Contain  ${output}  subject 
-  Should Contain  ${output}  Certificate:
+  Log  ${output}
+  Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/CN=proxy
+  Should Match Regexp  ${output}  issuer\\s+:\\s+/C=IT/O=IGI/CN=test0
+  Should Match Regexp  ${output}  identity\\s+:\\s+/C=IT/O=IGI/CN=test0
+  Should Match Regexp  ${output}  type\\s+:\\s+full legacy globus proxy
+  Should Match Regexp  ${output}  strength\\s+:\\s+1024
+  Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
+  Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
+  Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Key Encipherment, Data Encipherment 
+  Should Contain  ${output}  Subject: CN=proxy,CN=test0,O=IGI,C=IT
+  Should Contain  ${output}  Issuer: CN=test0,O=IGI,C=IT
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -chain works
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output} =  Get proxy info  -chain
-  Should Contain  ${output}  Proxy Chain Information 
+  Should Contain  ${output}  Proxy Chain Information
+  Should Contain  ${output}  Proxy Information
+  Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/CN=proxy
+  Should Match Regexp  ${output}  issuer\\s+:\\s+/C=IT/O=IGI/CN=test0
+  Should Match Regexp  ${output}  identity\\s+:\\s+/C=IT/O=IGI/CN=test0
+  Should Match Regexp  ${output}  type\\s+:\\s+full legacy globus proxy
+  Should Match Regexp  ${output}  strength\\s+:\\s+1024
+  Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
+  Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
+  Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Key Encipherment, Data Encipherment
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -strength works
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output} =  Get proxy info  -strength
-  Should Match Regexp  ${output}  \\d+  
+  Should Match Regexp  ${output}  1024  
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -timeleft works
@@ -137,7 +162,7 @@ See if voms --uri works
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output} =  Get proxy info  -uri
-  Should Match Regexp  ${output}  \\w+:\\d+
+  Should Match Regexp  ${output}  ${vomsHost}:\\d+
   [Teardown]  Stop using certificate
 
 See if voms --serial works
