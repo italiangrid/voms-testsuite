@@ -265,3 +265,33 @@ See if voms-proxy-init does timeout during negotiation
 	${result}  Evaluate  3 < ${time} < 6
 	Should Be True  ${result}
 	[Teardown]  Stop using certificate
+
+See if voms-proxy-init --version works
+        [Setup]  Use certificate  test0
+        ${output}  Create Proxy  --version
+        Should Contain  ${output}   voms-proxy-init
+        [Teardown]  Stop using certificate
+
+See if voms-proxy-init -help works
+        ${output}  Create Proxy  -help
+        Should Contain  ${output}   usage: voms-proxy-init [options]
+
+See if voms-proxy-init --proxyver 10 fails correctly
+        ${output}  Create Proxy failure  -proxyver 10
+
+See if -pwstdin works with voms-proxy-init
+        [Setup]  Use certificate  test0
+        Create proxy
+        [Teardown]  Stop using certificate
+
+See if voms does not allow expansion of credential set
+        [Setup]  Use certificate  test0
+        Create proxy   -voms ${voName}
+        Create proxy   -voms ${voName}:/${voName}/G1/Role=R1 --valid 10:00 --noregen
+        ${output}  Get proxy info  -all
+        Should Not Contain   ${output}  /${voName}/G1/Role=R1
+        [Teardown]  Stop using certificate
+
+See if missing certificate implies an error
+        Create proxy failure  -voms ${voName}
+
