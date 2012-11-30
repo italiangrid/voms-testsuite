@@ -214,18 +214,12 @@ See if voms-proxy-init manages unrecognized options
 	Should Contain  ${output}  unrecognized option `--dummyoption'
 	[Teardown]  Stop using certificate
 
-See if voms-proxy-info writes an error message without CA certificates
-	[Setup]  Use certificate  test0
-	Set Environment Variable  X509_CERT_DIR  /tmp
-	${output}  Create Proxy Failure  --verify
-	Should Contain  ${output}  No valid CRL was found for the CA which issued the chain
-	[Teardown]  Stop using certificate
-
 See if voms-proxy-info warns when X509_CERT_DIR does not point to a directory
 	[Setup]  Use certificate  test0
-	Set Environment Variable  X509_CERT_DIR  /unlikely/path
+	[Setup] Set Environment Variable  X509_CERT_DIR  /unlikely/path
 	${output}  Create Proxy Failure  --verify
 	Should Contain  ${output}  is not a directory
+	[Teardown]  Remove Environment Variable X509_CERT_DIR
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-info writes an error message without CA certificates
@@ -233,6 +227,7 @@ See if voms-proxy-info writes an error message without CA certificates
 	[Setup] Set Environment Variable  X509_CERT_DIR  /tmp
 	${output}  Create Proxy Failure  --verify
 	Should Contain  ${output}  No valid CRL was found for the CA which issued the chain
+	[Teardown]  Remove Environment Variable X509_CERT_DI
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-info --acexists works
