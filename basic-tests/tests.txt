@@ -3,6 +3,15 @@ Resource   lib/vomslib.txt
 
 *** Test Cases ***
 
+See if voms-proxy-init --hours work
+	[Setup]  Use certificate  test0
+	Create Proxy  --hours 1
+	Create Proxy  --hours 40
+	${output}  Get proxy info
+	Should Contain  ${output}  timeleft  : 1:
+	Should Match Regexp  ${output}  (39|40):\\d+:\\d+
+  [Teardown]  Stop using certificate
+
 A user gets the right message when trying to create a proxy without a certificate
   [Setup]   Stop using certificate
   ${output}  Create proxy failure  -pwstdin 
@@ -35,7 +44,6 @@ A user cannot obtain a proxy with a revoked certificate
   [Teardown]   Stop using certificate
 
 A user can obtain a role she holds from a VO she belongs to
-  [Tags]   debug
   [Setup]   Use certificate   test0
   @{roles}=   Create List   /${voName}/${voName}/R1   /${voName}/${voName}/R2
   Create voms proxy with roles   @{roles}
@@ -163,7 +171,7 @@ See if voms-proxy-init --path-length works
 
 See if voms-proxy-init --failonwarn works
 	[Setup]  Use certificate  test0
-	Create Proxy Failure  --failonwarn --hours 100
+	Create Proxy Failure  --failonwarn --valid 100:00
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --ignorewarn works
