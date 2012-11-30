@@ -202,3 +202,71 @@ See if voms-proxy-init fails with a fake target
         ${output}  Create proxy  -voms ${voName} -target fake.cnaf.infn.it
 	Should Contain   ${output}  AC target check failed
         [Teardown]  Stop using certificate
+
+See if voms-proxy-init --old works
+	[Setup]  Use certificate  test0
+	${output}  Create Proxy  --old
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init manages unrecognized options
+	[Setup]  Use certificate  test0
+	${output}  Create Proxy Failure  --dummyoption
+	Should Contain  ${output}  unrecognized option `--dummyoption'
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-info writes an error message without CA certificates
+	[Setup]  Use certificate  test0
+	Set Environment Variable  X509_CERT_DIR  /tmp
+	${output}  Create Proxy Failure  --verify
+	Should Contain  ${output}  No valid CRL was found for the CA which issued the chain
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-info warns when X509_CERT_DIR does not point to a directory
+	[Setup]  Use certificate  test0
+	Set Environment Variable  X509_CERT_DIR  /unlikely/path
+	${output}  Create Proxy Failure  --verify
+	Should Contain  ${output}  is not a directory
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-info writes an error message without CA certificates
+	[Setup]  Use certificate  test0
+	[Setup] Set Environment Variable  X509_CERT_DIR  /tmp
+	${output}  Create Proxy Failure  --verify
+	Should Contain  ${output}  No valid CRL was found for the CA which issued the chain
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-info --acexists works
+	[Setup]  Use certificate  test0
+	Create voms proxy
+	${rc}  Run and Return RC  voms-proxy-info --acexists ${voName}
+	Should Be Equal As Integers  ${rc}  0
+	${rc}  Run and Return RC  voms-proxy-info --acexists foo
+	Should Be Equal As Integers  ${rc}  1
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-info works even if when no ac is present in proxy
+	[Setup]  Use certificate  test0
+	Create plain proxy
+	Get Proxy info
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init returns a correct message when the certificate expires
+	[Setup]  Use certificate  test0
+	${output}  Create proxy  --hours 10000
+	Should Contain  ${output}  which is within the requested lifetime of the proxy
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init does timeout during negotiation
+	[Setup]  Use certificate  test0
+	${beginLiteral}  Get Time  epoch
+	${begin}  Convert To Integer  ${beginLiteral}
+	${output}  Create proxy failure  --voms bane --timeout 1
+	${endLiteral}  Get Time  epoch
+	${end}  Convert To Integer  ${endLiteral}
+	${time}  Evaluate  ${end}-${begin}
+	Should Contain  ${output}  connect timed out
+	# behind connecting, voms-proxy-init needs two secs to do its business.
+	# and there's two connections to try, so total time should be around 4s
+	${result}  Evaluate  3 < ${time} < 6
+	Should Be True  ${result}
+	[Teardown]  Stop using certificate
