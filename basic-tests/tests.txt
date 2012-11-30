@@ -48,6 +48,13 @@ See if voms-proxy-init --hours works
   Should Match Regexp  ${output}  (02|03):\\d+:\\d+
   [Teardown]   Stop using certificate 
 
+See if voms-proxy-init --hours work
+  [Setup]  Use certificate  test0
+  Create Proxy  --hours 40
+  ${output}  Get proxy info
+  Should Match Regexp  ${output}  (39|40):\\d+:\\d+
+  [Teardown]  Stop using certificate
+
 See if voms-proxy-init --bits works
   [Setup]   Use certificate   test0
   ${output}   Create proxy   -bits 2048
@@ -131,13 +138,6 @@ See if voms-proxy-init --limited (gt2) works
 	Create Proxy  --limited
 	${output}   Get proxy info
 	Should Contain  ${output}  limited proxy
-	[Teardown]  Stop using certificate
-
-See if voms-proxy-init --hours work
-	[Setup]  Use certificate  test0
-	Create Proxy  --hours 1
-	${output}  Get proxy info
-	Should Contain  ${output}  timeleft  : 1:
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --bits works
