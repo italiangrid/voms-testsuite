@@ -28,12 +28,23 @@ Stop using certificate
   Run  rm $HOME/.globus/usercert.pem
   Run  rm -f $HOME/.globus/userkey.pem
   Run  voms-proxy-destroy
+
+Get certificate subject   [Arguments]   ${certFile}
+  File Should Exist   ${certFile}
+  ${subject}   Execute and Check Success   openssl x509 -in ${certFile} -noout -subject | sed "s#subject= ##"
+  [Return]   ${subject}
+
+Get named certificate subject   [Arguments]   ${cert}
+  File Should Exist   ${certsDir}/${cert}.cert.pem
+  ${subject}  Get certificate subject   ${certsDir}/${cert}.cert.pem
+  [Return]   ${subject}
   
 Create plain proxy
   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin
 
-Destroy proxy
-  Execute and Check Success   voms-proxy-destroy
+Destroy proxy   [Arguments]   @{params}
+  ${options}=  Get options list   @{params}
+  Execute and Check Success   voms-proxy-destroy ${options}
 
 Get options list   [Arguments]   @{params}
   ${optionsList}  Set Variable  ${EMPTY}

@@ -1,0 +1,58 @@
+*** Settings ***
+Resource   lib/vomslib.txt
+
+*** Test Cases ***
+
+See if voms-proxy-destroy -file works
+    [Setup]  Use certificate  test0
+    Create Proxy  --out /tmp/to_be_deleted
+	Destroy Proxy  --file /tmp/to_be_deleted
+	File Should Not Exist   /tmp/to_be_deleted
+    [Teardown]  Stop using certificate
+
+See if a requested role ends up as primary fqan
+	[Setup]   Use certificate   test0
+	Create proxy   --voms ${voName}:/${voName}/G1/Role=R1
+	${output}	Get proxy info   --fqan
+	Should Start With   ${output}   /${voName}/G1/Role=R1/Capability=NULL
+    [Teardown]  Stop using certificate
+
+See if multiple -voms work as expected
+	[Setup]   Use certificate   test0
+	Create proxy   --voms ${voName}:/${voName}/G1 --voms ${voName}:/${voName}/G1/Role=R1 
+	${output}	Get proxy info   --fqan
+	Should Be Equal   ${output}   /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/G1/Role=R1/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL
+    [Teardown]  Stop using certificate
+
+See if request for multiple VOs work as expected
+	[Documentation]   ACs for multiple VOs should be included in the proxy in the same order as they are requested
+	[Setup]   Use certificate   test0
+	Create proxy   --voms ${voName}.2 --voms ${voName} 
+	${output}	Get proxy info   --fqan
+	Should Start With   ${output}   /${voName}.2/Role=NULL/Capability=NULL\n/${voName}.2/G1/Role=NULL/Capability=NULL
+	Should End With   ${output}   /${voName}/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL
+	[Teardown]   Stop using certificate
+
+See if voms-proxy-init -noregen work as expected
+	[Setup]   Use certificate   test0
+	Create proxy   
+	Execute And Check Success   voms-proxy-init -noregen -voms ${voName}
+	${fqans}	Get proxy info   --fqan
+	${proxySubject}   Get proxy info   --subject
+	${certSubject}   Get named certificate subject   test0
+	Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy/CN=proxy
+	Should Be Equal   ${fqans}   /${voName}/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL
+	[Teardown]   Stop using certificate
+
+Non member request for role should fail
+	[Setup]   Use certificate   test3
+	${output}   Create proxy failure   -voms ${voName}:/${voName}/G1/Role=R1
+	Should Contain   ${output}   User unknown to this VO
+	[Teardown]   Stop using certificate
+
+Request for non-existing role should fail
+	[Setup]   Use certificate   test0
+	${output}   Create proxy failure   -voms ${voName}:/${voName}/G1/Role=Berlusconi
+	Should Contain   ${output}   Remote VOMS server contacted succesfully.
+	Should Contain   ${output}   User's request for VOMS attributes could not be fulfilled.
+	[Teardown]   Stop using certificate

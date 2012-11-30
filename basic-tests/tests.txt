@@ -11,7 +11,7 @@ A user gets the right message when trying to create a proxy without a certificat
 A user gets the right message when trying to create a proxy providing the wrong passphrase
   [Setup]  Use certificate   test0
   ${output}  Execute and Check Failure   echo "CAMAGHE" | voms-proxy-init -pwstdin
-  Should Contain  ${output}  wrong pass phrase
+  Should Contain  ${output}  Can not load PEM private key: the password is incorrect or the PEM data is corrupted.
   [Teardown]  Stop using certificate
 
 A user cannot get a proxy from a VO she does not belong to
@@ -171,3 +171,5 @@ See if voms-proxy-init --ignorewarn works
 	${output}  Create Proxy  --ignorewarn --hours 100
 	Should Not Contain  ${output}  Warning
 	[Teardown]  Stop using certificate
+
+
