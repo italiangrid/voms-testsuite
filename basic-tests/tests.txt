@@ -290,9 +290,34 @@ See if missing certificate implies an error
         Create proxy failure  -voms ${voName}
 
 See if voms-proxy-destroy --dry works
-	[Tags]  valerio
 	[Setup]  Use certificate  test0
 	Create plain proxy
 	Destroy proxy  --dry
 	Proxy Should Exist
 	[Teardown]  Stop using certificate
+
+See if voms-proxy-init --out fails correctly when given a wrong location
+	[Setup]  Use certificate  test0
+	File Should Not Exist  /unlikely/path
+	${output}  Create proxy failure  --out /unlikely/path 
+	Should Contain  ${output}  Error creating proxy certificate: /unlikely/path
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init --debug works
+	[Setup]  Use certificate  test0
+	${output}  Create proxy  --voms ${voName} --debug
+	Should Contain  ${output}  Looking for user credentials in
+	Should Contain  ${output}  Credentials loaded successfully
+	Should contain  ${output}  Loading CA Certificate
+	Should contain  ${output}  Looking for VOMSES information in
+	Should contain  ${output}  Loaded vomses information
+	Should contain  ${output}  Contacting
+	Should contain  ${output}  Sent HTTP request for
+	Should contain  ${output}  Received VOMS response:
+	Should contain  ${output}  Remote VOMS server contacted succesfully.
+	Should contain  ${output}  Looking for VOMS AA certificates in 
+	Should contain  ${output}  Looking for LSC information in 
+	Should contain  ${output}  Loaded LSC information from file
+	Should contain  ${output}  VOMS AC validation for		
+	[Teardown]  Stop using certificate
+

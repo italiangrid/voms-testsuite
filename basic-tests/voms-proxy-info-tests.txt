@@ -173,7 +173,6 @@ See if voms --serial works
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -keyusage works
-	[Tags]  valerio
 	[Setup]  Use certificate  test0
   Create voms proxy
   ${output} =  Get proxy info  -keyusage
