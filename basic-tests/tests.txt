@@ -321,3 +321,21 @@ See if voms-proxy-init --debug works
 	Should contain  ${output}  VOMS AC validation for		
 	[Teardown]  Stop using certificate
 
+See if voms-proxy-init --vomses fails correctly when given a wrong location
+	[Setup]  Use certificate  test0
+	Should Not Exist  /unlikely/path
+	${output}  Create proxy failure  --voms ${voName} --vomses /unlikely/path
+	Should contain  ${output}  Cannot find file or dir: /unlikely/path
+	${output}  Create proxy  --voms ${voName} --vomses /unlikely/path --debug
+	Should contain  ${output}  Cannot find file or dir: /unlikely/path
+	Should contain  ${output}  Using configuration file /unlikely/path
+	[Teardown]  Stop using certificate
+	
+See if voms-proxy-init -pwstdin fails correctly when no password is provided
+	[Setup]  Use certificate  test0
+	${output}  Execute and Check Failure  echo "" | voms-proxy-init --pwstdin
+	Should contain  ${output}  Failed to read pass-phrase from stdin
+	${output}  Execute and Check Failure  echo "" | voms-proxy-init --pwstdin --debug
+	Should contain  ${output}  Failed to read pass-phrase from stdin
+	Should contain  ${output}  Failed to read pass-phrase from stdin
+	[Teardown]  Stop using certificate
