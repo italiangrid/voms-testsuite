@@ -140,3 +140,7 @@ Assign role   [Arguments]   ${cert}   ${groupName}   ${roleName}   ${vo}=${voNam
   Use admin certificate
   Execute and Check Success   voms-admin --vo ${vo} --host ${vomsHost} assign-role ${groupName} ${roleName} ${certsDir}/${cert}.cert.pem 
   Stop using certificate
+
+Proxy should exist
+	${output}  Run  id -u
+	File Should Exist   /tmp/x509up_u${output}

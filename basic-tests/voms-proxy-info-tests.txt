@@ -171,3 +171,11 @@ See if voms --serial works
   ${output} =  Get proxy info  -serial
   Should Match Regexp  ${output}  (\\w+|\\d+)
   [Teardown]  Stop using certificate
+
+See if voms-proxy-info -keyusage works
+	[Tags]  valerio
+	[Setup]  Use certificate  test0
+  Create voms proxy
+  ${output} =  Get proxy info  -keyusage
+  Should Contain  ${output}  key usage : Digital Signature, Key Encipherment
+  [Teardown]  Stop using certificate

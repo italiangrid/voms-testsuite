@@ -16,3 +16,15 @@ See if voms-proxy-init --bits works
 	Should Contain  ${output}  Public-Key: (512 bit)
 	[Teardown]  Stop using certificate
 ```
+
+## Proxy should exists
+
+Check that a proxy exists in the default location, as in
+
+```bash
+See if voms-proxy-destroy --dryrun works
+	[Setup]  Use certificate  test0
+	Create plain proxy
+	Proxy Should Exist
+	[Teardown]  Stop using certificate
+```
