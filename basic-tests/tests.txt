@@ -75,13 +75,6 @@ See if voms-proxy-init --noregen works
   Should Match Regexp  ${output}   Subject:\\s+(CN=proxy,){2}CN=.+
   [Teardown]   Stop using certificate
 
-#See if voms-proxy-init --conf works
-#  [Setup]   Use certificate   test0
-#  ${output}   Execute and Check Success   echo "--voms="${voName}>/tmp/myconf.test;cat /tmp/myconf.test
-#  ${output}   Create proxy   -conf /tmp/myconf.test
-#  Should Contain  ${output}  Created proxy
-#  [Teardown]   Stop using certificate
-
 See if voms-proxy-init --old works
   [Setup]   Use certificate   test0
   ${output}   Create proxy   -old
@@ -152,10 +145,11 @@ See if voms-proxy-init --bits works
 
 See if voms-proxy-init --conf works
 	[Setup]  Use certificate  test0
-	Run  echo "--version" > configFile
-	${output}  Create Proxy  --conf configFile
+	${tmpFile}   Run  mktemp	
+	Execute and Check Success   echo "--version" > ${tmpFile}
+	${output}  Create Proxy  --conf ${tmpFile}
 	Should Contain  ${output}   voms-proxy-init
-	Run  rm configFile
+	Execute and Check Success   rm ${tmpFile}
 
 See if voms-proxy-init --path_length works
 	[Setup]  Use certificate  test0
