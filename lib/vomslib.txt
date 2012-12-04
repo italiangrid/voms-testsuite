@@ -24,6 +24,13 @@ Use certificate   [Arguments]   ${cert}
   Execute and Check Success   cp ${certsDir}/${cert}.key.pem %{HOME}/.globus/userkey.pem
   Execute and Check Success   chmod 400 %{HOME}/.globus/userkey.pem
 
+Use mixed credentials   [Arguments]   ${cred1}  ${cred2}
+  File Should Exist   ${certsDir}/${cred1}.cert.pem
+  File Should Exist   ${certsDir}/${cred2}.key.pem
+  Execute and Check Success   cp ${certsDir}/${cred1}.cert.pem %{HOME}/.globus/usercert.pem
+  Execute and Check Success   cp ${certsDir}/${cred2}.key.pem %{HOME}/.globus/userkey.pem
+  Execute and Check Success   chmod 400 %{HOME}/.globus/userkey.pem
+
 Stop using certificate
   Run  rm $HOME/.globus/usercert.pem
   Run  rm -f $HOME/.globus/userkey.pem

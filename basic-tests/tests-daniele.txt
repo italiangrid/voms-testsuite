@@ -16,11 +16,50 @@ Teardown for X509_CERT_DIR test
 *** Test Cases ***
 
 See if AC validation works when LSC file exists
-	Use certificate   test0
+	[Setup]  Use certificate   test0
 	Create voms proxy
+	[Teardown]  Stop using certificate
 
 See if AC validation fails when LSC file does not exist
         [Setup]  Setup for X509_CERT_DIR test   /tmp
         Create proxy failure   -voms ${voName}
         [Teardown]  Teardown for X509_CERT_DIR test
+
+See if voms-proxy-init fails correctly when cert and key do not match
+	[Setup]  Use mixed credentials  test0   test1
+	${output}   Create proxy failure
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init fails correctly when the key has incorrect permissions
+	[Setup]  Use certificate   test0
+	Execute and Check Success   chmod 777 %{HOME}/.globus/userkey.pem
+	Create Proxy Failure
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init fails correctly when the key is empty
+        [Setup]  Use certificate   test0
+	Execute and Check Success   rm -f %{HOME}/.globus/userkey.pem
+	Execute and Check Success   touch %{HOME}/.globus/userkey.pem
+        Create Proxy Failure
+        [Teardown]  Stop using certificate
+
+See if voms-proxy-init fails correctly when the key is corrupted
+        [Setup]  Use certificate   test0
+	Execute and Check Success  chmod 777 %{HOME}/.globus/userkey.pem
+        Execute and Check Success  cat %{HOME}/.globus/userkey.pem|tr "\[a-z\]" "\[A-Z\]"> %{HOME}/.globus/userkey.pem
+	Execute and Check Success  chmod 400 %{HOME}/.globus/userkey.pem
+        Create Proxy Failure
+        [Teardown]  Stop using certificate
+
+See if voms-proxy-init --noregen of an rfc proxy works
+	[Setup]  Use certificate   test0
+	Create Proxy  -rfc
+	Create Proxy  -noregen -voms ${voName}
+	[Teardown]  Stop using certificate
+
+Check if voms-proxy-info suceeds on a plain proxy
+	[Setup]  Use certificate   test0
+        Create Proxy
+        Get Proxy Info
+        [Teardown]  Stop using certificate
 
