@@ -4,12 +4,22 @@ Resource   lib/vomslib.txt
 
 *** Keywords ***
 
-Setup for X509_CERT_DIR test   [Arguments]   ${x509CertDir}
+Setup for X509_VOMS_DIR test   [Arguments]   ${x509VomsDir}
   Use certificate   test0
-  Set Environment Variable  X509_CERT_DIR  ${x509CertDir}
+  Set Environment Variable  X509_VOMS_DIR  ${x509VomsDir}
 
-Teardown for X509_CERT_DIR test
-  Remove Environment Variable  X509_CERT_DIR
+Teardown for X509_VOMS_DIR test
+  Remove Environment Variable  X509_VOMS_DIR
+  Stop using certificate
+
+
+Setup for --vomses test
+  Use certificate   test0
+  Execute and Check Success  mkdir -p %{HOME}/.glite/
+  Execute and Check Success   cp -a /etc/vomses %{HOME}/.glite/
+
+Teardown for --vomses test
+  Execute and Check Success  rm -f %{HOME}/.glite/vomses
   Stop using certificate
 
 
@@ -21,9 +31,9 @@ See if AC validation works when LSC file exists
 	[Teardown]  Stop using certificate
 
 See if AC validation fails when LSC file does not exist
-        [Setup]  Setup for X509_CERT_DIR test   /tmp
+        [Setup]  Setup for X509_VOMS_DIR test  /tmp
         Create proxy failure   -voms ${voName}
-        [Teardown]  Teardown for X509_CERT_DIR test
+        [Teardown]  Teardown for X509_VOMS_DIR test
 
 See if voms-proxy-init fails correctly when cert and key do not match
 	[Setup]  Use mixed credentials  test0   test1
@@ -62,4 +72,28 @@ Check if voms-proxy-info suceeds on a plain proxy
         Create Proxy
         Get Proxy Info
         [Teardown]  Stop using certificate
+
+See if voms-proxy-init reads ~/.voms/vomses
+	[Setup]  Setup for --vomses test
+        Create Proxy  -vomses %{HOME}/.glite/vomses -voms ${voName}
+        [Teardown]  Teardown for --vomses test
+
+Check the error message if a file cannot be written
+	[Setup]  Use certificate   test0
+	${tmpFile}   Run  mktemp
+	Execute and Check Success  chmod 0000 ${tmpFile}
+	${output}  Create Proxy Failure  -out ${tmpFile}
+	Should Contain  ${output}  Permission denied
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init --dont_verify_ac works
+        [Setup]  Use certificate   test0	
+        ${output}  Create Proxy   -debug -voms ${voName} --dont_verify_ac
+	Should Not Contain  ${output}  VOMS AC validation for VO ${voName} succeded 
+        [Teardown]  Stop using certificate
+
+Check that voms-proxy-init requesting more than two FQANs works as expected
+	[Setup]  Use certificate   test0
+	Create Proxy  voms-proxy-init -voms ${voName}:/${voName}/G1/Role=R1 -voms ${voName}:/${voName}/G1 -voms ${voName}:/${voName}
+	[Teardown]  Stop using certificate
 
