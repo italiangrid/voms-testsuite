@@ -253,10 +253,10 @@ See if voms-proxy-init does timeout during negotiation
 	${endLiteral}  Get Time  epoch
 	${end}  Convert To Integer  ${endLiteral}
 	${time}  Evaluate  ${end}-${begin}
-	Should Contain  ${output}  connect timed out
-	# behind connecting, voms-proxy-init needs two secs to do its business.
+	Should Contain  ${output}  Read timed out
+	# behind connecting, voms-proxy-init needs two secs to do its business,
 	# and there's two connections to try, so total time should be around 4s
-	${result}  Evaluate  3 < ${time} < 6
+	${result}  Evaluate  ${time} < 8
 	Should Be True  ${result}
 	[Teardown]  Stop using certificate
 
@@ -334,8 +334,12 @@ See if voms-proxy-init --vomses fails correctly when given a wrong location
 See if voms-proxy-init -pwstdin fails correctly when no password is provided
 	[Setup]  Use certificate  test0
 	${output}  Execute and Check Failure  echo "" | voms-proxy-init --pwstdin
-	Should contain  ${output}  Failed to read pass-phrase from stdin
+	Should contain  ${output}  No credentials found!
 	${output}  Execute and Check Failure  echo "" | voms-proxy-init --pwstdin --debug
-	Should contain  ${output}  Failed to read pass-phrase from stdin
-	Should contain  ${output}  Failed to read pass-phrase from stdin
+	Should contain  ${output}  Credentials couldn't be loaded
+	Should contain  ${output}  Can not load PEM private key: the password is incorrect or the PEM data is corrupted	
+	Should contain  ${output}  No credentials found!
 	[Teardown]  Stop using certificate
+
+
+	
