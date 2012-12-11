@@ -13,13 +13,13 @@ Teardown for X509_VOMS_DIR test
   Stop using certificate
 
 
-Setup for --vomses test
+Setup for vomses test   [Arguments]   ${vomsesDir}
   Use certificate   test0
-  Execute and Check Success  mkdir -p %{HOME}/.glite/
-  Execute and Check Success   cp -a /etc/vomses %{HOME}/.glite/
+  Execute and Check Success  mkdir -p ${vomsesDir}
+  Execute and Check Success   cp -a /etc/vomses ${vomsesDir}
 
-Teardown for --vomses test
-  Execute and Check Success  rm -f %{HOME}/.glite/vomses
+Teardown for vomses test   [Arguments]   ${vomsesDir}
+  Execute and Check Success  rm -rf ${vomsesDir}
   Stop using certificate
 
 
@@ -74,9 +74,16 @@ Check if voms-proxy-info suceeds on a plain proxy
         [Teardown]  Stop using certificate
 
 See if voms-proxy-init reads ~/.voms/vomses
-	[Setup]  Setup for --vomses test
-        Create Proxy  -vomses %{HOME}/.glite/vomses -voms ${voName}
-        [Teardown]  Teardown for --vomses test
+	[Setup]  Setup for vomses test  %{HOME}/.voms
+        ${output}  Create Proxy  -debug -voms ${voName}
+	Should Contain  ${output}  from %{HOME}/.voms
+        [Teardown]  Teardown for vomses test  %{HOME}/.voms
+
+See if voms-proxy-init reads ~/.glite/vomses
+        [Setup]  Setup for vomses test  %{HOME}/.glite
+        ${output}  Create Proxy  -debug -voms ${voName}
+        Should Contain  ${output}  from %{HOME}/.glite
+        [Teardown]  Teardown for vomses test  %{HOME}/.glite
 
 Check the error message if a file cannot be written
 	[Setup]  Use certificate   test0
