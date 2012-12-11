@@ -99,7 +99,7 @@ See if voms-proxy-info -fqan works
   Create voms proxy
   ${output} =  Get proxy info  -fqan
   Log  ${output}
-  ${expected}  Set Variable  /${voName}/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL
+  ${expected}  Set Variable  /${voName}/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/G2/Role=NULL/Capability=NULL\n/${voName}/G2/G3/Role=NULL/Capability=NULL
   Log  ${expected}
   Should Be Equal As Strings  ${output}  ${expected}
   [Teardown]  Stop using certificate
