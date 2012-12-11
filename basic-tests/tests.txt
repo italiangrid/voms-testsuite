@@ -174,16 +174,16 @@ See if voms-proxy-init --order works
         [Setup]  Use certificate  test0
         Create proxy   -voms ${voName} -order /${voName}/G1
         ${output}  Get proxy info  -fqan
-        ${expected}  Set Variable  /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL
+        ${expected}  Set Variable  /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL\n/${voName}/G2/Role=NULL/Capability=NULL\n/${voName}/G2/G3/Role=NULL/Capability=NULL
         Log  ${expected}
         Should Be Equal As Strings  ${output}  ${expected}
         [Teardown]  Stop using certificate
 
 See if voms-proxy-init --order works with multiple arguments
         [Setup]  Use certificate  test0
-        Create proxy   -voms ${voName} -order /${voName}/G1,/${voName}
+        Create proxy   -voms ${voName} -order /${voName}/G2/G3,/${voName}/G2 
         ${output}  Get proxy info  -fqan
-        ${expected}  Set Variable  /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL
+        ${expected}  Set Variable  /${voName}/G2/G3/Role=NULL/Capability=NULL\n/${voName}/G2/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL
         Log  ${expected}
         Should Be Equal As Strings  ${output}  ${expected}
         [Teardown]  Stop using certificate
