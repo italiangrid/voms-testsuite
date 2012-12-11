@@ -56,3 +56,16 @@ Request for non-existing role should fail
 	Should Contain   ${output}   Remote VOMS server contacted succesfully.
 	Should Contain   ${output}   User's request for VOMS attributes could not be fulfilled.
 	[Teardown]   Stop using certificate
+
+Invalid key size request should fail
+	[Setup]   Use certificate   test0
+	[Tags]   dev
+	${output}   Create proxy failure   -bits 5000
+	Should Contain   ${output}   Unsupported key size: 
+	${output}   Create proxy failure   -bits -128
+	Should Contain   ${output}   Unsupported key size: 
+	${output}   Create proxy failure   -bits 0
+	Should Contain   ${output}   Unsupported key size: 
+	${output}   Create proxy failure   -bits 473289ybf
+	Should Contain   ${output}   Invalid input for key size parameter. Please provide a valid key size value.
+	[Teardown]   Stop using certificate
