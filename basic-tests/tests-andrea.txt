@@ -21,7 +21,8 @@ See if multiple -voms work as expected
 	[Setup]   Use certificate   test0
 	Create proxy   --voms ${voName}:/${voName}/G1 --voms ${voName}:/${voName}/G1/Role=R1 
 	${output}	Get proxy info   --fqan
-	Should Be Equal   ${output}   /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/G1/Role=R1/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL
+	Should Start With   ${output}   /${voName}/G1/Role=NULL/Capability=NULL
+	Should Contain   ${output}   /${voName}/G1/Role=R1/Capability=NULL
     [Teardown]  Stop using certificate
 
 See if request for multiple VOs work as expected
@@ -29,8 +30,8 @@ See if request for multiple VOs work as expected
 	[Setup]   Use certificate   test0
 	Create proxy   --voms ${voName}.2 --voms ${voName} 
 	${output}	Get proxy info   --fqan
-	Should Start With   ${output}   /${voName}.2/Role=NULL/Capability=NULL\n/${voName}.2/G1/Role=NULL/Capability=NULL
-	Should End With   ${output}   /${voName}/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL
+	Should Start With   ${output}   /${voName}.2/Role=NULL/Capability=NULL
+	Should Contain   ${output}   /${voName}/Role=NULL/Capability=NULL
 	[Teardown]   Stop using certificate
 
 See if voms-proxy-init -noregen work as expected
@@ -41,7 +42,7 @@ See if voms-proxy-init -noregen work as expected
 	${proxySubject}   Get proxy info   --subject
 	${certSubject}   Get named certificate subject   test0
 	Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy/CN=proxy
-	Should Be Equal   ${fqans}   /${voName}/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL
+	Should Contain   ${fqans}   /${voName}/Role=NULL/Capability=NULL
 	[Teardown]   Stop using certificate
 
 Non member request for role should fail
@@ -59,7 +60,6 @@ Request for non-existing role should fail
 
 Invalid key size request should fail
 	[Setup]   Use certificate   test0
-	[Tags]   dev
 	${output}   Create proxy failure   -bits 5000
 	Should Contain   ${output}   Unsupported key size: 
 	${output}   Create proxy failure   -bits -128
@@ -68,4 +68,61 @@ Invalid key size request should fail
 	Should Contain   ${output}   Unsupported key size: 
 	${output}   Create proxy failure   -bits 473289ybf
 	Should Contain   ${output}   Invalid input for key size parameter. Please provide a valid key size value.
+	[Teardown]   Stop using certificate
+
+Invalid validity request should fail
+	[Setup]   Use certificate   test0
+	${output}   Create proxy failure   -valid 5000
+	Should Contain   ${output}   Illegal format for lifetime property.
+	${output}   Create proxy failure   -valid -5000:0
+	Should Contain   ${output}   Number of hours must be a positive integer.
+	${output}   Create proxy failure   -valid 50:-10
+	Should Contain   ${output}   Number of minutes must be a positive integer.
+	${output}   Create proxy failure   -valid 12:121
+	Should Contain   ${output}   Number of minutes must be in the range 0-59.
+	[Teardown]   Stop using certificate
+
+Invalid vomslife request should fail
+	[Setup]   Use certificate   test0
+	${output}   Create proxy failure   -vomslife 5000
+	Should Contain   ${output}  Illegal format for lifetime property. 
+	${output}   Create proxy failure   -vomslife -12:12
+	Should Contain   ${output}   Number of hours must be a positive integer.
+	${output}   Create proxy failure   -vomslife 12:-12
+	Should Contain   ${output}   Number of minutes must be a positive integer.
+	${output}   Create proxy failure   -vomslife 12:121
+	Should Contain   ${output}   Number of minutes must be in the range 0-59.
+	[Teardown]   Stop using certificate
+
+Request for unknown VO should produce meaningful error message
+	[Setup]   Use certificate   test0
+	${output}   Create proxy failure   -voms paolabarale
+	Should Contain   ${output}   VOMS server for VO paolabarale is not known! Check your vomses configuration.
+	[Teardown]   Stop using certificate
+
+voms-proxy-init can parse p12 certificates
+	[Setup]   Use p12 certificate   test0
+	Create proxy 
+	${proxySubject}   Get proxy info   --subject
+	${certSubject}   Get named certificate subject   test0
+    Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy
+	[Teardown]   Stop using certificate
+
+voms-proxy-init -cert option understands p12 certificates
+	[Setup]   Use p12 certificate   test0
+	${tmpFile}   Execute and Check Success   mktemp /tmp/voms-testXXX
+	Execute and Check Success   cp %{HOME}/.globus/usercred.p12 ${tmpFile}
+	Create proxy   -cert ${tmpFile}
+	${proxySubject}   Get proxy info   --subject
+	${certSubject}   Get named certificate subject   test0
+	Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy
+	[Teardown]   Stop using certificate
+
+voms-proxy-init generates proxy with the appropriate file permissions
+	[Setup]   Use certificate   test0
+	[Tags]   dev
+	Create proxy
+	${proxyFile}   Get proxy path
+	${lsOutput}   Run   ls -l ${proxyFile}
+	Should start with   ${lsOutput}   -rw------
 	[Teardown]   Stop using certificate

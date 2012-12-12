@@ -16,6 +16,12 @@ Execute and Check Failure   [Arguments]   ${cmd}
   Should Not Be Equal As Integers   ${rc}   0   ${output}
   [Return]   ${output}
 
+Use p12 certificate   [Arguments]   ${cert}
+  File Should Exist   ${certsDir}/${cert}.p12
+  Stop using certificate
+  Execute and Check Success   cp ${certsDir}/${cert}.p12 %{HOME}/.globus/usercred.p12
+  Execute and Check Success   chmod 600 %{HOME}/.globus/usercred.p12
+
 Use certificate   [Arguments]   ${cert}
   File Should Exist   ${certsDir}/${cert}.cert.pem
   File Should Exist   ${certsDir}/${cert}.key.pem
@@ -32,8 +38,9 @@ Use mixed credentials   [Arguments]   ${cred1}  ${cred2}
   Execute and Check Success   chmod 400 %{HOME}/.globus/userkey.pem
 
 Stop using certificate
-  Run  rm $HOME/.globus/usercert.pem
-  Run  rm -f $HOME/.globus/userkey.pem
+  Run  rm %{HOME}/.globus/usercert.pem
+  Run  rm -f %{HOME}/.globus/userkey.pem
+  Run  rm -f %{HOME}/.globus/usercred.p12
   Run  voms-proxy-destroy
 
 Get certificate subject   [Arguments]   ${certFile}
@@ -151,3 +158,7 @@ Assign role   [Arguments]   ${cert}   ${groupName}   ${roleName}   ${vo}=${voNam
 Proxy should exist
 	${output}  Run  id -u
 	File Should Exist   /tmp/x509up_u${output}
+
+Get proxy path
+	${userId}   Run   id -u
+	[Return]   /tmp/x509up_u${userId}

@@ -57,10 +57,6 @@ See if voms-proxy-init --hours works
   Should Contain  ${output}  Created proxy
   ${output} =  Get proxy info  -timeleft
   Should Match Regexp  ${output}  (02|03):\\d+:\\d+
-  [Teardown]   Stop using certificate 
-
-See if voms-proxy-init --hours work
-  [Setup]  Use certificate  test0
   Create Proxy  --hours 40
   ${output}  Get proxy info
   Should Match Regexp  ${output}  (39|40):\\d+:\\d+
@@ -145,7 +141,7 @@ See if voms-proxy-init --bits works
 
 See if voms-proxy-init --conf works
 	[Setup]  Use certificate  test0
-	${tmpFile}   Run  mktemp	
+	${tmpFile}   Run  mktemp /tmp/voms-testXXX	
 	Execute and Check Success   echo "--version" > ${tmpFile}
 	${output}  Create Proxy  --conf ${tmpFile}
 	Should Contain  ${output}   voms-proxy-init
@@ -175,7 +171,6 @@ See if voms-proxy-init --order works
         Create proxy   -voms ${voName} -order /${voName}/G1
         ${output}  Get proxy info  -fqan
         ${expected}  Set Variable  /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL
-        Log  ${expected}
         Should Be Equal As Strings  ${output}  ${expected}
         [Teardown]  Stop using certificate
 
@@ -184,7 +179,6 @@ See if voms-proxy-init --order works with multiple arguments
         Create proxy   -voms ${voName} -order /${voName}/G1,/${voName}
         ${output}  Get proxy info  -fqan
         ${expected}  Set Variable  /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL
-        Log  ${expected}
         Should Be Equal As Strings  ${output}  ${expected}
         [Teardown]  Stop using certificate
 
@@ -200,11 +194,6 @@ See if voms-proxy-init fails with a fake target
         ${output}  Create proxy  -voms ${voName} -target fake.cnaf.infn.it
 		Should Contain   ${output}  AC target check failed
         [Teardown]  Stop using certificate
-
-See if voms-proxy-init --old works
-	[Setup]  Use certificate  test0
-	${output}  Create Proxy  --old
-	[Teardown]  Stop using certificate
 
 See if voms-proxy-init manages unrecognized options
 	[Setup]  Use certificate  test0
@@ -230,6 +219,9 @@ See if voms-proxy-info --acexists works
 	${rc}  Run and Return RC  voms-proxy-info --acexists ${voName}
 	Should Be Equal As Integers  ${rc}  0
 	${rc}  Run and Return RC  voms-proxy-info --acexists foo
+	Should Be Equal As Integers  ${rc}  1
+	Create proxy
+	${rc}  Run and Return RC  voms-proxy-info --acexists ${voName}
 	Should Be Equal As Integers  ${rc}  1
 	[Teardown]  Stop using certificate
 
@@ -323,12 +315,10 @@ See if voms-proxy-init --debug works
 
 See if voms-proxy-init --vomses fails correctly when given a wrong location
 	[Setup]  Use certificate  test0
+	[Tags]   dev
 	Should Not Exist  /unlikely/path
 	${output}  Create proxy failure  --voms ${voName} --vomses /unlikely/path
-	Should contain  ${output}  Cannot find file or dir: /unlikely/path
-	${output}  Create proxy  --voms ${voName} --vomses /unlikely/path --debug
-	Should contain  ${output}  Cannot find file or dir: /unlikely/path
-	Should contain  ${output}  Using configuration file /unlikely/path
+	Should contain  ${output}   No valid VOMSES information found locally while looking in: [/unlikely/path]
 	[Teardown]  Stop using certificate
 	
 See if voms-proxy-init -pwstdin fails correctly when no password is provided
