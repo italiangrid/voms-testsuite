@@ -1,91 +1,81 @@
-import re
 import unittest
+from datetime import datetime,timedelta,time
 
-valid_fqan_regexp = re.compile(r"^(/[a-zA-Z0-9_-]+)+|((/[a-zA-Z0-9_-]+)+/)(Role=[\w-]+)$")
+openssl_date_format = "%b %d %H:%M:%S %Y %Z" 
 
-valid_fqan2_regexp = re.compile(r"^(/[a-zA-Z0-9_\-.]+?)(/Role=[a-zA-Z0-9_\-.]+)??$", re.DEBUG)
-
-extract_vo_name_regexp = re.compile(r"^\/([\wx.-]+)\/?")
-
-def is_valid_fqan(fqan):
-	## Strip null stuff
-	fqan=re.sub(r'/Capability=.*$','',fqan)
-	print fqan
-	fqan=re.sub(r'/Role=NULL','',fqan)
+class VOMSLibrary:
+	"""A simple library of helper functions not easily implemented with other Robot keywords"""
 	
-	starts_with_role = re.compile(r"^/Role=.*$").match(fqan)
-	
-	if starts_with_role:
-		return False
+	ROBOT_LIBRARY_SCOPE = "GLOBAL"
 		
+	def _parse_date(self, date_str):
+		return datetime.strptime(date_str, openssl_date_format)
 
-	match = valid_fqan2_regexp.match(fqan)
-	if match:
-		return True
-	return False
-
-def voms_get_group_from_fqan(fqan):
-	## Strip junk from fqan
-	fqan=fqan.replace("/Role=NULL/Capability=NULL","")
-	
-	matches_role = re.compile("(^/.*)(/Role=[\w.-]+)(/Capability=.*)?$").match(fqan)
-	if matches_role:
-		return matches_role.group(1)
-	
-	matches_group = re.compile("^(/[\w.-]+)+$").match(fqan)
-	if matches_group:
-		return matches_group.group(0)
+	def date_difference_in_seconds(self, date0, date1):
+		"""Returns the difference in seconds between the two dates, calculated substracting the smaller	date from the bigger one"""
 		
-	return None
-
-	
-def voms_get_vo_name_from_fqan(fqan):
-	regexp = re.compile("^\/([\wx.-]+)\/?")
- 	m = regexp.match(fqan)
-	if m:
-		return m.group(1)
-	return None
-	
-
-def build_voms_proxy_init_role_params(roles):
-	args = []
-	for r in roles:
-		vo=voms_get_vo_name_from_fqan(r)
-		args.append("-voms %s:%s" % (vo, r))
-	return " ".join(args)
-	
-
-class TestFQANMatching(unittest.TestCase):
-	
-	def test_is_valid_fqan(self):
-		valid_fqans = [
-			"/ciccio.paglia/camaghe",
-			"/atlas/production/Role=NULL/Capability=NULL",
-			"/atlas-production/myTestVo1231/Role=porenghi",
-			"/vo",
-			"/123vo/vo123"]
+		d0 = self._parse_date(date0)
+		d1 = self._parse_date(date1)
 		
-		invalid_fqans = [
-			"//vo",
-			"/Role=ciccio/vo/test",
-			"/=dasd/production",
-			"myFqan/ciccio",
-			"/vo&defense/cama.ghe"
-			]
+		if d1 > d0:
+			diff = d1 - d0
+		else:
+			diff = d0 - d1
 			
-		for f in valid_fqans:
-			self.assertTrue(is_valid_fqan(f), '%s is a valid fqan but was considered invalid' % f)
+		return diff.seconds
 		
-		for f in invalid_fqans:
-			self.assertFalse(is_valid_fqan(f), '%s is an invalid fqan but was considered valid' % f)
 		
+	def compare_dates(self, date0, date1):
+		"""Compares two dates passed as strings.
+		
+		The format used to parse the dates is '%b %d %H:%M:%S %Y %Z', as passed to the datetime.strptime() function.
+		This keyword returns 0, if the dates are equal, -1 if the first date argument is less than the second date argument, 
+		and 1 otherwise""" 
+		
+		d0 = self._parse_date(date0)
+		d1 = self._parse_date(date1)
+		
+		print "*DEBUG* Input date 0 string: %s"  % date0
+		print "*DEBUG* Input date 1 string: %s" % date1
+		print "*DEBUG* Parsed dates: %s, %s" % (d0, d1)
+		
+		if d0 < d1:
+			return -1
+		elif d0 == d1:
+			return 0
+		else:
+			return 1
 
-	
-def main():
-	unittest.main()
-	
 
+
+class DatesTest(unittest.TestCase):
+	def testEqualDates(self):
+		l = VOMSLibrary()
+		self.assertEqual(0, l.compare_dates("Sep 18 13:04:06 2013 GMT","Sep 18 13:04:06 2013 GMT"))
 	
+	def testMinorDate(self):
+		l = VOMSLibrary()
+		self.assertEqual(-1, l.compare_dates("Sep 15 13:04:06 2013 GMT","Sep 18 13:04:06 2013 GMT"))
+	
+	def testMajorDate(self):
+		l = VOMSLibrary()
+		self.assertEqual(1, l.compare_dates("Sep 21 13:04:06 2013 GMT","Sep 18 13:04:06 2013 GMT"))
+	
+	def testParseError(self):
+		l = VOMSLibrary()
+		caught_exception = False
+		try:
+			l.compare_dates("camaghe","Sep 18 13:04:06 2013 GMT")
+		except ValueError:
+			caught_exception = True
+		
+		self.assertTrue(caught_exception)
+		
+	def testDateDiff(self):
+		l = VOMSLibrary()
+		self.assertEqual(1, l.date_difference_in_seconds("Sep 15 13:04:06 2013 GMT","Sep 15 13:04:07 2013 GMT"))
+		self.assertEqual(1, l.date_difference_in_seconds("Sep 15 13:04:09 2013 GMT","Sep 15 13:04:08 2013 GMT"))
+		self.assertEqual(0, l.date_difference_in_seconds("Sep 15 13:04:08 2013 GMT","Sep 15 13:04:08 2013 GMT"))
+
 if __name__ == '__main__':
-	main()
-		
+	unittest.main()	

@@ -44,6 +44,7 @@ depending on your test setup:
     pybot --variable certsDir:/path/to/certs \
           --variable voName:NameOfTheTestVo  \
           --variable vomsHost:HostWhereTestVomsIsRunning \
+		  --pythonpath lib \
           basic-tests
 
 

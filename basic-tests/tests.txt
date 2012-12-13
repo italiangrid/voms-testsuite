@@ -231,11 +231,18 @@ See if voms-proxy-info works even if when no ac is present in proxy
 	Get Proxy info
 	[Teardown]  Stop using certificate
 
-voms-proxy-init should fail in creating a proxy whose lifetime is longer than the issuing certificate
+voms-proxy-init should limit proxy lifetime to be consistent with issuing certificate lifetime
 	[Setup]   Use certificate   test0
 	[Tags]   dev
-	${output}   Create proxy failure   --hours  96426
-	Should Contain   ${output}   proxy lifetime extends beyond issuing certificate lifetime 
+	${output}   Create proxy   --hours  96426
+	Should Contain   ${output}   proxy lifetime limited to issuing credential lifetime
+	${certEndTime}   Get named certificate end date   test0
+	${proxyPath}   Get proxy path
+	${proxyEndTime}   Get certificate end date   ${proxyPath}
+	${rc}   Compare Dates   ${proxyEndTime}   ${certEndTime}
+	Should Be True   ${rc} == -1 or ${rc} == 0
+	${rc}   Date Difference In Seconds   ${proxyEndTime}   ${certEndTime}
+	Should Be True   ${rc} < 10
 	[Teardown]   Stop using certificate
 
 See if voms-proxy-init does timeout during negotiation

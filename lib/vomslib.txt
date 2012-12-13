@@ -2,6 +2,7 @@
 
 Library   OperatingSystem
 Library   Collections
+Library   VOMSLibrary
 Resource   variables.txt
 
 *** Keywords ***
@@ -53,6 +54,26 @@ Get named certificate subject   [Arguments]   ${cert}
   ${subject}  Get certificate subject   ${certsDir}/${cert}.cert.pem
   [Return]   ${subject}
   
+Get certificate start date   [Arguments]   ${certFile}
+  File Should Exist   ${certFile}
+  ${startDate}   Execute and Check Success   openssl x509 -in ${certFile} -noout -startdate | sed "s#notBefore=##"
+  [Return]   ${startDate}
+
+Get certificate end date   [Arguments]   ${certFile}
+  File Should Exist   ${certFile}
+  ${endDate}   Execute and Check Success   openssl x509 -in ${certFile} -noout -enddate | sed "s#notAfter=##"
+  [Return]   ${endDate}
+
+Get named certificate start date   [Arguments]   ${cert}
+  File Should Exist   ${certsDir}/${cert}.cert.pem
+  ${startDate}   Get certificate start date   ${certsDir}/${cert}.cert.pem
+  [Return]   ${startDate}
+
+Get named certificate end date   [Arguments]   ${cert}
+  File Should Exist   ${certsDir}/${cert}.cert.pem
+  ${endDate}   Get certificate end date   ${certsDir}/${cert}.cert.pem
+  [Return]   ${endDate}
+
 Create plain proxy
   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin
 
