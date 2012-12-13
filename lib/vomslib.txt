@@ -78,6 +78,10 @@ Get named certificate path   [Arguments]   ${cert}
   File Should Exist   ${certsDir}/${cert}.cert.pem
   [Return]   ${certsDir}/${cert}.cert.pem
 
+Get named p12 certificate path   [Arguments]   ${cert}
+  File Should Exist   ${certsDir}/${cert}.p12
+  [Return]   ${certsDir}/${cert}.p12
+
 Create plain proxy
   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin
 
