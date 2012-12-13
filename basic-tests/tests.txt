@@ -176,13 +176,13 @@ See if voms-proxy-init --order works
 
 See if voms-proxy-init --order works with multiple arguments
         [Setup]  Use certificate  test0
-        Create proxy   -voms ${voName} -order /${voName}/G2/G3,/${voName}/G2 
+        Create proxy   -voms ${voName} -order /${voName}/G2/G3 -order /${voName}/G2 
         ${output}  Get proxy info  -fqan
         ${expected}  Set Variable  /${voName}/G2/G3/Role=NULL/Capability=NULL\n/${voName}/G2/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL
         Should Be Equal As Strings  ${output}  ${expected}
         [Teardown]  Stop using certificate
 
-See if a targets can be added to a proxy
+See if a target can be added to a proxy
         [Setup]  Use certificate  test0
 		${target}  Run   hostname -f
         ${output}  Create proxy  -voms ${voName} -target ${target}
@@ -231,11 +231,12 @@ See if voms-proxy-info works even if when no ac is present in proxy
 	Get Proxy info
 	[Teardown]  Stop using certificate
 
-See if voms-proxy-init returns a correct message when the certificate expires
-	[Setup]  Use certificate  test0
-	${output}  Create proxy  --hours 10000
-	Should Contain  ${output}  which is within the requested lifetime of the proxy
-	[Teardown]  Stop using certificate
+voms-proxy-init should fail in creating a proxy whose lifetime is longer than the issuing certificate
+	[Setup]   Use certificate   test0
+	[Tags]   dev
+	${output}   Create proxy failure   --hours  96426
+	Should Contain   ${output}   proxy lifetime extends beyond issuing certificate lifetime 
+	[Teardown]   Stop using certificate
 
 See if voms-proxy-init does timeout during negotiation
 	[Setup]  Use certificate  test0
@@ -315,7 +316,6 @@ See if voms-proxy-init --debug works
 
 See if voms-proxy-init --vomses fails correctly when given a wrong location
 	[Setup]  Use certificate  test0
-	[Tags]   dev
 	Should Not Exist  /unlikely/path
 	${output}  Create proxy failure  --voms ${voName} --vomses /unlikely/path
 	Should contain  ${output}   No valid VOMSES information found locally while looking in: [/unlikely/path]
