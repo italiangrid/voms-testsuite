@@ -247,6 +247,7 @@ voms-proxy-init should limit proxy lifetime to be consistent with issuing certif
 
 See if voms-proxy-init does timeout during negotiation
 	[Setup]  Use certificate  test0
+	[Tags]   dev
 	${beginLiteral}  Get Time  epoch
 	${begin}  Convert To Integer  ${beginLiteral}
 	${output}  Create proxy failure  --voms bane --timeout 1

@@ -109,14 +109,13 @@ voms-proxy-init can parse p12 certificates
 	[Teardown]   Stop using certificate
 
 voms-proxy-init -cert option understands p12 certificates
-	[Setup]   Use p12 certificate   test0
-	${tmpFile}   Execute and Check Success   mktemp /tmp/voms-testXXX
-	Execute and Check Success   cp %{HOME}/.globus/usercred.p12 ${tmpFile}
-	Create proxy   -cert ${tmpFile}
+	[Tags]   dev
+	${cert}   Get named certificate path   test0
+	Create proxy   -cert ${cert}
 	${proxySubject}   Get proxy info   --subject
 	${certSubject}   Get named certificate subject   test0
 	Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy
-	[Teardown]   Stop using certificate
+	[Teardown] Stop using certificate
 
 voms-proxy-init generates proxy with the appropriate file permissions
 	[Setup]   Use certificate   test0

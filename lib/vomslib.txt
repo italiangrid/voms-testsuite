@@ -74,6 +74,10 @@ Get named certificate end date   [Arguments]   ${cert}
   ${endDate}   Get certificate end date   ${certsDir}/${cert}.cert.pem
   [Return]   ${endDate}
 
+Get named certificate path   [Arguments]   ${cert}
+  File Should Exist   ${certsDir}/${cert}.cert.pem
+  [Return]   ${certsDir}/${cert}.cert.pem
+
 Create plain proxy
   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin
 
