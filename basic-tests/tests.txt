@@ -233,7 +233,6 @@ See if voms-proxy-info works even if when no ac is present in proxy
 
 voms-proxy-init should limit proxy lifetime to be consistent with issuing certificate lifetime
 	[Setup]   Use certificate   test0
-	[Tags]   dev
 	${output}   Create proxy   --hours  96426
 	Should Contain   ${output}   proxy lifetime limited to issuing credential lifetime
 	${certEndTime}   Get named certificate end date   test0
@@ -245,7 +244,7 @@ voms-proxy-init should limit proxy lifetime to be consistent with issuing certif
 	Should Be True   ${rc} < 10
 	[Teardown]   Stop using certificate
 
-See if voms-proxy-init does timeout during negotiation
+See if voms-proxy-init read timeout works
 	[Setup]  Use certificate  test0
 	[Tags]   dev
 	${beginLiteral}  Get Time  epoch
@@ -259,6 +258,23 @@ See if voms-proxy-init does timeout during negotiation
 	# and there's two connections to try, so total time should be around 4s
 	${result}  Evaluate  ${time} < 8
 	Should Be True  ${result}
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init connect timeout works
+	[Setup]  Use certificate  test0
+	[Tags]   dev
+	${beginLiteral}  Get Time  epoch
+	${begin}  Convert To Integer  ${beginLiteral}
+	${tmpVomses}   Run   mktemp /tmp/vomsesXXX
+	Execute and Check Success   echo \\"timeout\\" \\"10.255.255.1\\" \\"81\\" \\"/C=IT/O=INFN/OU=Host/L=CNAF/CN=vgrid02.cnaf.infn.it\\" \\"timeout\\" > ${tmpVomses}
+	${output}  Create proxy failure  --voms timeout --timeout 1 --vomses ${tmpVomses}
+	${endLiteral}  Get Time  epoch
+	${end}  Convert To Integer  ${endLiteral}
+	${time}  Evaluate  ${end}-${begin}
+	Should Contain  ${output}  connect timed out
+	# behind connecting, voms-proxy-init needs two secs to do its business,
+	# and there's two connections to try, so total time should be around 4s
+	Should Be True   ${time} < 8
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --version works
