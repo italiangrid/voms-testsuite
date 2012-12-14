@@ -118,7 +118,6 @@ voms-proxy-init can parse p12 certificates
 	[Teardown]   Stop using certificate
 
 voms-proxy-init -cert option understands p12 certificates
-	[Tags]   dev
 	${cert}   Get named p12 certificate path   test0
 	${tmpCert}   Run   mktemp /tmp/voms-p12testXXX
 	Execute and Check Success   cp ${cert} ${tmpCert}
@@ -139,7 +138,6 @@ voms-proxy-init generates proxy with the appropriate file permissions
 
 voms-proxy-init enforces chain integrity
 	[Setup]   Use certificate   test0
-	[Tags]   dev
 	Create proxy   
 	${output}   Create proxy   -noregen -rfc
 	Should Contain   ${output}   forced LEGACY proxy type to be compatible with the type of the issuing proxy.
@@ -155,7 +153,6 @@ voms-proxy-init enforces chain integrity
 
 limited proxies can sign only limited proxies
 	[Setup]   Use certificate   test0
-	[Tags]   dev
 	Create proxy   -limited
 	${output}   Create proxy   -noregen
 	Should Contain   ${output}   forced the creation of a limited proxy to be compatible with the type of the issuing proxy.
@@ -171,7 +168,15 @@ limited proxies can sign only limited proxies
 
 voms-proxy-init correctly fails on mixed proxy chains
 	[Setup]   Setup mixed proxy chain
-	[Tags]   dev
 	${output}   Create proxy failure   --noregen
 	Should Contain   ${output}   Cannot generate a proxy certificate starting from a mixed type proxy chain.
+	[Teardown]   Stop using certificate
+
+voms-proxy-init --order cannot force role requests
+	[Setup]   Use certificate   test0
+	[Tags]   dev
+	Create proxy   -voms test.vo -order /test.vo/G1/Role=R1 -order /test.vo/G1
+	${output}   Get proxy info   --fqan
+	Should Start With   ${output}   /test.vo/G1/Role=NULL/Capability=NULL
+	Should Not Contain   ${output}   /test.vo/G1/Role=R1/Capability=NULL
 	[Teardown]   Stop using certificate
