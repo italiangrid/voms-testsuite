@@ -55,51 +55,51 @@ Check if the option '-exists -valid' fails when it should
 See if voms-proxy-info '--exists --bits' works
   [Setup]  Use certificate  test0
   Create plain Proxy
-  ${output} =  Get proxy info   -exists -bits 1024;echo $?
+  ${output}   Get proxy info   -exists -bits 1024;echo $?
   Should Contain  ${output}  0
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -vo works
   [Setup]  Use certificate  test0
   Create voms proxy
-  ${output} =   Get proxy info  -vo
+  ${output}   Get proxy info  -vo
   Should Contain  ${output}  ${voName}
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -acexists works
   [Setup]  Use certificate  test0
   Create voms proxy
-  ${output} =   Get proxy info  -acexists ${voName};echo $?
+  ${output}   Get proxy info  -acexists ${voName};echo $?
   Should Contain  ${output}  0
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -acissuer works
   [Setup]  Use certificate  test0
   Create voms proxy
-  ${output} =  Get proxy info  -acissuer
+  ${output}   Get proxy info  -acissuer
   Should Match Regexp  ${output}  /C=IT/O=INFN/OU=Host/L=CNAF/CN=${vomsHost} 
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -acsubject works
   [Setup]  Use certificate  test0
   Create voms proxy
-  ${output} =  Get proxy info  -acsubject
+  ${output}   Get proxy info  -acsubject
   Should Match Regexp  ${output}  /C=IT/O=IGI/CN=test0
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -actimeleft works
   [Setup]  Use certificate  test0
   Create voms proxy
-  ${output} =  Get proxy info  -actimeleft
+  ${output}   Get proxy info  -actimeleft
   Should Match Regexp  ${output}  \\d+:\\d+:\\d+
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -fqan works
   [Setup]  Use certificate  test0
   Create voms proxy
-  ${output} =  Get proxy info  -fqan
+  ${output}   Get proxy info  -fqan
   Log  ${output}
-  ${expected}  Set Variable  /${voName}/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/G2/Role=NULL/Capability=NULL\n/${voName}/G2/G3/Role=NULL/Capability=NULL
+  ${expected}   Set Variable  /${voName}/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/G2/Role=NULL/Capability=NULL\n/${voName}/G2/G3/Role=NULL/Capability=NULL
   Log  ${expected}
   Should Be Equal As Strings  ${output}  ${expected}
   [Teardown]  Stop using certificate
@@ -107,7 +107,7 @@ See if voms-proxy-info -fqan works
 See if voms-proxy-info -path works
   [Setup]  Use certificate  test0
   Create voms proxy
-  ${output} =  Get proxy info  -path
+  ${output}   Get proxy info  -path
   Should Match Regexp  ${output}  /tmp/x509up_u\\d+
   [Teardown]  Stop using certificate
 

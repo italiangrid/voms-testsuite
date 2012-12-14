@@ -1,6 +1,15 @@
 *** Settings ***
 Resource   lib/vomslib.txt
 
+
+*** Keywords ***
+
+Setup mixed proxy chain
+	Use certificate   test0
+	Create proxy   
+	Create proxy   -rfc --skip_chain_integrity_checks -noregen
+	Create proxy   -noregen -proxyver 3 --skip_chain_integrity_checks
+
 *** Test Cases ***
 
 See if voms-proxy-destroy -file works
@@ -126,4 +135,43 @@ voms-proxy-init generates proxy with the appropriate file permissions
 	${proxyFile}   Get proxy path
 	${lsOutput}   Run   ls -l ${proxyFile}
 	Should start with   ${lsOutput}   -rw------
+	[Teardown]   Stop using certificate
+
+voms-proxy-init enforces chain integrity
+	[Setup]   Use certificate   test0
+	[Tags]   dev
+	Create proxy   
+	${output}   Create proxy   -noregen -rfc
+	Should Contain   ${output}   forced LEGACY proxy type to be compatible with the type of the issuing proxy.
+	${type}   Get proxy info   --type
+	Should Be Equal   ${type}   full legacy globus proxy
+	Destroy proxy
+	Create proxy   -rfc
+	${output}   Create proxy   -noregen 
+	Should Contain   ${output}   forced RFC3820 proxy type to be compatible with the type of the issuing proxy.
+	${type}   Get proxy info   --type
+	Should Be Equal   ${type}   RFC3820 compliant impersonation proxy
+	[Teardown]   Stop using certificate
+
+limited proxies can sign only limited proxies
+	[Setup]   Use certificate   test0
+	[Tags]   dev
+	Create proxy   -limited
+	${output}   Create proxy   -noregen
+	Should Contain   ${output}   forced the creation of a limited proxy to be compatible with the type of the issuing proxy.
+	${type}   Get proxy info   --type
+	Should Be Equal   ${type}   limited legacy globus proxy
+	Destroy proxy
+	Create proxy   -rfc -limited
+	${output}   Create proxy   -noregen
+	Should Contain   ${output}   forced the creation of a limited proxy to be compatible with the type of the issuing proxy.
+	${type}   Get proxy info   --type
+	Should Be Equal   ${type}   RFC3820 compliant limited proxy
+	[Teardown]   Stop using certificate
+
+voms-proxy-init correctly fails on mixed proxy chains
+	[Setup]   Setup mixed proxy chain
+	[Tags]   dev
+	${output}   Create proxy failure   --noregen
+	Should Contain   ${output}   Cannot generate a proxy certificate starting from a mixed type proxy chain.
 	[Teardown]   Stop using certificate

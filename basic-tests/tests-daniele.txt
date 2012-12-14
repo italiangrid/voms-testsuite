@@ -37,52 +37,59 @@ See if AC validation fails when LSC file does not exist
 See if voms-proxy-init fails correctly when cert and key do not match
 	[Setup]  Use mixed credentials  test0   test1
 	${output}   Create proxy failure
+	Should Contain   ${output}   Provided private key is not matching the certificate
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init fails correctly when the key has incorrect permissions
 	[Setup]  Use certificate   test0
 	Execute and Check Success   chmod 777 %{HOME}/.globus/userkey.pem
-	Create Proxy Failure
+	${output}   Create Proxy Failure
+	Should Contain   ${output}  Wrong file permissions on file %{HOME}/.globus/userkey.pem. Required permissions are: 400 
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init fails correctly when the key is empty
-        [Setup]  Use certificate   test0
+	[Setup]  Use certificate   test0
 	Execute and Check Success   rm -f %{HOME}/.globus/userkey.pem
 	Execute and Check Success   touch %{HOME}/.globus/userkey.pem
-        Create Proxy Failure
-        [Teardown]  Stop using certificate
+	${output}   Create Proxy Failure
+	Should Contain   ${output}   No credentials found!
+	[Teardown]  Stop using certificate
 
 See if voms-proxy-init fails correctly when the key is corrupted
-        [Setup]  Use certificate   test0
-	Execute and Check Success  chmod 777 %{HOME}/.globus/userkey.pem
-        Execute and Check Success  cat %{HOME}/.globus/userkey.pem|tr "\[a-z\]" "\[A-Z\]"> %{HOME}/.globus/userkey.pem
-	Execute and Check Success  chmod 400 %{HOME}/.globus/userkey.pem
-        Create Proxy Failure
-        [Teardown]  Stop using certificate
+	[Setup]  Use certificate   test0
+	${tmpKey}   Run  mktemp /tmp/key-XXX
+	Execute and Check Success  cat %{HOME}/.globus/userkey.pem|tr [a-z] [A-Z] > ${tmpKey}
+	Execute and Check Success   chmod 400 ${tmpKey}
+	${output}   Create Proxy Failure   --cert %{HOME}/.globus/usercert.pem --key ${tmpKey}
+	Should Contain   ${output}   Can not load the PEM private key
+	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --noregen of an rfc proxy works
 	[Setup]  Use certificate   test0
+	[Tags]   dev
 	Create Proxy  -rfc
 	Create Proxy  -noregen -voms ${voName}
+	${info}   Get proxy info   --all
+	Should Contain   ${info}   RFC3820 compliant impersonation proxy
 	[Teardown]  Stop using certificate
 
 Check if voms-proxy-info suceeds on a plain proxy
 	[Setup]  Use certificate   test0
-        Create Proxy
-        Get Proxy Info
-        [Teardown]  Stop using certificate
+    Create Proxy
+    Get Proxy Info
+    [Teardown]  Stop using certificate
 
 See if voms-proxy-init reads ~/.voms/vomses
 	[Setup]  Setup for vomses test  %{HOME}/.voms
-        ${output}  Create Proxy  -debug -voms ${voName}
+	${output}  Create Proxy  -debug -voms ${voName}
 	Should Contain  ${output}  from %{HOME}/.voms
-        [Teardown]  Teardown for vomses test  %{HOME}/.voms
+	[Teardown]  Teardown for vomses test  %{HOME}/.voms
 
 See if voms-proxy-init reads ~/.glite/vomses
-        [Setup]  Setup for vomses test  %{HOME}/.glite
-        ${output}  Create Proxy  -debug -voms ${voName}
-        Should Contain  ${output}  from %{HOME}/.glite
-        [Teardown]  Teardown for vomses test  %{HOME}/.glite
+	[Setup]  Setup for vomses test  %{HOME}/.glite
+	${output}  Create Proxy  -debug -voms ${voName}
+	Should Contain  ${output}  from %{HOME}/.glite
+	[Teardown]  Teardown for vomses test  %{HOME}/.glite
 
 Check the error message if a file cannot be written
 	[Setup]  Use certificate   test0
@@ -93,10 +100,10 @@ Check the error message if a file cannot be written
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --dont_verify_ac works
-        [Setup]  Use certificate   test0	
-        ${output}  Create Proxy   -debug -voms ${voName} --dont_verify_ac
+	[Setup]  Use certificate   test0	
+	${output}  Create Proxy   -debug -voms ${voName} --dont_verify_ac
 	Should Not Contain  ${output}  VOMS AC validation for VO ${voName} succeded 
-        [Teardown]  Stop using certificate
+	[Teardown]  Stop using certificate
 
 Check that voms-proxy-init requesting more than two FQANs works as expected
 	[Setup]  Use certificate   test0
