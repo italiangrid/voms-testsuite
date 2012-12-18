@@ -174,9 +174,24 @@ voms-proxy-init correctly fails on mixed proxy chains
 
 voms-proxy-init --order cannot force role requests
 	[Setup]   Use certificate   test0
-	[Tags]   dev
 	Create proxy   -voms test.vo -order /test.vo/G1/Role=R1 -order /test.vo/G1
 	${output}   Get proxy info   --fqan
 	Should Start With   ${output}   /test.vo/G1/Role=NULL/Capability=NULL
 	Should Not Contain   ${output}   /test.vo/G1/Role=R1/Capability=NULL
+	[Teardown]   Stop using certificate
+
+multiple voms-proxy-init -noregen work as expected
+	[Setup]   Use certificate   test0
+	[Tags]   dev
+	Create proxy   -voms test.vo
+	Create proxy   -noregen
+	Create proxy   -noregen
+	Create proxy   -noregen
+	Create proxy   -noregen
+	Create proxy   -noregen
+	${certificateSubject}   Get named certificate subject   test0
+	${subject}   Get proxy info   --subject
+	${fqans}   Get proxy info   --fqan
+	Should Be Equal   ${subject}  ${certificateSubject}/CN=proxy/CN=proxy/CN=proxy/CN=proxy/CN=proxy/CN=proxy
+	Should Start With   ${fqans}  /test.vo/Role=NULL/Capability=NULL 
 	[Teardown]   Stop using certificate
