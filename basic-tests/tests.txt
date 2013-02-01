@@ -167,12 +167,12 @@ See if voms-proxy-init --ignorewarn works
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --order works
-        [Setup]  Use certificate  test0
-        Create proxy   -voms ${voName} -order /${voName}/G1
-        ${output}  Get proxy info  -fqan
-        ${expected}  Set Variable  /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL\n/${voName}/G2/Role=NULL/Capability=NULL\n/${voName}/G2/G3/Role=NULL/Capability=NULL
-        Should Be Equal As Strings  ${output}  ${expected}
-        [Teardown]  Stop using certificate
+	[Setup]  Use certificate  test0
+	Create proxy   -voms ${voName} -order /${voName}/G1
+	${output}  Get proxy info  -fqan
+  ${expected}  Set Variable  /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL\n/${voName}/G2/Role=NULL/Capability=NULL\n/${voName}/G2/G3/Role=NULL/Capability=NULL
+  Should Be Equal As Strings  ${output}  ${expected}
+  [Teardown]  Stop using certificate
 
 See if voms-proxy-init --order works with multiple arguments
         [Setup]  Use certificate  test0
@@ -183,17 +183,17 @@ See if voms-proxy-init --order works with multiple arguments
         [Teardown]  Stop using certificate
 
 See if a target can be added to a proxy
-        [Setup]  Use certificate  test0
-		${target}  Run   hostname -f
-        ${output}  Create proxy  -voms ${voName} -target ${target}
-		Should Not Contain   ${output}  AC target check failed
-        [Teardown]  Stop using certificate
+	[Setup]  Use certificate  test0
+	${target}  Run   hostname -f
+	${output}  Create proxy  -voms ${voName} -target ${target}
+	Should Not Contain   ${output}  AC target check failed
+	[Teardown]  Stop using certificate
 
 See if voms-proxy-init fails with a fake target
-        [Setup]  Use certificate  test0       
-        ${output}  Create proxy  -voms ${voName} -target fake.cnaf.infn.it
-		Should Contain   ${output}  AC target check failed
-        [Teardown]  Stop using certificate
+	[Setup]  Use certificate  test0       
+	${output}  Create proxy  -voms ${voName} -target fake.cnaf.infn.it
+	Should Contain   ${output}  AC target check failed
+	[Teardown]  Stop using certificate
 
 See if voms-proxy-init manages unrecognized options
 	[Setup]  Use certificate  test0
@@ -201,13 +201,19 @@ See if voms-proxy-init manages unrecognized options
 	Should Contain  ${output}  Unrecognized option:
 	[Teardown]  Stop using certificate
 
-See if voms-proxy-info warns when X509_CERT_DIR does not point to a directory
+See if voms-proxy-init --certdir works
+	[Setup]  Prepare certdir with test0 revoked
+	${output}  Create Proxy Failure  --certdir certificates --verify
+	Should Contain  ${output}  Certificate was revoked
+	[Teardown]  Clean certdir with test0 revoked
+
+See if voms-proxy-init warns when X509_CERT_DIR does not point to a directory
 	[Setup]  Setup for X509_CERT_DIR test   /unlikely/path
 	${output}  Create Proxy Failure  --verify
 	Should Contain  ${output}  is not a directory
 	[Teardown]  Teardown for X509_CERT_DIR test
 
-See if voms-proxy-info writes an error message without CA certificates
+See if voms-proxy-init writes an error message when the trust anchors location does not contain the ca
 	[Setup]  Setup for X509_CERT_DIR test   /tmp
 	${output}  Create Proxy Failure  --verify
 	Should Contain  ${output}  No valid CRL was found for the CA which issued the chain
