@@ -10,6 +10,12 @@ Setup mixed proxy chain
 	Create proxy   -rfc --skip_chain_integrity_checks -noregen
 	Create proxy   -noregen -proxyver 3 --skip_chain_integrity_checks
 
+Setup invalid vomsdir 
+	${tmpVomsDir}   Run   mktemp -d /tmp/vomsdir-XXXX
+	Create Directory   ${tmpVomsDir}/test.vo.2
+	Create File   ${tmpVomsDir}/test.vo.2/vgrid02.cnaf.infn.it.lsc   "/C=IT/O=INFN/OU=Host/L=CNAF/CN=vgrid02.cnaf.infn.it\n/C=IT/O=INFN/CN=INFN CA"
+	Set Environment Variable   __VOMS_CUSTOM_VOMSDIR__   ${tmpVomsDir}
+
 *** Test Cases ***
 
 See if voms-proxy-destroy -file works
@@ -182,7 +188,6 @@ voms-proxy-init --order cannot force role requests
 
 multiple voms-proxy-init -noregen work as expected
 	[Setup]   Use certificate   test0
-	[Tags]   dev
 	Create proxy   -voms test.vo
 	Create proxy   -noregen
 	Create proxy   -noregen
@@ -194,4 +199,33 @@ multiple voms-proxy-init -noregen work as expected
 	${fqans}   Get proxy info   --fqan
 	Should Be Equal   ${subject}  ${certificateSubject}/CN=proxy/CN=proxy/CN=proxy/CN=proxy/CN=proxy/CN=proxy
 	Should Start With   ${fqans}  /test.vo/Role=NULL/Capability=NULL 
+	[Teardown]   Stop using certificate
+
+voms-proxy-init --vomsdir fails with non-existent vomsdir 
+	[Setup]   Use certificate   test0
+	${output}   Create proxy failure   -voms test.vo -vomsdir /unlikely/path
+	Should Contain   ${output}   Invalid vomsdir location: '/unlikely/path' (file not found) 
+	[Teardown]   Stop using certificate
+
+voms-proxy-init --vomsdir fails with empty vomsdir 
+	[Setup]   Use certificate   test0
+	${tmpVomsDir}   Run   mktemp -d /tmp/voms-dir-XXXX
+	${output}   Create proxy failure   -voms test.vo -vomsdir ${tmpVomsDir}
+	Should Contain   ${output}   No VOMS trust information loaded from the given trust dirs
+	[Teardown]   Stop using certificate
+
+voms-proxy-init --vomsdir overrides standard vomsdir
+	[Setup]   Use certificate   test0
+	Setup invalid vomsdir 
+	${tmpVomsDir}   Get Environment Variable   __VOMS_CUSTOM_VOMSDIR__
+	${output}   Create proxy   -voms test.vo -vomsdir ${tmpVomsDir}
+	Should Contain   ${output}   LSC validation failed: LSC file matching VOMS attributes not found in store.
+	Remove Environment Variable   __VOMS_CUSTOM_VOMSDIR__
+	[Teardown]   Stop using certificate
+
+voms-proxy-init --certdir fails nicely with non-existent directory
+	[Tags]   dev
+	[Setup]   Use certificate   test0
+	${output}   Create proxy failure   -voms test.vo -certdir /unlikely/path
+	Should Contain   ${output}   Invalid trust anchors location: '/unlikely/path' (file not found)
 	[Teardown]   Stop using certificate

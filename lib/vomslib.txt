@@ -191,15 +191,3 @@ Proxy should exist
 Get proxy path
 	${userId}   Run   id -u
 	[Return]   /tmp/x509up_u${userId}
-
-Prepare certdir with test0 revoked
-	Run  mkdir certificates
-	Run  cp /etc/grid-security/certificates/10b10516.0 certificates
-	Run  cp /etc/grid-security/certificates/d82942ab.0 certificates
-	Run  cp ${certsDir}/custom-crls/10b10516.r0 certificates
-	Run  cp ${certsDir}/custom-crls/d82942ab.r0 certificates
-	Use certificate  test0
-
-Clean certdir with test0 revoked
-	Run  rm -rf certificates	
-	Stop using certificate
