@@ -13,7 +13,7 @@ Setup mixed proxy chain
 Setup invalid vomsdir 
 	${tmpVomsDir}   Run   mktemp -d /tmp/vomsdir-XXXX
 	Create Directory   ${tmpVomsDir}/${vo2}
-	Create File   ${tmpVomsDir}/${vo2}/vgrid02.cnaf.infn.it.lsc   "/C=IT/O=INFN/OU=Host/L=CNAF/CN=vgrid02.cnaf.infn.it\n/C=IT/O=INFN/CN=INFN CA"
+	Create File   ${tmpVomsDir}/${vo2}/${vo2_host}  "${vo2_issuer}\n/C=IT/O=INFN/CN=INFN CA"
 	Set Environment Variable   __VOMS_CUSTOM_VOMSDIR__   ${tmpVomsDir}
 
 *** Test Cases ***

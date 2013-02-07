@@ -304,7 +304,7 @@ See if voms-proxy-init connect timeout works
 	${beginLiteral}  Get Time  epoch
 	${begin}  Convert To Integer  ${beginLiteral}
 	${tmpVomses}   Run   mktemp /tmp/vomsesXXX
-	Execute and Check Success   echo \\"timeout\\" \\"10.255.255.1\\" \\"81\\" \\"/C=IT/O=INFN/OU=Host/L=CNAF/CN=vgrid02.cnaf.infn.it\\" \\"timeout\\" > ${tmpVomses}
+	Execute and Check Success   echo \\"timeout\\" \\"10.255.255.1\\" \\"81\\" \\"${vo_issuer}\\" \\"timeout\\" > ${tmpVomses}
 	${output}  Create proxy failure  --voms timeout --timeout 1 --vomses ${tmpVomses}
 	${endLiteral}  Get Time  epoch
 	${end}  Convert To Integer  ${endLiteral}
