@@ -6,9 +6,11 @@ Documentation  A set of regression tests for bugs
 *** Test Cases ***
 
 See if voms-proxy-init --version returns after displaying the version
+	[Tags]  debug
 	${output}  Create Proxy  --version
-	Should Match Regexp  ${output}  	voms-proxy-init v. \\w
+	Should Match Regexp  ${output}  voms-proxy-init v. \\w
 
 See if voms-proxy-info --version returns after displaying the version
+	[Tags]  debug
 	${output}  Get proxy info  --version
-	Should Match Regexp  ${output}  	voms-proxy-info v. \\w
+	Should Match Regexp  ${output}  voms-proxy-info v. \\w

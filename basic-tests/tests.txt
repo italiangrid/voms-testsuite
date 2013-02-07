@@ -41,31 +41,36 @@ A user gets the right message when trying to create a proxy providing the wrong 
   [Teardown]  Stop using certificate
 
 A user cannot get a proxy from a VO she does not belong to
+ 	[Tags]  remote
   [Setup]   Use certificate   test5
   Check voms-proxy-init failure  User unknown to this VO
   [Teardown]   Stop using certificate
 
 A user can get a proxy from a VO she belongs to
-  [Setup]   Use certificate   test0
+  [Tags]  remote
+	[Setup]   Use certificate   test0
   Create voms proxy
   [Teardown]   Stop using certificate 
 
 A user cannot obtain a proxy with an expired certificate
-  [Setup]   Use certificate   expired
+  [Tags]  remote
+	[Setup]   Use certificate   expired
   Check voms-proxy-init failure   expired
   [Teardown]   Stop using certificate
 
 A user cannot obtain a proxy with a revoked certificate
-  [Setup]   Use certificate   revoked
+  [Tags]  remote
+	[Setup]   Use certificate   revoked
   Check voms-proxy-init failure   revoked
   [Teardown]   Stop using certificate
 
 A user can obtain a role she holds from a VO she belongs to
-        [Setup]  Use certificate  test0
-        Create proxy   -voms ${vo1}:/${vo1}/G1/Role=R1
-        ${output}  Get proxy info  -fqan
-        Should Contain  ${output}  /${vo1}/G1/Role=R1
-        [Teardown]  Stop using certificate
+  [Tags]  remote
+	[Setup]  Use certificate  test0
+  Create proxy   -voms ${vo1}:/${vo1}/G1/Role=R1
+  ${output}  Get proxy info  -fqan
+  Should Contain  ${output}  /${vo1}/G1/Role=R1
+  [Teardown]  Stop using certificate
  
 See if voms-proxy-init --hours works
   [Setup]   Use certificate   test0
@@ -79,7 +84,8 @@ See if voms-proxy-init --hours works
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --noregen works
-  [Setup]   Use certificate   test0
+  [Tags]  remote
+	[Setup]   Use certificate   test0
   ${output}  Create voms proxy
   ${output}   Create proxy   -noregen 
   Should Contain  ${output}  Created proxy
@@ -95,19 +101,21 @@ See if voms-proxy-init --old works
   [Teardown]   Stop using certificate
 
 See if voms-proxy-init detects fake arguments
-  [Setup]  Use certificate  test0
+	[Setup]  Use certificate  test0
   ${output}   Create proxy failure  --voms voms1 junk
   Should Contain  ${output}  Check your vomses configuration
   [Teardown]  Stop using certificate
 
 See if requesting a too long proxy fails
+  [Tags]  remote
   [Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} --valid 100:00
   Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
   [Teardown]  Stop using certificate
 
 Can AC validity be limited?
-  [Setup]  Use certificate  test0
+  [Tags]  remote
+	[Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} --vomslife 5:00
   ${output}   Get proxy info  -all
   Should Match Regexp  ${output}  timeleft\\s+:\\s+(11|12):\\d+:\\d+
@@ -115,7 +123,8 @@ Can AC validity be limited?
   [Teardown]  Stop using certificate
 
 See if requesting a too long ac length fails
-  [Setup]  Use certificate  test0
+  [Tags]  remote
+	[Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} --vomslife 100:00
   Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
   [Teardown]  Stop using certificate
@@ -136,7 +145,8 @@ See if a proxy type is detected correctly
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --quiet works
-  [Setup]  Use certificate  test0
+  [Tags]  remote
+	[Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} -q 
   Should Be Equal  ${output}  ${EMPTY}
   [Teardown]  Stop using certificate
@@ -171,6 +181,7 @@ See if voms-proxy-init --path_length works
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --failonwarn works
+	[Tags]  remote
 	[Setup]  Use certificate  test0
 	${rc}  Run and Return RC  echo ${privateKeyPassword} | voms-proxy-init -pwstdin -voms ${vo1} --failonwarn --valid 100:00
 	Should Be Equal As Integers  ${rc}  1
@@ -183,6 +194,7 @@ See if voms-proxy-init --ignorewarn works
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --order works
+	[Tags]  remote
 	[Setup]  Use certificate  test0
 	Create proxy   -voms ${vo1} -order /${vo1}/G1
 	${output}  Get proxy info  -fqan
@@ -191,14 +203,16 @@ See if voms-proxy-init --order works
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --order works with multiple arguments
-        [Setup]  Use certificate  test0
-        Create proxy   -voms ${vo1} -order /${vo1}/G2/G3 -order /${vo1}/G2 
-        ${output}  Get proxy info  -fqan
-        ${expected}  Set Variable  /${vo1}/G2/G3/Role=NULL/Capability=NULL\n/${vo1}/G2/Role=NULL/Capability=NULL\n/${vo1}/G1/Role=NULL/Capability=NULL\n/${vo1}/Role=NULL/Capability=NULL
-        Should Be Equal As Strings  ${output}  ${expected}
-        [Teardown]  Stop using certificate
+  [Tags]  remote
+	[Setup]  Use certificate  test0
+  Create proxy   -voms ${vo1} -order /${vo1}/G2/G3 -order /${vo1}/G2 
+  ${output}  Get proxy info  -fqan
+  ${expected}  Set Variable  /${vo1}/G2/G3/Role=NULL/Capability=NULL\n/${vo1}/G2/Role=NULL/Capability=NULL\n/${vo1}/G1/Role=NULL/Capability=NULL\n/${vo1}/Role=NULL/Capability=NULL
+  Should Be Equal As Strings  ${output}  ${expected}
+  [Teardown]  Stop using certificate
 
 See if a target can be added to a proxy
+	[Tags]  remote
 	[Setup]  Use certificate  test0
 	${target}  Run   hostname -f
 	${output}  Create proxy  -voms ${vo1} -target ${target}
@@ -206,6 +220,7 @@ See if a target can be added to a proxy
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init fails with a fake target
+	[Tags]  remote
 	[Setup]  Use certificate  test0       
 	${output}  Create proxy  -voms ${vo1} -target fake.cnaf.infn.it
 	Should Contain   ${output}  AC target check failed
@@ -301,33 +316,35 @@ See if voms-proxy-init connect timeout works
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --version works
-        [Setup]  Use certificate  test0
-        ${output}  Create Proxy  --version
-        Should Contain  ${output}   voms-proxy-init
-        [Teardown]  Stop using certificate
+  [Setup]  Use certificate  test0
+  ${output}  Create Proxy  --version
+  Should Contain  ${output}   voms-proxy-init
+  [Teardown]  Stop using certificate
 
 See if voms-proxy-init -help works
-        ${output}  Create Proxy  -help
-        Should Contain  ${output}   usage: voms-proxy-init [options]
+  ${output}  Create Proxy  -help
+  Should Contain  ${output}   usage: voms-proxy-init [options]
 
 See if voms-proxy-init --proxyver 10 fails correctly
-        ${output}  Create Proxy failure  -proxyver 10
+  ${output}  Create Proxy failure  -proxyver 10
 
 See if -pwstdin works with voms-proxy-init
-        [Setup]  Use certificate  test0
-        Create proxy
-        [Teardown]  Stop using certificate
+  [Setup]  Use certificate  test0
+  Create proxy
+  [Teardown]  Stop using certificate
 
 See if voms does not allow expansion of credential set
-        [Setup]  Use certificate  test0
-        Create proxy   -voms ${vo1}
-        Create proxy   -voms ${vo1}:/${vo1}/G1/Role=R1 --valid 10:00 --noregen
-        ${output}  Get proxy info  -all
-        Should Not Contain   ${output}  /${vo1}/G1/Role=R1
-        [Teardown]  Stop using certificate
+  [Tags]  remote
+	[Setup]  Use certificate  test0
+  Create proxy   -voms ${vo1}
+  Create proxy   -voms ${vo1}:/${vo1}/G1/Role=R1 --valid 10:00 --noregen
+  ${output}  Get proxy info  -all
+  Should Not Contain   ${output}  /${vo1}/G1/Role=R1
+  [Teardown]  Stop using certificate
 
 See if missing certificate implies an error
-        Create proxy failure  -voms ${vo1}
+  [Tags]  remote
+	Create proxy failure  -voms ${vo1}
 
 See if voms-proxy-destroy --dry works
 	[Setup]  Use certificate  test0
@@ -344,6 +361,7 @@ See if voms-proxy-init --out fails correctly when given a wrong location
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --debug works
+	[Tags]  remote
 	[Setup]  Use certificate  test0
 	${output}  Create proxy  --voms ${vo1} --debug
 	Should Contain  ${output}  Looking for user credentials in
@@ -362,6 +380,7 @@ See if voms-proxy-init --debug works
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --vomses fails correctly when given a wrong location
+	[Tags]  remote
 	[Setup]  Use certificate  test0
 	Should Not Exist  /unlikely/path
 	${output}  Create proxy failure  --voms ${vo1} --vomses /unlikely/path
@@ -377,6 +396,3 @@ See if voms-proxy-init -pwstdin fails correctly when no password is provided
 	Should contain  ${output}  Can not load PEM private key: the password is incorrect or the PEM data is corrupted	
 	Should contain  ${output}  No credentials found!
 	[Teardown]  Stop using certificate
-
-
-	

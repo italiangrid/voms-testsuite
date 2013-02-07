@@ -30,6 +30,7 @@ See if AC validation works when LSC file exists
 	[Teardown]  Stop using certificate
 
 See if AC validation fails when LSC file does not exist
+	[Tags]  remote
 	[Setup]  Setup for X509_VOMS_DIR test  /tmp
 	Create proxy failure   -voms ${vo1}
 	[Teardown]  Teardown for X509_VOMS_DIR test
@@ -65,6 +66,7 @@ See if voms-proxy-init fails correctly when the key is corrupted
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --noregen of an rfc proxy works
+	[Tags]  remote
 	[Setup]  Use certificate   test0
 	[Tags]   dev
 	Create Proxy  -rfc
@@ -75,17 +77,19 @@ See if voms-proxy-init --noregen of an rfc proxy works
 
 Check if voms-proxy-info suceeds on a plain proxy
 	[Setup]  Use certificate   test0
-    Create Proxy
-    Get Proxy Info
-    [Teardown]  Stop using certificate
+	Create Proxy
+	Get Proxy Info
+	[Teardown]  Stop using certificate
 
 See if voms-proxy-init reads ~/.voms/vomses
+	[Tags]  remote
 	[Setup]  Setup for vomses test  %{HOME}/.voms
 	${output}  Create Proxy  -debug -voms ${vo1}
 	Should Contain  ${output}  from %{HOME}/.voms
 	[Teardown]  Teardown for vomses test  %{HOME}/.voms
 
 See if voms-proxy-init reads ~/.glite/vomses
+	[Tags]  remote
 	[Setup]  Setup for vomses test  %{HOME}/.glite
 	${output}  Create Proxy  -debug -voms ${vo1}
 	Should Contain  ${output}  from %{HOME}/.glite
@@ -100,13 +104,14 @@ Check the error message if a file cannot be written
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init --dont_verify_ac works
+	[Tags]  remote
 	[Setup]  Use certificate   test0	
 	${output}  Create Proxy   -debug -voms ${vo1} --dont_verify_ac
 	Should Not Contain  ${output}  VOMS AC validation for VO ${vo1} succeded 
 	[Teardown]  Stop using certificate
 
 Check that voms-proxy-init requesting more than two FQANs works as expected
+	[Tags]  remote
 	[Setup]  Use certificate   test0
 	Create Proxy  voms-proxy-init -voms ${vo1}:/${vo1}/G1/Role=R1 -voms ${vo1}:/${vo1}/G1 -voms ${vo1}:/${vo1}
 	[Teardown]  Stop using certificate
-

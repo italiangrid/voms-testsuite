@@ -19,28 +19,31 @@ Setup invalid vomsdir
 *** Test Cases ***
 
 See if voms-proxy-destroy -file works
-    [Setup]  Use certificate  test0
-    Create Proxy  --out /tmp/to_be_deleted
+	[Setup]  Use certificate  test0
+	Create Proxy  --out /tmp/to_be_deleted
 	Destroy Proxy  --file /tmp/to_be_deleted
 	File Should Not Exist   /tmp/to_be_deleted
-    [Teardown]  Stop using certificate
+	[Teardown]  Stop using certificate
 
 See if a requested role ends up as primary fqan
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	Create proxy   --voms ${vo1}:/${vo1}/G1/Role=R1
 	${output}	Get proxy info   --fqan
 	Should Start With   ${output}   /${vo1}/G1/Role=R1/Capability=NULL
-    [Teardown]  Stop using certificate
+	[Teardown]  Stop using certificate
 
 See if multiple -voms work as expected
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	Create proxy   --voms ${vo1}:/${vo1}/G1 --voms ${vo1}:/${vo1}/G1/Role=R1 
 	${output}	Get proxy info   --fqan
 	Should Start With   ${output}   /${vo1}/G1/Role=NULL/Capability=NULL
 	Should Contain   ${output}   /${vo1}/G1/Role=R1/Capability=NULL
-    [Teardown]  Stop using certificate
+	[Teardown]  Stop using certificate
 
 See if request for multiple VOs work as expected
+	[Tags]  remote
 	[Documentation]   ACs for multiple VOs should be included in the proxy in the same order as they are requested
 	[Setup]   Use certificate   test0
 	Create proxy   --voms ${vo2} --voms ${vo1} 
@@ -50,6 +53,7 @@ See if request for multiple VOs work as expected
 	[Teardown]   Stop using certificate
 
 See if voms-proxy-init -noregen work as expected
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	Create proxy   
 	Execute And Check Success   voms-proxy-init -noregen -voms ${vo1}
@@ -61,12 +65,14 @@ See if voms-proxy-init -noregen work as expected
 	[Teardown]   Stop using certificate
 
 Non member request for role should fail
+	[Tags]  remote
 	[Setup]   Use certificate   test3
 	${output}   Create proxy failure   -voms ${vo1}:/${vo1}/G1/Role=R1
 	Should Contain   ${output}   User unknown to this VO
 	[Teardown]   Stop using certificate
 
 Request for non-existing role should fail
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	${output}   Create proxy failure   -voms ${vo1}:/${vo1}/G1/Role=Berlusconi
 	Should Contain   ${output}   Remote VOMS server contacted succesfully.
@@ -98,6 +104,7 @@ Invalid validity request should fail
 	[Teardown]   Stop using certificate
 
 Invalid vomslife request should fail
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	${output}   Create proxy failure   -vomslife 5000
 	Should Contain   ${output}  Illegal format for lifetime property. 
@@ -110,6 +117,7 @@ Invalid vomslife request should fail
 	[Teardown]   Stop using certificate
 
 Request for unknown VO should produce meaningful error message
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	${output}   Create proxy failure   -voms paolabarale
 	Should Contain   ${output}   VOMS server for VO paolabarale is not known! Check your vomses configuration.
@@ -120,7 +128,7 @@ voms-proxy-init can parse p12 certificates
 	Create proxy 
 	${proxySubject}   Get proxy info   --subject
 	${certSubject}   Get named certificate subject   test0
-    Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy
+	Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy
 	[Teardown]   Stop using certificate
 
 voms-proxy-init -cert option understands p12 certificates
@@ -179,6 +187,7 @@ voms-proxy-init correctly fails on mixed proxy chains
 	[Teardown]   Stop using certificate
 
 voms-proxy-init --order cannot force role requests
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	Create proxy   -voms ${vo1} -order /${vo1}/G1/Role=R1 -order /${vo1}/G1
 	${output}   Get proxy info   --fqan
@@ -187,6 +196,7 @@ voms-proxy-init --order cannot force role requests
 	[Teardown]   Stop using certificate
 
 multiple voms-proxy-init -noregen work as expected
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	Create proxy   -voms ${vo1}
 	Create proxy   -noregen
@@ -202,12 +212,14 @@ multiple voms-proxy-init -noregen work as expected
 	[Teardown]   Stop using certificate
 
 voms-proxy-init --vomsdir fails with non-existent vomsdir 
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	${output}   Create proxy failure   -voms ${vo1} -vomsdir /unlikely/path
 	Should Contain   ${output}   Invalid vomsdir location: '/unlikely/path' (file not found) 
 	[Teardown]   Stop using certificate
 
 voms-proxy-init --vomsdir fails with empty vomsdir 
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	${tmpVomsDir}   Run   mktemp -d /tmp/voms-dir-XXXX
 	${output}   Create proxy failure   -voms ${vo1} -vomsdir ${tmpVomsDir}
@@ -215,6 +227,7 @@ voms-proxy-init --vomsdir fails with empty vomsdir
 	[Teardown]   Stop using certificate
 
 voms-proxy-init --vomsdir overrides standard vomsdir
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	Setup invalid vomsdir 
 	${tmpVomsDir}   Get Environment Variable   __VOMS_CUSTOM_VOMSDIR__
@@ -224,6 +237,7 @@ voms-proxy-init --vomsdir overrides standard vomsdir
 	[Teardown]   Stop using certificate
 
 voms-proxy-init --certdir fails nicely with non-existent directory
+	[Tags]  remote
 	[Setup]   Use certificate   test0
 	${output}   Create proxy failure   -voms ${vo1} -certdir /unlikely/path
 	Should Contain   ${output}   Invalid trust anchors location: '/unlikely/path' (file not found)
@@ -231,11 +245,11 @@ voms-proxy-init --certdir fails nicely with non-existent directory
 
 long delegation chain work as expected
 	[Tags]   dev
-    [Setup]   Use certificate   test0
-    Create proxy
-    Create proxy   -noregen
-    Create proxy   -noregen
-    Create proxy   -noregen
-    Create proxy   -noregen
-    ${output}   Create proxy   -voms ${vo1}
-    [Teardown]   Stop using certificate
+	[Setup]   Use certificate   test0
+	Create proxy
+	Create proxy   -noregen
+	Create proxy   -noregen
+	Create proxy   -noregen
+	Create proxy   -noregen
+	${output}   Create proxy   -voms ${vo1}
+	[Teardown]   Stop using certificate
