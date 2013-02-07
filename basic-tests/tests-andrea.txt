@@ -244,7 +244,7 @@ voms-proxy-init --certdir fails nicely with non-existent directory
 	[Teardown]   Stop using certificate
 
 long delegation chain work as expected
-	[Tags]   dev
+	[Tags]   dev,remote
 	[Setup]   Use certificate   test0
 	Create proxy
 	Create proxy   -noregen
