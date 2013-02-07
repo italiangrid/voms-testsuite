@@ -12,8 +12,8 @@ Setup mixed proxy chain
 
 Setup invalid vomsdir 
 	${tmpVomsDir}   Run   mktemp -d /tmp/vomsdir-XXXX
-	Create Directory   ${tmpVomsDir}/test.vo.2
-	Create File   ${tmpVomsDir}/test.vo.2/vgrid02.cnaf.infn.it.lsc   "/C=IT/O=INFN/OU=Host/L=CNAF/CN=vgrid02.cnaf.infn.it\n/C=IT/O=INFN/CN=INFN CA"
+	Create Directory   ${tmpVomsDir}/${vo2}
+	Create File   ${tmpVomsDir}/${vo2}/vgrid02.cnaf.infn.it.lsc   "/C=IT/O=INFN/OU=Host/L=CNAF/CN=vgrid02.cnaf.infn.it\n/C=IT/O=INFN/CN=INFN CA"
 	Set Environment Variable   __VOMS_CUSTOM_VOMSDIR__   ${tmpVomsDir}
 
 *** Test Cases ***
@@ -27,48 +27,48 @@ See if voms-proxy-destroy -file works
 
 See if a requested role ends up as primary fqan
 	[Setup]   Use certificate   test0
-	Create proxy   --voms ${voName}:/${voName}/G1/Role=R1
+	Create proxy   --voms ${vo1}:/${vo1}/G1/Role=R1
 	${output}	Get proxy info   --fqan
-	Should Start With   ${output}   /${voName}/G1/Role=R1/Capability=NULL
+	Should Start With   ${output}   /${vo1}/G1/Role=R1/Capability=NULL
     [Teardown]  Stop using certificate
 
 See if multiple -voms work as expected
 	[Setup]   Use certificate   test0
-	Create proxy   --voms ${voName}:/${voName}/G1 --voms ${voName}:/${voName}/G1/Role=R1 
+	Create proxy   --voms ${vo1}:/${vo1}/G1 --voms ${vo1}:/${vo1}/G1/Role=R1 
 	${output}	Get proxy info   --fqan
-	Should Start With   ${output}   /${voName}/G1/Role=NULL/Capability=NULL
-	Should Contain   ${output}   /${voName}/G1/Role=R1/Capability=NULL
+	Should Start With   ${output}   /${vo1}/G1/Role=NULL/Capability=NULL
+	Should Contain   ${output}   /${vo1}/G1/Role=R1/Capability=NULL
     [Teardown]  Stop using certificate
 
 See if request for multiple VOs work as expected
 	[Documentation]   ACs for multiple VOs should be included in the proxy in the same order as they are requested
 	[Setup]   Use certificate   test0
-	Create proxy   --voms ${voName}.2 --voms ${voName} 
+	Create proxy   --voms ${vo2} --voms ${vo1} 
 	${output}	Get proxy info   --fqan
-	Should Start With   ${output}   /${voName}.2/Role=NULL/Capability=NULL
-	Should Contain   ${output}   /${voName}/Role=NULL/Capability=NULL
+	Should Start With   ${output}   /${vo2}/Role=NULL/Capability=NULL
+	Should Contain   ${output}   /${vo1}/Role=NULL/Capability=NULL
 	[Teardown]   Stop using certificate
 
 See if voms-proxy-init -noregen work as expected
 	[Setup]   Use certificate   test0
 	Create proxy   
-	Execute And Check Success   voms-proxy-init -noregen -voms ${voName}
+	Execute And Check Success   voms-proxy-init -noregen -voms ${vo1}
 	${fqans}	Get proxy info   --fqan
 	${proxySubject}   Get proxy info   --subject
 	${certSubject}   Get named certificate subject   test0
 	Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy/CN=proxy
-	Should Contain   ${fqans}   /${voName}/Role=NULL/Capability=NULL
+	Should Contain   ${fqans}   /${vo1}/Role=NULL/Capability=NULL
 	[Teardown]   Stop using certificate
 
 Non member request for role should fail
 	[Setup]   Use certificate   test3
-	${output}   Create proxy failure   -voms ${voName}:/${voName}/G1/Role=R1
+	${output}   Create proxy failure   -voms ${vo1}:/${vo1}/G1/Role=R1
 	Should Contain   ${output}   User unknown to this VO
 	[Teardown]   Stop using certificate
 
 Request for non-existing role should fail
 	[Setup]   Use certificate   test0
-	${output}   Create proxy failure   -voms ${voName}:/${voName}/G1/Role=Berlusconi
+	${output}   Create proxy failure   -voms ${vo1}:/${vo1}/G1/Role=Berlusconi
 	Should Contain   ${output}   Remote VOMS server contacted succesfully.
 	Should Contain   ${output}   User's request for VOMS attributes could not be fulfilled.
 	[Teardown]   Stop using certificate
@@ -180,15 +180,15 @@ voms-proxy-init correctly fails on mixed proxy chains
 
 voms-proxy-init --order cannot force role requests
 	[Setup]   Use certificate   test0
-	Create proxy   -voms test.vo -order /test.vo/G1/Role=R1 -order /test.vo/G1
+	Create proxy   -voms ${vo1} -order /${vo1}/G1/Role=R1 -order /${vo1}/G1
 	${output}   Get proxy info   --fqan
-	Should Start With   ${output}   /test.vo/G1/Role=NULL/Capability=NULL
-	Should Not Contain   ${output}   /test.vo/G1/Role=R1/Capability=NULL
+	Should Start With   ${output}   /${vo1}/G1/Role=NULL/Capability=NULL
+	Should Not Contain   ${output}   /${vo1}/G1/Role=R1/Capability=NULL
 	[Teardown]   Stop using certificate
 
 multiple voms-proxy-init -noregen work as expected
 	[Setup]   Use certificate   test0
-	Create proxy   -voms test.vo
+	Create proxy   -voms ${vo1}
 	Create proxy   -noregen
 	Create proxy   -noregen
 	Create proxy   -noregen
@@ -198,19 +198,19 @@ multiple voms-proxy-init -noregen work as expected
 	${subject}   Get proxy info   --subject
 	${fqans}   Get proxy info   --fqan
 	Should Be Equal   ${subject}  ${certificateSubject}/CN=proxy/CN=proxy/CN=proxy/CN=proxy/CN=proxy/CN=proxy
-	Should Start With   ${fqans}  /test.vo/Role=NULL/Capability=NULL 
+	Should Start With   ${fqans}  /${vo1}/Role=NULL/Capability=NULL 
 	[Teardown]   Stop using certificate
 
 voms-proxy-init --vomsdir fails with non-existent vomsdir 
 	[Setup]   Use certificate   test0
-	${output}   Create proxy failure   -voms test.vo -vomsdir /unlikely/path
+	${output}   Create proxy failure   -voms ${vo1} -vomsdir /unlikely/path
 	Should Contain   ${output}   Invalid vomsdir location: '/unlikely/path' (file not found) 
 	[Teardown]   Stop using certificate
 
 voms-proxy-init --vomsdir fails with empty vomsdir 
 	[Setup]   Use certificate   test0
 	${tmpVomsDir}   Run   mktemp -d /tmp/voms-dir-XXXX
-	${output}   Create proxy failure   -voms test.vo -vomsdir ${tmpVomsDir}
+	${output}   Create proxy failure   -voms ${vo1} -vomsdir ${tmpVomsDir}
 	Should Contain   ${output}   No VOMS trust information loaded from the given trust dirs
 	[Teardown]   Stop using certificate
 
@@ -218,14 +218,24 @@ voms-proxy-init --vomsdir overrides standard vomsdir
 	[Setup]   Use certificate   test0
 	Setup invalid vomsdir 
 	${tmpVomsDir}   Get Environment Variable   __VOMS_CUSTOM_VOMSDIR__
-	${output}   Create proxy   -voms test.vo -vomsdir ${tmpVomsDir}
+	${output}   Create proxy   -voms ${vo1} -vomsdir ${tmpVomsDir}
 	Should Contain   ${output}   LSC validation failed: LSC file matching VOMS attributes not found in store.
 	Remove Environment Variable   __VOMS_CUSTOM_VOMSDIR__
 	[Teardown]   Stop using certificate
 
 voms-proxy-init --certdir fails nicely with non-existent directory
-	[Tags]   dev
 	[Setup]   Use certificate   test0
-	${output}   Create proxy failure   -voms test.vo -certdir /unlikely/path
+	${output}   Create proxy failure   -voms ${vo1} -certdir /unlikely/path
 	Should Contain   ${output}   Invalid trust anchors location: '/unlikely/path' (file not found)
 	[Teardown]   Stop using certificate
+
+long delegation chain work as expected
+	[Tags]   dev
+    [Setup]   Use certificate   test0
+    Create proxy
+    Create proxy   -noregen
+    Create proxy   -noregen
+    Create proxy   -noregen
+    Create proxy   -noregen
+    ${output}   Create proxy   -voms ${vo1}
+    [Teardown]   Stop using certificate

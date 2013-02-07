@@ -62,9 +62,9 @@ A user cannot obtain a proxy with a revoked certificate
 
 A user can obtain a role she holds from a VO she belongs to
         [Setup]  Use certificate  test0
-        Create proxy   -voms ${voName}:/${voName}/G1/Role=R1
+        Create proxy   -voms ${vo1}:/${vo1}/G1/Role=R1
         ${output}  Get proxy info  -fqan
-        Should Contain  ${output}  /${voName}/G1/Role=R1
+        Should Contain  ${output}  /${vo1}/G1/Role=R1
         [Teardown]  Stop using certificate
  
 See if voms-proxy-init --hours works
@@ -102,13 +102,13 @@ See if voms-proxy-init detects fake arguments
 
 See if requesting a too long proxy fails
   [Setup]  Use certificate  test0
-  ${output}   Create proxy   --voms ${voName} --valid 100:00
+  ${output}   Create proxy   --voms ${vo1} --valid 100:00
   Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
   [Teardown]  Stop using certificate
 
 Can AC validity be limited?
   [Setup]  Use certificate  test0
-  ${output}   Create proxy   --voms ${voName} --vomslife 5:00
+  ${output}   Create proxy   --voms ${vo1} --vomslife 5:00
   ${output}   Get proxy info  -all
   Should Match Regexp  ${output}  timeleft\\s+:\\s+(11|12):\\d+:\\d+
   Should Match Regexp  ${output}  timeleft\\s+:\\s+(04|05):\\d+:\\d+
@@ -116,7 +116,7 @@ Can AC validity be limited?
 
 See if requesting a too long ac length fails
   [Setup]  Use certificate  test0
-  ${output}   Create proxy   --voms ${voName} --vomslife 100:00
+  ${output}   Create proxy   --voms ${vo1} --vomslife 100:00
   Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
   [Teardown]  Stop using certificate
 
@@ -137,7 +137,7 @@ See if a proxy type is detected correctly
 
 See if voms-proxy-init --quiet works
   [Setup]  Use certificate  test0
-  ${output}   Create proxy   --voms ${voName} -q 
+  ${output}   Create proxy   --voms ${vo1} -q 
   Should Be Equal  ${output}  ${EMPTY}
   [Teardown]  Stop using certificate
 
@@ -172,7 +172,7 @@ See if voms-proxy-init --path_length works
 
 See if voms-proxy-init --failonwarn works
 	[Setup]  Use certificate  test0
-	${rc}  Run and Return RC  echo ${privateKeyPassword} | voms-proxy-init -pwstdin -voms ${voName} --failonwarn --valid 100:00
+	${rc}  Run and Return RC  echo ${privateKeyPassword} | voms-proxy-init -pwstdin -voms ${vo1} --failonwarn --valid 100:00
 	Should Be Equal As Integers  ${rc}  1
 	[Teardown]  Stop using certificate
 
@@ -184,30 +184,30 @@ See if voms-proxy-init --ignorewarn works
 
 See if voms-proxy-init --order works
 	[Setup]  Use certificate  test0
-	Create proxy   -voms ${voName} -order /${voName}/G1
+	Create proxy   -voms ${vo1} -order /${vo1}/G1
 	${output}  Get proxy info  -fqan
-  ${expected}  Set Variable  /${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL\n/${voName}/G2/Role=NULL/Capability=NULL\n/${voName}/G2/G3/Role=NULL/Capability=NULL
+  ${expected}  Set Variable  /${vo1}/G1/Role=NULL/Capability=NULL\n/${vo1}/Role=NULL/Capability=NULL\n/${vo1}/G2/Role=NULL/Capability=NULL\n/${vo1}/G2/G3/Role=NULL/Capability=NULL
   Should Be Equal As Strings  ${output}  ${expected}
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --order works with multiple arguments
         [Setup]  Use certificate  test0
-        Create proxy   -voms ${voName} -order /${voName}/G2/G3 -order /${voName}/G2 
+        Create proxy   -voms ${vo1} -order /${vo1}/G2/G3 -order /${vo1}/G2 
         ${output}  Get proxy info  -fqan
-        ${expected}  Set Variable  /${voName}/G2/G3/Role=NULL/Capability=NULL\n/${voName}/G2/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/Role=NULL/Capability=NULL
+        ${expected}  Set Variable  /${vo1}/G2/G3/Role=NULL/Capability=NULL\n/${vo1}/G2/Role=NULL/Capability=NULL\n/${vo1}/G1/Role=NULL/Capability=NULL\n/${vo1}/Role=NULL/Capability=NULL
         Should Be Equal As Strings  ${output}  ${expected}
         [Teardown]  Stop using certificate
 
 See if a target can be added to a proxy
 	[Setup]  Use certificate  test0
 	${target}  Run   hostname -f
-	${output}  Create proxy  -voms ${voName} -target ${target}
+	${output}  Create proxy  -voms ${vo1} -target ${target}
 	Should Not Contain   ${output}  AC target check failed
 	[Teardown]  Stop using certificate
 
 See if voms-proxy-init fails with a fake target
 	[Setup]  Use certificate  test0       
-	${output}  Create proxy  -voms ${voName} -target fake.cnaf.infn.it
+	${output}  Create proxy  -voms ${vo1} -target fake.cnaf.infn.it
 	Should Contain   ${output}  AC target check failed
 	[Teardown]  Stop using certificate
 
@@ -241,12 +241,12 @@ See if voms-proxy-init writes an error message when the trust anchors location d
 See if voms-proxy-info --acexists works
 	[Setup]  Use certificate  test0
 	Create voms proxy
-	${rc}  Run and Return RC  voms-proxy-info --acexists ${voName}
+	${rc}  Run and Return RC  voms-proxy-info --acexists ${vo1}
 	Should Be Equal As Integers  ${rc}  0
 	${rc}  Run and Return RC  voms-proxy-info --acexists foo
 	Should Be Equal As Integers  ${rc}  1
 	Create proxy
-	${rc}  Run and Return RC  voms-proxy-info --acexists ${voName}
+	${rc}  Run and Return RC  voms-proxy-info --acexists ${vo1}
 	Should Be Equal As Integers  ${rc}  1
 	[Teardown]  Stop using certificate
 
@@ -320,14 +320,14 @@ See if -pwstdin works with voms-proxy-init
 
 See if voms does not allow expansion of credential set
         [Setup]  Use certificate  test0
-        Create proxy   -voms ${voName}
-        Create proxy   -voms ${voName}:/${voName}/G1/Role=R1 --valid 10:00 --noregen
+        Create proxy   -voms ${vo1}
+        Create proxy   -voms ${vo1}:/${vo1}/G1/Role=R1 --valid 10:00 --noregen
         ${output}  Get proxy info  -all
-        Should Not Contain   ${output}  /${voName}/G1/Role=R1
+        Should Not Contain   ${output}  /${vo1}/G1/Role=R1
         [Teardown]  Stop using certificate
 
 See if missing certificate implies an error
-        Create proxy failure  -voms ${voName}
+        Create proxy failure  -voms ${vo1}
 
 See if voms-proxy-destroy --dry works
 	[Setup]  Use certificate  test0
@@ -345,7 +345,7 @@ See if voms-proxy-init --out fails correctly when given a wrong location
 
 See if voms-proxy-init --debug works
 	[Setup]  Use certificate  test0
-	${output}  Create proxy  --voms ${voName} --debug
+	${output}  Create proxy  --voms ${vo1} --debug
 	Should Contain  ${output}  Looking for user credentials in
 	Should Contain  ${output}  Credentials loaded successfully
 	Should contain  ${output}  Loading CA Certificate
@@ -364,7 +364,7 @@ See if voms-proxy-init --debug works
 See if voms-proxy-init --vomses fails correctly when given a wrong location
 	[Setup]  Use certificate  test0
 	Should Not Exist  /unlikely/path
-	${output}  Create proxy failure  --voms ${voName} --vomses /unlikely/path
+	${output}  Create proxy failure  --voms ${vo1} --vomses /unlikely/path
 	Should contain  ${output}   No valid VOMSES information found locally while looking in: [/unlikely/path]
 	[Teardown]  Stop using certificate
 	

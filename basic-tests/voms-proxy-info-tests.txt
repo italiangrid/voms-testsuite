@@ -28,14 +28,14 @@ See if a voms proxy has the right attributes
   Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
   Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Key Encipherment, Data Encipherment
-  Should Match Regexp  ${output}  === VO ${voName} extension information ===
-  Should Match Regexp  ${output}  VO\\s+:\\s+${voName}
+  Should Match Regexp  ${output}  === VO ${vo1} extension information ===
+  Should Match Regexp  ${output}  VO\\s+:\\s+${vo1}
   Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/
-  Should Match Regexp  ${output}  issuer\\s+:\\s+/C=IT/O=INFN/OU=Host/L=CNAF/CN=${vomsHost}
-  Should Match Regexp  ${output}  attribute\\s+:\\s+/${voName}/Role=NULL/Capability=NULL
-  Should Match Regexp  ${output}  attribute\\s+:\\s+/${voName}/G1/Role=NULL/Capability=NULL
+  Should Match Regexp  ${output}  issuer\\s+:\\s+/C=IT/O=INFN/OU=Host/L=CNAF/CN=${vo1_host}
+  Should Match Regexp  ${output}  attribute\\s+:\\s+/${vo1}/Role=NULL/Capability=NULL
+  Should Match Regexp  ${output}  attribute\\s+:\\s+/${vo1}/G1/Role=NULL/Capability=NULL
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
-  Should Match Regexp  ${output}  uri\\s+:\\s+${vomsHost}:\\d+
+  Should Match Regexp  ${output}  uri\\s+:\\s+${vo1_host}:\\d+
   [Teardown]  Stop using certificate
 
 Check if the option '-exists -valid' works
@@ -63,13 +63,13 @@ See if voms-proxy-info -vo works
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output}   Get proxy info  -vo
-  Should Contain  ${output}  ${voName}
+  Should Contain  ${output}  ${vo1}
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -acexists works
   [Setup]  Use certificate  test0
   Create voms proxy
-  ${output}   Get proxy info  -acexists ${voName};echo $?
+  ${output}   Get proxy info  -acexists ${vo1};echo $?
   Should Contain  ${output}  0
   [Teardown]  Stop using certificate
 
@@ -77,7 +77,7 @@ See if voms-proxy-info -acissuer works
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output}   Get proxy info  -acissuer
-  Should Match Regexp  ${output}  /C=IT/O=INFN/OU=Host/L=CNAF/CN=${vomsHost} 
+  Should Match Regexp  ${output}  /C=IT/O=INFN/OU=Host/L=CNAF/CN=${vo1_host} 
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -acsubject works
@@ -99,7 +99,7 @@ See if voms-proxy-info -fqan works
   Create voms proxy
   ${output}   Get proxy info  -fqan
   Log  ${output}
-  ${expected}   Set Variable  /${voName}/Role=NULL/Capability=NULL\n/${voName}/G1/Role=NULL/Capability=NULL\n/${voName}/G2/Role=NULL/Capability=NULL\n/${voName}/G2/G3/Role=NULL/Capability=NULL
+  ${expected}   Set Variable  /${vo1}/Role=NULL/Capability=NULL\n/${vo1}/G1/Role=NULL/Capability=NULL\n/${vo1}/G2/Role=NULL/Capability=NULL\n/${vo1}/G2/G3/Role=NULL/Capability=NULL
   Log  ${expected}
   Should Be Equal As Strings  ${output}  ${expected}
   [Teardown]  Stop using certificate
@@ -162,7 +162,7 @@ See if voms --uri works
   [Setup]  Use certificate  test0
   Create voms proxy
   ${output} =  Get proxy info  -uri
-  Should Match Regexp  ${output}  ${vomsHost}:\\d+
+  Should Match Regexp  ${output}  ${vo1_host}:\\d+
   [Teardown]  Stop using certificate
 
 See if voms --serial works

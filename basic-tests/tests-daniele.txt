@@ -31,7 +31,7 @@ See if AC validation works when LSC file exists
 
 See if AC validation fails when LSC file does not exist
 	[Setup]  Setup for X509_VOMS_DIR test  /tmp
-	Create proxy failure   -voms ${voName}
+	Create proxy failure   -voms ${vo1}
 	[Teardown]  Teardown for X509_VOMS_DIR test
 
 See if voms-proxy-init fails correctly when cert and key do not match
@@ -68,7 +68,7 @@ See if voms-proxy-init --noregen of an rfc proxy works
 	[Setup]  Use certificate   test0
 	[Tags]   dev
 	Create Proxy  -rfc
-	Create Proxy  -noregen -voms ${voName}
+	Create Proxy  -noregen -voms ${vo1}
 	${info}   Get proxy info   --all
 	Should Contain   ${info}   RFC3820 compliant impersonation proxy
 	[Teardown]  Stop using certificate
@@ -81,13 +81,13 @@ Check if voms-proxy-info suceeds on a plain proxy
 
 See if voms-proxy-init reads ~/.voms/vomses
 	[Setup]  Setup for vomses test  %{HOME}/.voms
-	${output}  Create Proxy  -debug -voms ${voName}
+	${output}  Create Proxy  -debug -voms ${vo1}
 	Should Contain  ${output}  from %{HOME}/.voms
 	[Teardown]  Teardown for vomses test  %{HOME}/.voms
 
 See if voms-proxy-init reads ~/.glite/vomses
 	[Setup]  Setup for vomses test  %{HOME}/.glite
-	${output}  Create Proxy  -debug -voms ${voName}
+	${output}  Create Proxy  -debug -voms ${vo1}
 	Should Contain  ${output}  from %{HOME}/.glite
 	[Teardown]  Teardown for vomses test  %{HOME}/.glite
 
@@ -101,12 +101,12 @@ Check the error message if a file cannot be written
 
 See if voms-proxy-init --dont_verify_ac works
 	[Setup]  Use certificate   test0	
-	${output}  Create Proxy   -debug -voms ${voName} --dont_verify_ac
-	Should Not Contain  ${output}  VOMS AC validation for VO ${voName} succeded 
+	${output}  Create Proxy   -debug -voms ${vo1} --dont_verify_ac
+	Should Not Contain  ${output}  VOMS AC validation for VO ${vo1} succeded 
 	[Teardown]  Stop using certificate
 
 Check that voms-proxy-init requesting more than two FQANs works as expected
 	[Setup]  Use certificate   test0
-	Create Proxy  voms-proxy-init -voms ${voName}:/${voName}/G1/Role=R1 -voms ${voName}:/${voName}/G1 -voms ${voName}:/${voName}
+	Create Proxy  voms-proxy-init -voms ${vo1}:/${vo1}/G1/Role=R1 -voms ${vo1}:/${vo1}/G1 -voms ${vo1}:/${vo1}
 	[Teardown]  Stop using certificate
 
