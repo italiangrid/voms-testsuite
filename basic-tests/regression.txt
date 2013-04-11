@@ -16,13 +16,17 @@ See if voms-proxy-info --version returns after displaying the version
 See if voms-proxy-init correctly set unlimited pathLen by default for rfc proxies
   [Documentation]   Regression test for https://issues.infn.it:8443/browse/VOMS-256
   [Tags]   debug
+  [Setup]   Use certificate   test0
   Create Proxy   --rfc
   ${output}   Get proxy openssl
   Should Match Regexp   ${output}  Path Length Constraint: infinite 
+  [Teardown]  Stop using certificate
 
 See if voms-proxy-init correctly set pathLen as requested 
   [Documentation]   Regression test for https://issues.infn.it:8443/browse/VOMS-256
   [Tags]   debug
+  [Setup]   Use certificate   test0
   Create Proxy   --rfc --path_length 1
   ${output}   Get proxy openssl
   Should Match Regexp   ${output}   Path Length Constraint: 01
+  [Teardown]  Stop using certificate
