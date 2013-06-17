@@ -405,7 +405,7 @@ See if voms-proxy-info honors X509_USER_PROXY
 	${proxyFile}  Get proxy path
 	${tmpFile}  Run  mktemp /tmp/voms-testXXX
 	Execute and Check Success  mv ${proxyFile} ${tmpFile} 
-	${output}  Execute and Check Success  export X509_USER_PROXY=${tmpfile}
+	Set environment variable  X509_USER_PROXY  ${tmpfile}
 	${output}  Get proxy info
 	Should Not Contain  ${output}  Proxy not found
 	[Teardown]  Stop using certificate
