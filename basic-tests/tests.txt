@@ -408,4 +408,16 @@ See if voms-proxy-info honors X509_USER_PROXY
 	Set environment variable  X509_USER_PROXY  ${tmpfile}
 	${output}  Get proxy info
 	Should Not Contain  ${output}  Proxy not found
+	Remove environment variable  X509_USER_PROXY
+	[Teardown]  Stop using certificate
+
+See if voms-proxy-init honors X509_USER_PROXY
+	[Tags]  voms-proxy-init
+	[Documentation]  Command voms-proxy-init must save file to the path pointed to by the env variable X509_USER_PROXY when this is set.
+	[Setup]  Use certificate  test0
+	${tmpFile}  Run  mktemp /tmp/voms-testXXX
+	Set environment variable  X509_USER_PROXY  ${tmpfile}
+	Create voms proxy
+	File Should Exist  ${tmpfile} 
+	Remove environment variable  X509_USER_PROXY
 	[Teardown]  Stop using certificate
