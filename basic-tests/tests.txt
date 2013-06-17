@@ -396,3 +396,16 @@ See if voms-proxy-init -pwstdin fails correctly when no password is provided
 	Should contain  ${output}  Can not load PEM private key: the password is incorrect or the PEM data is corrupted	
 	Should contain  ${output}  No credentials found!
 	[Teardown]  Stop using certificate
+	
+See if voms-proxy-info honors X509_USER_PROXY
+	[Tags]  regression
+	[Documentation]  Regression test for https://issues.infn.it/jira/browse/VOMS-296. Command voms-proxy-info ignores variable X509_USER_PROXY.
+	[Setup]  Use certificate  test0
+	Create voms proxy
+	${proxyFile}  Get proxy path
+	${tmpFile}  Run  mktemp /tmp/voms-testXXX
+	Execute and Check Success  mv ${proxyFile} ${tmpFile} 
+	${output}  Execute and Check Success  export X509_USER_PROXY=${tmpfile}
+	${output}  Get proxy info
+	Should Not Contain  ${output}  Proxy not found
+	[Teardown]  Stop using certificate
