@@ -421,3 +421,22 @@ See if voms-proxy-init honors X509_USER_PROXY
 	File Should Exist  ${tmpfile} 
 	Remove environment variable  X509_USER_PROXY
 	[Teardown]  Stop using certificate
+
+Check that voms-proxy-info timeleft options prints time in seconds
+	[Tags]  regression  voms-proxy-info
+	[Documentation]  Regression test for https://issues.infn.it/jira/browse/VOMS-296,%20https://issues.infn.it/jira/browse/VOMS-307.
+	[Setup]  Use certificate  test0
+	Create voms proxy
+	${output}  Get proxy info  --timeleft
+	Should Not Contain  ${output}  :
+
+Check that voms-proxy-info actimeleft options prints time in seconds
+	[Tags]  regression  voms-proxy-info
+	[Documentation]  Regression test for https://issues.infn.it/jira/browse/VOMS-296,%20https://issues.infn.it/jira/browse/VOMS-307.
+	[Setup]  Use certificate  test0
+	Create voms proxy
+	${output}  Get proxy info  --actimeleft
+	Should Not Contain  ${output}  :
+	
+
+
