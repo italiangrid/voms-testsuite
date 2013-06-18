@@ -76,11 +76,13 @@ See if voms-proxy-init --hours works
   [Setup]   Use certificate   test0
   ${output}   Create proxy   -hours 3
   Should Contain  ${output}  Created proxy
-  ${output} =  Get proxy info  -timeleft
-  Should Match Regexp  ${output}  (02|03):\\d+:\\d+
+  ${output} =  Get proxy info  --timeleft
+  ${result} =  Convert to integer  ${output}
+	Should be true  ${result} > 10000
   Create Proxy  --hours 40
-  ${output}  Get proxy info
-  Should Match Regexp  ${output}  (39|40):\\d+:\\d+
+  ${output}  Get proxy info  --timeleft
+  ${result} =  Convert to integer  ${output}
+	Should be true  ${result} > 140000
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --noregen works

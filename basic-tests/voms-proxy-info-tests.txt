@@ -97,7 +97,7 @@ See if voms-proxy-info -actimeleft works
   [Tags]   remote
   Create voms proxy
   ${output}   Get proxy info  -actimeleft
-  Should Match Regexp  ${output}  \\d+:\\d+:\\d+
+  Should Match Regexp  ${output}  ^[0-9]{1,6}$
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -fqan works
@@ -167,7 +167,7 @@ See if voms-proxy-info -timeleft works
   [Tags]   remote
   Create voms proxy
   ${output} =  Get proxy info  -timeleft
-  Should Match Regexp  ${output}  \\d+:\\d+:\\d+
+  Should Match Regexp  ${output}  ^[0-9]{1,6}$
   [Teardown]  Stop using certificate
 
 See if voms --uri works
