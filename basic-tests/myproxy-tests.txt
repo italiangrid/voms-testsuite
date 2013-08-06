@@ -9,17 +9,17 @@ Check renewing credentials using a valid proxy works
   [Setup]  Use certificate  test0
   Create Proxy
   Create Proxy  -out cred_to_renew
-  Save myproxy credentials  cred_to_renew  test_name
-  ${output}  Show myproxy credentials  test_name
+  Myproxy init  -l test_name -a -A -C cred_to_renew -y cred_to_renew
+  ${output}  Myproxy info  -l test_name
   Log  ${output}  
   Stop using certificate
   Use certificate  test1
   Create Proxy
-  ${output}  Renew myproxy credentials  cred_to_renew  test_name
+  ${output}  Myproxy get delegation  -v -a cred_to_renew -l test_name
   Log  ${output}
   Stop using certificate
   Use certificate  test0
   Create Proxy
-  [Teardown]  Destroy myproxy credentials  test_name
+  [Teardown]  Myproxy destroy  -l test_name
 
 
