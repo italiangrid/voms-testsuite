@@ -1,0 +1,25 @@
+*** Settings ***
+Resource   lib/vomslib.txt
+
+
+
+*** Test Cases ***
+
+Check renewing credentials using a valid proxy works
+  [Setup]  Use certificate  test0
+  Create Proxy
+  Create Proxy  -out cred_to_renew
+  Save myproxy credentials  cred_to_renew  test_name
+  ${output}  Show myproxy credentials  test_name
+  Log  ${output}  
+  Stop using certificate
+  Use certificate  test1
+  Create Proxy
+  ${output}  Renew myproxy credentials  cred_to_renew  test_name
+  Log  ${output}
+  Stop using certificate
+  Use certificate  test0
+  Create Proxy
+  [Teardown]  Destroy myproxy credentials  test_name
+
+
