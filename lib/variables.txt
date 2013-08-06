@@ -9,3 +9,5 @@ ${vo1_host}  vgrid02.cnaf.infn.it
 ${vo2_host}  vgrid02.cnaf.infn.it
 ${vo1_issuer}  /C=IT/O=INFN/OU=Host/L=CNAF/CN=vgrid02.cnaf.infn.it
 ${vo2_issuer}  /C=IT/O=INFN/OU=Host/L=CNAF/CN=vgrid02.cnaf.infn.it
+
+${myproxy_server}  omii001.cnaf.infn.it
