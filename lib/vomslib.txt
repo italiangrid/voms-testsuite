@@ -192,20 +192,22 @@ Get proxy path
 	${userId}   Run   id -u
 	[Return]   /tmp/x509up_u${userId}
 
-Save myproxy credentials  [Arguments]  ${proxy_filename}  ${username}
-  File Should Exist   ${proxy_filename}
-  Execute and Check Success   myproxy-init -s ${myproxy_server} -l ${username} -a -A -C ${proxy_filename} -y ${proxy_filename}
+Myproxy init  [Arguments]  @{params}
+  ${options}=  Get options list   @{params}
+  Execute and Check Success   myproxy-init -s ${myproxy_server} ${options}
 
-Renew myproxy credentials  [Arguments]   ${proxy_filename}  ${username}
-  File Should Exist   ${proxy_filename}
-  ${output}  Execute and Check Success   myproxy-get-delegation -s ${myproxy_server} -v -a ${proxy_filename} -l ${username} -o /home/daniele/ciccioProxy
+Myproxy get delegation  [Arguments]   @{params}
+  ${options}=  Get options list   @{params}
+  ${output}  Execute and Check Success   myproxy-get-delegation -s ${myproxy_server} ${options} 
   [Return]  ${output}
 
-Show myproxy credentials  [Arguments]   ${username}
-  ${output}  Execute and Check Success   myproxy-info -s ${myproxy_server} -l ${username}
+Myproxy info  [Arguments]   @{params}
+  ${options}=  Get options list   @{params}
+  ${output}  Execute and Check Success   myproxy-info -s ${myproxy_server} ${options}
   [Return]  ${output}
 
-Destroy myproxy credentials  [Arguments]   ${username}
-  ${output}  Execute and Check Success   myproxy-destroy -s ${myproxy_server} -l ${username}
+Myproxy destroy  [Arguments]   @{params}
+  ${options}=  Get options list   @{params}
+  ${output}  Execute and Check Success   myproxy-destroy -s ${myproxy_server} ${options}
   [Return]  ${output}
 
