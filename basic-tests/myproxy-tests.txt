@@ -6,10 +6,12 @@ Resource   lib/vomslib.txt
 *** Test Cases ***
 
 Check renewing credentials using a valid proxy works
+  [Tags]   myproxy
   [Setup]  Use certificate  test0
+  ${cred_to_renew}   Run   mktemp /tmp/voms-cred-to-renewXXX
   Create Proxy
-  Create Proxy  -out cred_to_renew
-  Myproxy init  -l test_name -a -A -C cred_to_renew -y cred_to_renew
+  Create Proxy  -out ${cred_to_renew}
+  Myproxy init  -l test_name -a -A -C ${cred_to_renew} -y ${cred_to_renew}
   ${output}  Myproxy info  -l test_name
   Log  ${output}  
   Stop using certificate
@@ -21,5 +23,3 @@ Check renewing credentials using a valid proxy works
   Use certificate  test0
   Create Proxy
   [Teardown]  Myproxy destroy  -l test_name
-
-
