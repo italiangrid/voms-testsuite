@@ -17,7 +17,7 @@ Check renewing credentials using a valid proxy works
   Stop using certificate
   Use certificate  test1
   Create Proxy
-  ${output}  Myproxy get delegation  -v -a cred_to_renew -l test_name
+  ${output}  Myproxy get delegation  -v -a ${cred_to_renew} -l test_name
   Log  ${output}
   Stop using certificate
   Use certificate  test0
