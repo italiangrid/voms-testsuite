@@ -2,24 +2,77 @@
 Resource   lib/vomslib.txt
 
 
+*** Keywords ***
+
+Teardown for myproxy tests
+  Create Proxy
+  Myproxy destroy
+  Stop using certificate
+
+
 
 *** Test Cases ***
 
-Check renewing credentials using a valid proxy works
+Check delegation works after uploading credential by using a voms proxy
+  [Tags]   myproxy
+  [Setup]  Use certificate  test0
+  Create voms proxy   ${vo1}
+  ${proxyName}  Get Proxy info  -path
+  Myproxy init  -v --certfile ${proxyName} --keyfile ${proxyName}
+  ${output}  Myproxy get delegation  -v
+  Log  ${output}
+  [Teardown]  Teardown for myproxy tests
+
+Check delegation works after uploading credential by using a grid proxy
+  [Tags]   myproxy
+  [Setup]  Use certificate  test0
+  Create Proxy
+  ${proxyName}  Get Proxy info  -path
+  Myproxy init  -v --certfile ${proxyName} --keyfile ${proxyName}
+  ${output}  Myproxy get delegation  -v
+  Log  ${output}
+  [Teardown]  Teardown for myproxy tests
+
+Check delegation works when a grid proxy is used to upload/get credential
+  [Tags]   myproxy
+  [Setup]  Use certificate  test0
+  ${cred_to_renew}   Run   mktemp /tmp/voms-cred-to-renewXXX
+  Create Proxy  -out ${cred_to_renew}
+  Myproxy init  --certfile ${cred_to_renew} --keyfile ${cred_to_renew} -A -a
+  ${output}  Myproxy get delegation  -v -a ${cred_to_renew}
+  Log  ${output}
+  [Teardown]  Teardown for myproxy tests
+
+Check delegation works when a grid delegated proxy is used to upload/get credential
   [Tags]   myproxy
   [Setup]  Use certificate  test0
   ${cred_to_renew}   Run   mktemp /tmp/voms-cred-to-renewXXX
   Create Proxy
-  Create Proxy  -out ${cred_to_renew}
-  Myproxy init  -l test_name -a -A -C ${cred_to_renew} -y ${cred_to_renew}
-  ${output}  Myproxy info  -l test_name
-  Log  ${output}  
-  Stop using certificate
-  Use certificate  test1
-  Create Proxy
-  ${output}  Myproxy get delegation  -v -a ${cred_to_renew} -l test_name
+  Create Proxy  -noregen -out ${cred_to_renew}
+  Destroy proxy
+  Myproxy init  --certfile ${cred_to_renew} --keyfile ${cred_to_renew} -A -a
+  ${output}  Myproxy get delegation  -v -a ${cred_to_renew}
   Log  ${output}
-  Stop using certificate
-  Use certificate  test0
+  [Teardown]  Teardown for myproxy tests
+
+Check delegation works when a voms proxy is used to upload/get credential
+  [Tags]   myproxy
+  [Setup]  Use certificate  test0
+  ${cred_to_renew}   Run   mktemp /tmp/voms-cred-to-renewXXX
+  Create Proxy  ${vo1} -out ${cred_to_renew}
+  Myproxy init  -v --certfile ${cred_to_renew} --keyfile ${cred_to_renew} -A -a 
+  ${output}  Myproxy get delegation  -v -a ${cred_to_renew} --voms ${vo1}
+  Log  ${output}
+  [Teardown]  Teardown for myproxy tests
+
+Check delegation works when a voms delegated proxy is used to upload/get credential 
+  [Tags]   myproxy
+  [Setup]  Use certificate  test0
+  ${cred_to_renew}   Run   mktemp /tmp/voms-cred-to-renewXXX
   Create Proxy
-  [Teardown]  Myproxy destroy  -l test_name
+  Create Proxy  ${vo1} -noregen -out ${cred_to_renew}
+  Destroy proxy
+  Myproxy init  -v --certfile ${cred_to_renew} --keyfile ${cred_to_renew} -A -a
+  ${output}  Myproxy get delegation  -v -a ${cred_to_renew} --voms ${vo1}
+  Log  ${output}
+  [Teardown]  Teardown for myproxy tests
