@@ -194,11 +194,11 @@ Get proxy path
 
 Myproxy init  [Arguments]  @{params}
   ${options}=  Get options list   @{params}
-  Execute and Check Success   myproxy-init -s ${myproxy_server} ${options}
+  Execute and Check Success   echo ${myProxyPassPhrase}|myproxy-init -s ${myproxy_server} ${options} -S
 
 Myproxy get delegation  [Arguments]   @{params}
   ${options}=  Get options list   @{params}
-  ${output}  Execute and Check Success   myproxy-get-delegation -s ${myproxy_server} ${options} 
+  ${output}  Execute and Check Success   echo ${myProxyPassPhrase}|myproxy-get-delegation -s ${myproxy_server} ${options} -S
   [Return]  ${output}
 
 Myproxy info  [Arguments]   @{params}
