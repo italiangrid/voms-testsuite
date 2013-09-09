@@ -1,0 +1,11 @@
+*** Settings ***
+Resource   lib/vomslib.txt
+Resource   lib/variables.txt
+Documentation  Generic tests for voms-proxy-info
+
+*** Test Cases ***
+
+See if voms-proxy-info --version returns after displaying the version
+	${output}  Get proxy info  --version
+	Should Match Regexp  ${output}  voms-proxy-info v. \\w
+
