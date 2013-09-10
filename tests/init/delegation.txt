@@ -8,7 +8,7 @@ See if voms-proxy-init -noregen work as expected
   [Setup]   Use certificate   test0
   Create proxy   
   Execute And Check Success   voms-proxy-init -noregen -voms ${vo1}
-  ${fqans}	Get proxy info   --fqan
+  ${fqans}Get proxy info   --fqan
   ${proxySubject}   Get proxy info   --subject
   ${certSubject}   Get named certificate subject   test0
   Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy/CN=proxy
@@ -30,3 +30,14 @@ multiple voms-proxy-init -noregen work as expected
   Should Be Equal   ${subject}  ${certificateSubject}/CN=proxy/CN=proxy/CN=proxy/CN=proxy/CN=proxy/CN=proxy
   Should Start With   ${fqans}  /${vo1}/Role=NULL/Capability=NULL 
   [Teardown]   Stop using certificate
+
+See if voms-proxy-init --noregen of an rfc proxy works
+  [Tags]  remote
+  [Setup]  Use certificate   test0
+  [Tags]   dev
+  Create Proxy  -rfc
+  Create Proxy  -noregen -voms ${vo1}
+  ${info}   Get proxy info   --all
+  Should Contain   ${info}   RFC3820 compliant impersonation proxy
+  [Teardown]  Stop using certificate
+

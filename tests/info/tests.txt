@@ -9,3 +9,9 @@ See if voms-proxy-info --version returns after displaying the version
 	${output}  Get proxy info  --version
 	Should Match Regexp  ${output}  voms-proxy-info v. \\w
 
+Check if voms-proxy-info suceeds on a plain proxy
+  [Setup]  Use certificate   test0
+  Create Proxy
+  Get Proxy Info
+  [Teardown]  Stop using certificate
+
