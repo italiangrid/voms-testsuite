@@ -151,3 +151,10 @@ See if voms-proxy-init --vomses fails correctly when given a wrong location
   Should contain  ${output}   No valid VOMSES information found locally while looking in: [/unlikely/path]
   [Teardown]  Stop using certificate
 
+See if voms-proxy-init --certdir works
+  [Tags]   dev
+  [Setup]  Setup for certdir test with test0 revoked 
+  ${tmpCertDir}   Get Environment Variable   __VOMS__CUSTOM__CERTDIR__ 
+  ${output}  Create Proxy Failure  --certdir ${tmpCertDir} --verify
+  Should Contain  ${output}  Certificate was revoked
+  [Teardown]  Teardown for certdir test with test0 revoked
