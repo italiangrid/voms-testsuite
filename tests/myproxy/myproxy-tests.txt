@@ -9,8 +9,6 @@ Teardown for myproxy tests
   Myproxy destroy
   Stop using certificate
 
-
-
 *** Test Cases ***
 
 Check delegation works after uploading credential by using a voms proxy
