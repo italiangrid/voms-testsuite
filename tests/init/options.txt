@@ -28,6 +28,29 @@ Teardown for vomses test   [Arguments]   ${vomsesDir}
   Execute and Check Success  rm -rf ${vomsesDir}
   Stop using certificate
 
+Setup for X509_CERT_DIR test   [Arguments]   ${x509CertDir}
+  Use certificate   test0
+  Set Environment Variable  X509_CERT_DIR  ${x509CertDir}
+
+Teardown for X509_CERT_DIR test
+  Remove Environment Variable  X509_CERT_DIR
+  Stop using certificate
+
+Setup for certdir test with test0 revoked 
+  ${tmpCertDir}   Run   mktemp -d /tmp/certdir-XXXX
+  Run  mkdir ${tmpCertDir}
+  Set Environment Variable   __VOMS__CUSTOM__CERTDIR__   ${tmpCertDir}
+  Execute and Check Success   cp /etc/grid-security/certificates/10b10516.0 ${tmpCertDir}
+  Execute and Check Success   cp /etc/grid-security/certificates/d82942ab.0 ${tmpCertDir}
+  Execute and Check Success   cp ${certsDir}/custom-crls/10b10516.r0 ${tmpCertDir}
+  Execute and Check Success   cp ${certsDir}/custom-crls/d82942ab.r0 ${tmpCertDir}
+  Use certificate  test0
+  [Return]   ${tmpCertDir}
+
+Teardown for certdir test with test0 revoked
+  Remove Environment Variable   __VOMS__CUSTOM__CERTDIR__
+  Stop using certificate
+
 *** Test Cases ***
 
 voms-proxy-init --vomsdir fails with non-existent vomsdir 
@@ -81,4 +104,151 @@ See if AC validation fails when LSC file does not exist
   [Setup]  Setup for X509_VOMS_DIR test  /tmp
   Create proxy failure   -voms ${vo1}
   [Teardown]  Teardown for X509_VOMS_DIR test
+
+See if voms-proxy-init --quiet works
+  [Tags]  remote
+[Setup]  Use certificate  test0
+  ${output}   Create proxy   --voms ${vo1} -q 
+  Should Be Equal  ${output}  ${EMPTY}
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init --limited (gt2) works
+  [Setup]  Use certificate  test0
+  Create Proxy  --limited
+  ${output}   Get proxy info
+  Should Contain  ${output}  limited proxy
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init --bits works
+  [Setup]  Use certificate  test0
+  Create Proxy  --bits 512
+  ${output}  Get proxy openssl
+  Should Contain  ${output}  Public-Key: (512 bit)
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init --conf works
+  [Setup]  Use certificate  test0
+  ${tmpFile}   Run  mktemp /tmp/voms-testXXX
+  Execute and Check Success   echo "--version" > ${tmpFile}
+  ${output}  Create Proxy  --conf ${tmpFile}
+  Should Contain  ${output}   voms-proxy-init
+  Execute and Check Success   rm ${tmpFile}
+
+See if voms-proxy-init --path_length works
+  [Setup]  Use certificate  test0
+  Create Proxy  --rfc --path_length 1
+  ${output}  Get proxy openssl
+  Should Contain  ${output}  Path Length Constraint: 01
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init --failonwarn works
+  [Tags]  remote
+  [Setup]  Use certificate  test0
+  ${rc}  Run and Return RC  echo ${privateKeyPassword} | voms-proxy-init -pwstdin -voms ${vo1} --failonwarn --valid 100:00
+  Should Be Equal As Integers  ${rc}  1
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init --ignorewarn works
+  [Setup]  Use certificate  test0
+  ${output}  Create Proxy  --ignorewarn --hours 100
+  Should Not Contain  ${output}  Warning
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init --order works
+  [Tags]  remote
+  [Setup]  Use certificate  test0
+  Create proxy   -voms ${vo1} -order /${vo1}/G1
+  ${output}  Get proxy info  -fqan
+  ${expected}  Set Variable    /${vo1}/G1/Role=NULL/Capability=NULL\n/${vo1}/Role=NULL/Capability=NULL\n/${vo1}/G2/Role=NULL/Capability=NULL\n/${vo1}/G2/G3/Role=NULL/Capability=NULL
+  Should Be Equal As Strings  ${output}  ${expected}
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init --order works with multiple arguments
+  [Tags]  remote
+  [Setup]  Use certificate  test0
+  Create proxy   -voms ${vo1} -order /${vo1}/G2/G3 -order /${vo1}/G2 
+  ${output}  Get proxy info  -fqan
+  ${expected}  Set Variable  /${vo1}/G2/G3/Role=NULL/Capability=NULL\n/${vo1}/G2/Role=NULL/Capability=NULL\n/${vo1}/G1/Role=NULL/Capability=NULL\n/${vo1}/Role=NULL/Capability=NULL
+  Should Be Equal As Strings  ${output}  ${expected}
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init manages unrecognized options
+  [Setup]  Use certificate  test0
+  ${output}  Create Proxy Failure  --dummyoption
+  Should Contain  ${output}  Unrecognized option:
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init --certdir works
+  [Tags]   dev
+  [Setup]  Setup for certdir test with test0 revoked 
+  ${tmpCertDir}   Get Environment Variable   __VOMS__CUSTOM__CERTDIR__ 
+  ${output}  Create Proxy Failure  --certdir ${tmpCertDir} --verify
+  Should Contain  ${output}  Certificate was revoked
+  [Teardown]  Teardown for certdir test with test0 revoked
+
+See if voms-proxy-init warns when X509_CERT_DIR does not point to a directory
+  [Tags]   dev
+  [Setup]  Setup for X509_CERT_DIR test   /unlikely/path
+  ${output}  Create Proxy Failure  --verify
+  Should Contain  ${output}  Invalid trust anchors location
+  [Teardown]  Teardown for X509_CERT_DIR test
+
+See if voms-proxy-init writes an error message when the trust anchors location does not contain the ca
+  [Setup]  Setup for X509_CERT_DIR test   /tmp
+  ${output}  Create Proxy Failure  --verify
+  Should Contain  ${output}  No valid CRL was found for the CA which issued the chain
+  [Teardown]  Teardown for X509_CERT_DIR test
+
+See if voms-proxy-init --version works
+  [Setup]  Use certificate  test0
+  ${output}  Create Proxy  --version
+  Should Contain  ${output}   voms-proxy-init
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init -help works
+  ${output}  Create Proxy  -help
+  Should Contain  ${output}   usage: voms-proxy-init [options]
+
+See if voms-proxy-init --proxyver 10 fails correctly
+  ${output}  Create Proxy failure  -proxyver 10
+
+See if -pwstdin works with voms-proxy-init
+  [Setup]  Use certificate  test0
+  Create proxy
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info honors X509_USER_PROXY
+  [Tags]  regression
+  [Documentation]  Regression test for https://issues.infn.it/jira/browse/VOMS-296. Command voms-proxy-info ignores variable X509_USER_PROXY.
+  [Setup]  Use certificate  test0
+  Create voms proxy
+  ${proxyFile}  Get proxy path
+  ${tmpFile}  Run  mktemp /tmp/voms-testXXX
+  Execute and Check Success  mv ${proxyFile} ${tmpFile} 
+  Set environment variable  X509_USER_PROXY  ${tmpfile}
+  ${output}  Get proxy info
+  Should Not Contain  ${output}  Proxy not found
+  Remove environment variable  X509_USER_PROXY
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init honors X509_USER_PROXY
+  [Tags]  voms-proxy-init
+  [Documentation]  Command voms-proxy-init must save file to the path pointed to by the env variable X509_USER_PROXY when this is set.
+  [Setup]  Use certificate  test0
+  ${tmpFile}  Run  mktemp /tmp/voms-testXXX
+  Set environment variable  X509_USER_PROXY  ${tmpfile}
+  Create voms proxy
+  File Should Exist  ${tmpfile} 
+  Remove environment variable  X509_USER_PROXY
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-init --vomses fails correctly when given a wrong location
+  [Tags]  remote
+  [Setup]  Use certificate  test0
+  Should Not Exist  /unlikely/path
+  ${output}  Create proxy failure  --voms ${vo1} --vomses /unlikely/path
+  Should contain  ${output}   No valid VOMSES information found locally while looking in: [/unlikely/path]
+  [Teardown]  Stop using certificate
+
+
 

@@ -206,3 +206,52 @@ See if voms-proxy-info -keyusage works
   Should Contain  ${output}  key usage : Digital Signature, Key Encipherment
   [Teardown]  Stop using certificate
 
+See if a proxy type is detected correctly
+  [Setup]  Use certificate  test0
+  ${output}   Create proxy   -rfc 
+  ${output}   Get proxy info  -type
+  Should Contain  ${output}   RFC3820 compliant impersonation proxy
+  Destroy proxy
+  ${output}   Create proxy   -old
+  ${output}   Get proxy info  -type
+  Should Contain  ${output}   full legacy globus proxy
+  Destroy proxy
+  ${output}   Create proxy   -proxyver 3
+  ${output}   Get proxy info  -type
+  Should Contain  ${output}   Proxy draft (pre-RFC) impersonation proxy
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info --acexists works
+  [Setup]  Use certificate  test0
+  Create voms proxy
+  ${rc}  Run and Return RC  voms-proxy-info --acexists ${vo1}
+  Should Be Equal As Integers  ${rc}  0
+  ${rc}  Run and Return RC  voms-proxy-info --acexists foo
+  Should Be Equal As Integers  ${rc}  1
+  Create proxy
+  ${rc}  Run and Return RC  voms-proxy-info --acexists ${vo1}
+  Should Be Equal As Integers  ${rc}  1
+  [Teardown]  Stop using certificate
+
+See if voms-proxy-info works even if when no ac is present in proxy
+  [Setup]  Use certificate  test0
+  Create plain proxy
+  Get Proxy info
+  [Teardown]  Stop using certificate
+
+Check that voms-proxy-info timeleft options prints time in seconds
+  [Tags]  regression  voms-proxy-info
+  [Documentation]  Regression test for https://issues.infn.it/jira/browse/VOMS-296,%20https://issues.infn.it/jira/browse/VOMS-307.
+  [Setup]  Use certificate  test0
+  Create voms proxy
+  ${output}  Get proxy info  --timeleft
+  Should Not Contain  ${output}  :
+
+Check that voms-proxy-info actimeleft options prints time in seconds
+  [Tags]  regression  voms-proxy-info
+  [Documentation]  Regression test for https://issues.infn.it/jira/browse/VOMS-296,%20https://issues.infn.it/jira/browse/VOMS-307.
+  [Setup]  Use certificate  test0
+  Create voms proxy
+  ${output}  Get proxy info  --actimeleft
+  Should Not Contain  ${output}  :
+

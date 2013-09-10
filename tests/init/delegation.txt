@@ -41,3 +41,13 @@ See if voms-proxy-init --noregen of an rfc proxy works
   Should Contain   ${info}   RFC3820 compliant impersonation proxy
   [Teardown]  Stop using certificate
 
+See if voms-proxy-init --noregen works
+  [Tags]  remote
+  [Setup]   Use certificate   test0
+  ${output}  Create voms proxy
+  ${output}   Create proxy   -noregen 
+  Should Contain  ${output}  Created proxy
+  ${output} =  Get proxy info  -chain
+  Should Match Regexp  ${output}   Subject:\\s+(CN=proxy,){2}CN=.+
+  [Teardown]   Stop using certificate
+
