@@ -8,7 +8,7 @@ See if voms-proxy-init -noregen work as expected
   [Setup]   Use certificate   test0
   Create proxy   
   Execute And Check Success   voms-proxy-init -noregen -voms ${vo1}
-  ${fqans}Get proxy info   --fqan
+  ${fqans}  Get proxy info   --fqan
   ${proxySubject}   Get proxy info   --subject
   ${certSubject}   Get named certificate subject   test0
   Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy/CN=proxy

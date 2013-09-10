@@ -39,7 +39,7 @@ See if a requested role ends up as primary fqan
   [Tags]  remote
   [Setup]   Use certificate   test0
   Create proxy   --voms ${vo1}:/${vo1}/G1/Role=R1
-  ${output}Get proxy info   --fqan
+  ${output}  Get proxy info   --fqan
   Should Start With   ${output}   /${vo1}/G1/Role=R1/Capability=NULL
   [Teardown]  Stop using certificate
 
@@ -47,7 +47,7 @@ See if multiple -voms work as expected
   [Tags]  remote
   [Setup]   Use certificate   test0
   Create proxy   --voms ${vo1}:/${vo1}/G1 --voms ${vo1}:/${vo1}/G1/Role=R1 
-  ${output}Get proxy info   --fqan
+  ${output}  Get proxy info   --fqan
   Should Start With   ${output}   /${vo1}/G1/Role=NULL/Capability=NULL
   Should Contain   ${output}   /${vo1}/G1/Role=R1/Capability=NULL
   [Teardown]  Stop using certificate
@@ -57,7 +57,7 @@ See if request for multiple VOs work as expected
   [Documentation]   ACs for multiple VOs should be included in the proxy in the same order as they are requested
   [Setup]   Use certificate   test0
   Create proxy   --voms ${vo2} --voms ${vo1} 
-  ${output}Get proxy info   --fqan
+  ${output}  Get proxy info   --fqan
   Should Start With   ${output}   /${vo2}/Role=NULL/Capability=NULL
   Should Contain   ${output}   /${vo1}/Role=NULL/Capability=NULL
   [Teardown]   Stop using certificate

@@ -107,7 +107,7 @@ See if AC validation fails when LSC file does not exist
 
 See if voms-proxy-init --quiet works
   [Tags]  remote
-[Setup]  Use certificate  test0
+  [Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} -q 
   Should Be Equal  ${output}  ${EMPTY}
   [Teardown]  Stop using certificate
