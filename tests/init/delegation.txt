@@ -1,0 +1,32 @@
+*** Settings ***
+Resource   lib/vomslib.txt
+
+*** Test Cases ***
+
+See if voms-proxy-init -noregen work as expected
+  [Tags]  remote
+  [Setup]   Use certificate   test0
+  Create proxy   
+  Execute And Check Success   voms-proxy-init -noregen -voms ${vo1}
+  ${fqans}	Get proxy info   --fqan
+  ${proxySubject}   Get proxy info   --subject
+  ${certSubject}   Get named certificate subject   test0
+  Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy/CN=proxy
+  Should Contain   ${fqans}   /${vo1}/Role=NULL/Capability=NULL
+  [Teardown]   Stop using certificate
+
+multiple voms-proxy-init -noregen work as expected
+  [Tags]  remote
+  [Setup]   Use certificate   test0
+  Create proxy   -voms ${vo1}
+  Create proxy   -noregen
+  Create proxy   -noregen
+  Create proxy   -noregen
+  Create proxy   -noregen
+  Create proxy   -noregen
+  ${certificateSubject}   Get named certificate subject   test0
+  ${subject}   Get proxy info   --subject
+  ${fqans}   Get proxy info   --fqan
+  Should Be Equal   ${subject}  ${certificateSubject}/CN=proxy/CN=proxy/CN=proxy/CN=proxy/CN=proxy/CN=proxy
+  Should Start With   ${fqans}  /${vo1}/Role=NULL/Capability=NULL 
+  [Teardown]   Stop using certificate

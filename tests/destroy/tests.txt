@@ -1,0 +1,11 @@
+*** Settings ***
+Resource   lib/vomslib.txt
+
+*** Test Cases ***
+
+See if voms-proxy-destroy -file works
+  [Setup]  Use certificate  test0
+  Create Proxy  --out /tmp/to_be_deleted
+  Destroy Proxy  --file /tmp/to_be_deleted
+  File Should Not Exist   /tmp/to_be_deleted
+  [Teardown]  Stop using certificate
