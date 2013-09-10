@@ -11,29 +11,6 @@ Setup mixed proxy chain
   Create proxy   -rfc --skip_chain_integrity_checks -noregen
   Create proxy   -noregen -proxyver 3 --skip_chain_integrity_checks
 
-Setup invalid vomsdir 
-  ${tmpVomsDir}   Run   mktemp -d /tmp/vomsdir-XXXX
-  Create Directory   ${tmpVomsDir}/${vo2}
-  Create File   ${tmpVomsDir}/${vo2}/${vo2_host}.lsc  "${vo2_issuer}\n/C=IT/O=INFN/CN=INFN CA"
-  Set Environment Variable   __VOMS_CUSTOM_VOMSDIR__   ${tmpVomsDir}
-
-Setup for X509_VOMS_DIR test   [Arguments]   ${x509VomsDir}
-  Use certificate   test0
-  Set Environment Variable  X509_VOMS_DIR  ${x509VomsDir}
-
-Teardown for X509_VOMS_DIR test
-  Remove Environment Variable  X509_VOMS_DIR
-  Stop using certificate
-
-Setup for vomses test   [Arguments]   ${vomsesDir}
-  Use certificate   test0
-  Execute and Check Success  mkdir -p ${vomsesDir}
-  Execute and Check Success   cp -a /etc/vomses ${vomsesDir}
-
-Teardown for vomses test   [Arguments]   ${vomsesDir}
-  Execute and Check Success  rm -rf ${vomsesDir}
-  Stop using certificate
-
 *** Test Cases ***
 
 See if voms-proxy-init --version returns after displaying the version
@@ -216,38 +193,6 @@ voms-proxy-init --order cannot force role requests
   Should Not Contain   ${output}   /${vo1}/G1/Role=R1/Capability=NULL
   [Teardown]   Stop using certificate
 
-voms-proxy-init --vomsdir fails with non-existent vomsdir 
-  [Tags]  remote
-  [Setup]   Use certificate   test0
-  ${output}   Create proxy failure   -voms ${vo1} -vomsdir /unlikely/path
-  Should Contain   ${output}   Invalid vomsdir location: '/unlikely/path' (file not found) 
-  [Teardown]   Stop using certificate
-
-voms-proxy-init --vomsdir fails with empty vomsdir 
-  [Tags]  remote
-  [Setup]   Use certificate   test0
-  ${tmpVomsDir}   Run   mktemp -d /tmp/voms-dir-XXXX
-  ${output}   Create proxy failure   -voms ${vo1} -vomsdir ${tmpVomsDir}
-  Should Contain   ${output}   No VOMS trust information loaded from the given trust dirs
-  [Teardown]   Stop using certificate
-
-voms-proxy-init --vomsdir overrides standard vomsdir
-  [Tags]  remote
-  [Setup]   Use certificate   test0
-  Setup invalid vomsdir 
-  ${tmpVomsDir}   Get Environment Variable   __VOMS_CUSTOM_VOMSDIR__
-  ${output}   Create proxy   -voms ${vo1} -vomsdir ${tmpVomsDir}
-  Should Contain   ${output}   LSC validation failed: LSC file matching VOMS attributes not found in store.
-  Remove Environment Variable   __VOMS_CUSTOM_VOMSDIR__
-  [Teardown]   Stop using certificate
-
-voms-proxy-init --certdir fails nicely with non-existent directory
-  [Tags]  remote
-  [Setup]   Use certificate   test0
-  ${output}   Create proxy failure   -voms ${vo1} -certdir /unlikely/path
-  Should Contain   ${output}   Invalid trust anchors location: '/unlikely/path' (file not found)
-  [Teardown]   Stop using certificate
-
 long delegation chain work as expected
   [Tags]   dev,remote
   [Setup]   Use certificate   test0
@@ -263,12 +208,6 @@ See if AC validation works when LSC file exists
   [Setup]  Use certificate   test0
   Create voms proxy
   [Teardown]  Stop using certificate
-
-See if AC validation fails when LSC file does not exist
-  [Tags]  remote
-  [Setup]  Setup for X509_VOMS_DIR test  /tmp
-  Create proxy failure   -voms ${vo1}
-  [Teardown]  Teardown for X509_VOMS_DIR test
 
 See if voms-proxy-init fails correctly when cert and key do not match
   [Setup]  Use mixed credentials  test0   test1
@@ -299,20 +238,6 @@ See if voms-proxy-init fails correctly when the key is corrupted
   ${output}   Create Proxy Failure   --cert %{HOME}/.globus/usercert.pem --key ${tmpKey}
   Should Contain   ${output}   Can not load the PEM private key
   [Teardown]  Stop using certificate
-
-See if voms-proxy-init reads ~/.voms/vomses
-  [Tags]  remote
-  [Setup]  Setup for vomses test  %{HOME}/.voms
-  ${output}  Create Proxy  -debug -voms ${vo1}
-  Should Contain  ${output}  from %{HOME}/.voms
-  [Teardown]  Teardown for vomses test  %{HOME}/.voms
-
-See if voms-proxy-init reads ~/.glite/vomses
-  [Tags]  remote
-  [Setup]  Setup for vomses test  %{HOME}/.glite
-  ${output}  Create Proxy  -debug -voms ${vo1}
-  Should Contain  ${output}  from %{HOME}/.glite
-  [Teardown]  Teardown for vomses test  %{HOME}/.glite
 
 Check the error message if a file cannot be written
   [Setup]  Use certificate   test0
