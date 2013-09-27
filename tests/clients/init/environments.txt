@@ -115,7 +115,7 @@ See if voms-proxy-init warns when X509_CERT_DIR does not point to a directory
 See if voms-proxy-init writes an error message when the trust anchors location does not contain the ca
   [Setup]  Setup for X509_CERT_DIR test   /tmp
   ${output}  Create Proxy Failure  --verify
-  Should Contain  ${output}  No valid CRL was found for the CA which issued the chain
+  Should Contain  ${output}  No trusted CA certificate was found for the certificate chain
   [Teardown]  Teardown for X509_CERT_DIR test
 
 See if voms-proxy-info honors X509_USER_PROXY
