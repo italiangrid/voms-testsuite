@@ -158,3 +158,12 @@ See if voms-proxy-init --certdir works
   ${output}  Create Proxy Failure  --certdir ${tmpCertDir} --verify
   Should Contain  ${output}  Certificate was revoked
   [Teardown]  Teardown for certdir test with test0 revoked
+
+Check that proxy is correctly understood by dCache SRM clients
+   [Tags]   regression   remote   current
+   [Setup]   Use certificate   test0
+   Create Proxy
+   ${version}   Run   voms-proxy-init --version
+   ${output}   Run   srmls ${srmEndpoint}
+   Should Not Contain   ${output}   [JGLOBUS-12] No private key loaded
+   [Teardown]   Stop using certificate
