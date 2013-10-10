@@ -160,7 +160,7 @@ See if voms-proxy-init --certdir works
   [Teardown]  Teardown for certdir test with test0 revoked
 
 Check that proxy is correctly understood by dCache SRM clients
-   [Tags]   regression   remote   current
+   [Tags]   regression   remote   VOMS-424
    [Setup]   Use certificate   test0
    Create Proxy
    ${version}   Run   voms-proxy-init --version
