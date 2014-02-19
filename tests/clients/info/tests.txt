@@ -40,7 +40,7 @@ See if a voms proxy has the right attributes
   Should Match Regexp  ${output}  strength\\s+:\\s+1024
   Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
-  Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Key Encipherment, Data Encipherment
+  Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Non Repudiation, Key Encipherment
   Should Match Regexp  ${output}  === VO ${vo1} extension information ===
   Should Match Regexp  ${output}  VO\\s+:\\s+${vo1}
   Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/
@@ -144,7 +144,7 @@ See if voms-proxy-info -text works
   Should Match Regexp  ${output}  strength\\s+:\\s+1024
   Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
-  Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Key Encipherment, Data Encipherment 
+  Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Non Repudiation, Key Encipherment 
   Should Contain  ${output}  Subject: CN=proxy,CN=test0,O=IGI,C=IT
   Should Contain  ${output}  Issuer: CN=test0,O=IGI,C=IT
   [Teardown]  Stop using certificate
@@ -163,7 +163,7 @@ See if voms-proxy-info -chain works
   Should Match Regexp  ${output}  strength\\s+:\\s+1024
   Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
-  Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Key Encipherment, Data Encipherment
+  Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Non Repudiation, Key Encipherment
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -strength works
@@ -203,7 +203,7 @@ See if voms-proxy-info -keyusage works
   [Tags]   remote
   Create voms proxy
   ${output} =  Get proxy info  -keyusage
-  Should Contain  ${output}  key usage : Digital Signature, Key Encipherment
+  Should Contain  ${output}  key usage : Digital Signature, Non Repudiation, Key Encipherment
   [Teardown]  Stop using certificate
 
 See if a proxy type is detected correctly

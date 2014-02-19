@@ -156,7 +156,7 @@ See if voms-proxy-init --certdir works
   [Setup]  Setup for certdir test with test0 revoked 
   ${tmpCertDir}   Get Environment Variable   __VOMS__CUSTOM__CERTDIR__ 
   ${output}  Create Proxy Failure  --certdir ${tmpCertDir} --verify
-  Should Contain  ${output}  Certificate was revoked
+  Should Contain  ${output}  Certificate validation error: No valid CRL was found for the CA which issued the chain
   [Teardown]  Teardown for certdir test with test0 revoked
 
 Check that proxy is correctly understood by dCache SRM clients
