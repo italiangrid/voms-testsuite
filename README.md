@@ -4,8 +4,8 @@ A place for the VOMS testsuites.
 
 # Requirements
 
-- Robot Framework https://code.google.com/p/robotframework/.
-- The voms clients package installed, i.e. voms-proxy-* commands must be available.
+- Robot Framework https://code.google.com/p/robotframework/wiki/Installation.
+- The voms clients 3 package installed.
 - The dCache SRM clients must be installed
 - The myproxy client must be installed
 - The `$HOME/.globus` directory should exist for the user that runs the test suite and should be *EMPTY*.

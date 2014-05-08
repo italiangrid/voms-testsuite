@@ -96,3 +96,13 @@ See if -pwstdin works with voms-proxy-init
   Create proxy
   [Teardown]  Stop using certificate
 
+Check that -cert option is considered when -noregen option is specified
+  [Tags]   remote  regression  VOMS-461
+  [Setup]  Use certificate  test0
+  ${tempCert}  Run  mktemp /tmp/voms_testXXX
+  Create proxy  --out ${tempCert} 
+  Create proxy  --noregen --cert ${tempCert}
+  ${output}  Get proxy info
+  Should Contain   ${output}   issuer    : /C=IT/O=IGI/CN=test0/CN=proxy
+  Should Contain   ${output}   subject   : /C=IT/O=IGI/CN=test0/CN=proxy/CN=proxy  
+  [Teardown]   Stop using certificate
