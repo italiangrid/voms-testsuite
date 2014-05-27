@@ -136,7 +136,7 @@ A user cannot get a proxy from a VO she does not belong to
 See if voms-proxy-init fails with a fake target
   [Tags]  remote
   [Setup]  Use certificate  test0       
-  ${output}  Create proxy  -voms ${vo1} -target fake.cnaf.infn.it
+  ${output}  Create proxy failure  -voms ${vo1} -target fake.cnaf.infn.it
   Should Contain   ${output}  AC target check failed
   [Teardown]  Stop using certificate
 

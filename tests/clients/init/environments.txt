@@ -66,7 +66,7 @@ voms-proxy-init --vomsdir overrides standard vomsdir
   [Setup]   Use certificate   test0
   Setup invalid vomsdir 
   ${tmpVomsDir}   Get Environment Variable   __VOMS_CUSTOM_VOMSDIR__
-  ${output}   Create proxy   -voms ${vo1} -vomsdir ${tmpVomsDir}
+  ${output}   Create proxy failure   -voms ${vo1} -vomsdir ${tmpVomsDir}
   Should Contain   ${output}   LSC validation failed: LSC file matching VOMS attributes not found in store.
   Remove Environment Variable   __VOMS_CUSTOM_VOMSDIR__
   [Teardown]   Stop using certificate
