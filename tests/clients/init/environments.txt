@@ -37,18 +37,14 @@ Teardown for X509_CERT_DIR test
   Remove Environment Variable  X509_CERT_DIR
   Stop using certificate
 
-Setup for certdir test with test0 revoked 
+Setup for empty certdir test
   ${tmpCertDir}   Run   mktemp -d /tmp/certdir-XXXX
   Run  mkdir ${tmpCertDir}
   Set Environment Variable   __VOMS__CUSTOM__CERTDIR__   ${tmpCertDir}
-  Execute and Check Success   cp /etc/grid-security/certificates/10b10516.0 ${tmpCertDir}
-  Execute and Check Success   cp /etc/grid-security/certificates/d82942ab.0 ${tmpCertDir}
-  Execute and Check Success   cp ${certsDir}/custom-crls/10b10516.r0 ${tmpCertDir}
-  Execute and Check Success   cp ${certsDir}/custom-crls/d82942ab.r0 ${tmpCertDir}
   Use certificate  test0
   [Return]   ${tmpCertDir}
 
-Teardown for certdir test with test0 revoked
+Teardown for empty certdir test
   Remove Environment Variable   __VOMS__CUSTOM__CERTDIR__
   Stop using certificate
 
@@ -146,12 +142,11 @@ See if voms-proxy-init --vomses fails correctly when given a wrong location
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --certdir works
-  [Tags]   dev
-  [Setup]  Setup for certdir test with test0 revoked 
+  [Setup]  Setup for empty certdir test
   ${tmpCertDir}   Get Environment Variable   __VOMS__CUSTOM__CERTDIR__ 
   ${output}  Create Proxy Failure  --certdir ${tmpCertDir} --verify
-  Should Contain  ${output}  Certificate validation error: No valid CRL was found for the CA which issued the chain
-  [Teardown]  Teardown for certdir test with test0 revoked
+  Should Contain  ${output}  Certificate validation error: Trusted issuer of this certificate was not established
+  [Teardown]  Teardown for empty certdir test
 
 Check that proxy is correctly understood by dCache SRM clients
    [Tags]   regression   remote   VOMS-424
