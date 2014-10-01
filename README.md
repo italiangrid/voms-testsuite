@@ -20,7 +20,7 @@ in /etc/grid-security/certificates and the certificate files where you prefer.
 
 To run this testsuite, checkout the code using the following command:
 
-    git clone git://github.com/andreaceccanti/voms-testsuite.git
+    git clone git://github.com/italiangrid/voms-testsuite.git
 
 
 # Run the client test suite 
