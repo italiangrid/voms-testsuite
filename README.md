@@ -48,7 +48,7 @@ depending on your test setup:
           --variable voName:NameOfTheTestVo  \
           --variable vomsHost:HostWhereTestVomsIsRunning \
 	  --pythonpath lib \
-          tests/client
+          tests/clients
 
 [1]: http://radiohead.cnaf.infn.it:9999/job/test-ca/os=SL5_x86_64/lastSuccessfulBuild/artifact/igi-test-ca/rpmbuild/RPMS/noarch/igi-test-ca-1.0.0-1.sl5.noarch.rpm  "The test certificates RPM package"
 [2]: https://github.com/andreaceccanti/test-ca/tree/master/igi-test-ca  "The test certificates on Github"
