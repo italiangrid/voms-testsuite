@@ -44,13 +44,6 @@ Setup for empty certdir test
   Use certificate  test0
   [Return]   ${tmpCertDir}
 
-Setup for empty certdir with a 600 userkey test
-  ${tmpCertDir}   Run   mktemp -d /tmp/certdir-XXXX
-  Run  mkdir ${tmpCertDir}
-  Set Environment Variable   __VOMS__CUSTOM__CERTDIR__   ${tmpCertDir}
-  Use certificate with a 600 userkey  test0
-  [Return]   ${tmpCertDir}
-
 Teardown for empty certdir test
   Remove Environment Variable   __VOMS__CUSTOM__CERTDIR__
   Stop using certificate
@@ -165,7 +158,8 @@ Check that proxy is correctly understood by dCache SRM clients
    [Teardown]   Stop using certificate
 
 See if voms-proxy-init --certdir with a 600 userkey works
-  [Setup]  Setup for empty certdir with a 600 userkey test
+  [Setup]  Setup for empty certdir test
+  Execute and Check Success   chmod 600 %{HOME}/.globus/userkey.pem
   ${tmpCertDir}   Get Environment Variable   __VOMS__CUSTOM__CERTDIR__ 
   ${output}  Create Proxy Failure  --certdir ${tmpCertDir} --verify
   Should Contain  ${output}  Certificate validation error: Trusted issuer of this certificate was not established

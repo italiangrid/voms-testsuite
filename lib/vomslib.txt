@@ -30,14 +30,6 @@ Use certificate   [Arguments]   ${cert}
   Execute and Check Success   cp ${certsDir}/${cert}.cert.pem %{HOME}/.globus/usercert.pem
   Execute and Check Success   cp ${certsDir}/${cert}.key.pem %{HOME}/.globus/userkey.pem
   Execute and Check Success   chmod 400 %{HOME}/.globus/userkey.pem
-  
- Use certificate with a 600 userkey  [Arguments]   ${cert}
-  File Should Exist   ${certsDir}/${cert}.cert.pem
-  File Should Exist   ${certsDir}/${cert}.key.pem
-  Stop using certificate
-  Execute and Check Success   cp ${certsDir}/${cert}.cert.pem %{HOME}/.globus/usercert.pem
-  Execute and Check Success   cp ${certsDir}/${cert}.key.pem %{HOME}/.globus/userkey.pem
-  Execute and Check Success   chmod 600 %{HOME}/.globus/userkey.pem
 
 Use mixed credentials   [Arguments]   ${cred1}  ${cred2}
   File Should Exist   ${certsDir}/${cred1}.cert.pem
