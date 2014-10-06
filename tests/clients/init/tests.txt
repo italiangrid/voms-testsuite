@@ -311,3 +311,9 @@ See if voms-proxy-init --debug works
   Should contain  ${output}  Loaded LSC information from file
   Should contain  ${output}  VOMS AC validation for
   [Teardown]  Stop using certificate
+  
+See if voms-proxy-init works using a 600 userkey
+  [Setup]   Use certificate   test0
+  Execute and Check Success   chmod 600 %{HOME}/.globus/userkey.pem
+  ${output}   Create proxy
+  [Teardown]   Stop using certificate

@@ -156,11 +156,3 @@ Check that proxy is correctly understood by dCache SRM clients
    ${output}   Run   srmls ${srmEndpoint}
    Should Not Contain   ${output}   [JGLOBUS-12] No private key loaded
    [Teardown]   Stop using certificate
-
-See if voms-proxy-init --certdir with a 600 userkey works
-  [Setup]  Setup for empty certdir test
-  Execute and Check Success   chmod 600 %{HOME}/.globus/userkey.pem
-  ${tmpCertDir}   Get Environment Variable   __VOMS__CUSTOM__CERTDIR__ 
-  ${output}  Create Proxy Failure  --certdir ${tmpCertDir} --verify
-  Should Contain  ${output}  Certificate validation error: Trusted issuer of this certificate was not established
-  [Teardown]  Teardown for empty certdir test
