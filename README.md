@@ -20,7 +20,7 @@ in /etc/grid-security/certificates and the certificate files where you prefer.
 
 To run this testsuite, checkout the code using the following command:
 
-    git clone git://github.com/andreaceccanti/voms-testsuite.git
+    git clone git://github.com/italiangrid/voms-testsuite.git
 
 
 # Run the client test suite 
@@ -48,7 +48,7 @@ depending on your test setup:
           --variable voName:NameOfTheTestVo  \
           --variable vomsHost:HostWhereTestVomsIsRunning \
 	  --pythonpath lib \
-          tests/client
+          tests/clients
 
-[1]: http://radiohead.cnaf.infn.it:9999/job/test-ca/os=SL5_x86_64/lastSuccessfulBuild/artifact/igi-test-ca/rpmbuild/RPMS/noarch/igi-test-ca-1.0.0-1.sl5.noarch.rpm  "The test certificates RPM package"
+[1]: http://radiohead.cnaf.infn.it:9999/job/test-ca/lastSuccessfulBuild/artifact/igi-test-ca/rpmbuild/RPMS/noarch/igi-test-ca-1.0.6-1.noarch.rpm  "The test certificates RPM package"
 [2]: https://github.com/andreaceccanti/test-ca/tree/master/igi-test-ca  "The test certificates on Github"
