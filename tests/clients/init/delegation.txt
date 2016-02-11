@@ -34,7 +34,6 @@ multiple voms-proxy-init -noregen work as expected
 See if voms-proxy-init --noregen of an rfc proxy works
   [Tags]  remote
   [Setup]  Use certificate   test0
-  [Tags]   dev
   Create Proxy  -rfc
   Create Proxy  -noregen -voms ${vo1}
   ${info}   Get proxy info   --all
