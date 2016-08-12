@@ -29,14 +29,14 @@ A user can see the info of a plain proxy
 
 See if a voms proxy has the right attributes
   [Setup]  Use certificate  test0
-  [Tags]   remote
+  [Tags]   remote   rfc
   Create voms proxy
   ${output}=   Get proxy info  -all
   Log   ${output}
-  Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/CN=proxy
+  Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/CN=[0-9]+
   Should Match Regexp  ${output}  issuer\\s+:\\s+/C=IT/O=IGI/CN=test0
   Should Match Regexp  ${output}  identity\\s+:\\s+/C=IT/O=IGI/CN=test0
-  Should Match Regexp  ${output}  type\\s+:\\s+full legacy globus proxy
+  Should Match Regexp  ${output}  type\\s+:\\s+RFC3820 compliant impersonation proxy
   Should Match Regexp  ${output}  strength\\s+:\\s+1024
   Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
@@ -131,40 +131,6 @@ See if voms-proxy-info -path works
   Should Match Regexp  ${output}  /tmp/x509up_u\\d+
   [Teardown]  Stop using certificate
 
-See if voms-proxy-info -text works
-  [Setup]  Use certificate  test0
-  [Tags]   remote
-  Create voms proxy
-  ${output} =  Get proxy info  -text
-  Log  ${output}
-  Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/CN=proxy
-  Should Match Regexp  ${output}  issuer\\s+:\\s+/C=IT/O=IGI/CN=test0
-  Should Match Regexp  ${output}  identity\\s+:\\s+/C=IT/O=IGI/CN=test0
-  Should Match Regexp  ${output}  type\\s+:\\s+full legacy globus proxy
-  Should Match Regexp  ${output}  strength\\s+:\\s+1024
-  Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
-  Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
-  Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Non Repudiation, Key Encipherment 
-  Should Contain  ${output}  Subject: CN=proxy,CN=test0,O=IGI,C=IT
-  Should Contain  ${output}  Issuer: CN=test0,O=IGI,C=IT
-  [Teardown]  Stop using certificate
-
-See if voms-proxy-info -chain works
-  [Setup]  Use certificate  test0
-  [Tags]   remote
-  Create voms proxy
-  ${output} =  Get proxy info  -chain
-  Should Contain  ${output}  Proxy Chain Information
-  Should Contain  ${output}  Proxy Information
-  Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/CN=proxy
-  Should Match Regexp  ${output}  issuer\\s+:\\s+/C=IT/O=IGI/CN=test0
-  Should Match Regexp  ${output}  identity\\s+:\\s+/C=IT/O=IGI/CN=test0
-  Should Match Regexp  ${output}  type\\s+:\\s+full legacy globus proxy
-  Should Match Regexp  ${output}  strength\\s+:\\s+1024
-  Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
-  Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
-  Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Non Repudiation, Key Encipherment
-  [Teardown]  Stop using certificate
 
 See if voms-proxy-info -strength works
   [Setup]  Use certificate  test0

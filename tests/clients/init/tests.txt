@@ -64,13 +64,15 @@ See if request for multiple VOs work as expected
 
 voms-proxy-init can parse p12 certificates
   [Setup]   Use p12 certificate   test0
+  [Tags]   rfc
   Create proxy 
   ${proxySubject}   Get proxy info   --subject
   ${certSubject}   Get named certificate subject   test0
-  Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy
+  Should Match Regexp    ${proxySubject}   ${certSubject}/CN=[0-9]+
   [Teardown]   Stop using certificate
 
 voms-proxy-init -cert option understands p12 certificates
+  [Tags]   rfc
   ${cert}   Get named p12 certificate path   test0
   ${tmpCert}   Run   mktemp /tmp/voms-p12testXXX
   Execute and Check Success   cp ${cert} ${tmpCert}
@@ -78,7 +80,7 @@ voms-proxy-init -cert option understands p12 certificates
   Create proxy   -cert ${tmpCert}
   ${proxySubject}   Get proxy info   --subject
   ${certSubject}   Get named certificate subject   test0
-  Should Be Equal   ${proxySubject}   ${certSubject}/CN=proxy
+  Should Match Regexp   ${proxySubject}   ${certSubject}/CN=[0-9]+
   [Teardown]   Stop using certificate
 
 voms-proxy-init generates proxy with the appropriate file permissions
@@ -90,23 +92,25 @@ voms-proxy-init generates proxy with the appropriate file permissions
   [Teardown]   Stop using certificate
 
 voms-proxy-init enforces chain integrity
+  [Tags]   rfc
   [Setup]   Use certificate   test0
-  Create proxy   
+  Create proxy   -old   
   ${output}   Create proxy   -noregen -rfc
   Should Contain   ${output}   forced LEGACY proxy type to be compatible with the type of the issuing proxy.
   ${type}   Get proxy info   --type
   Should Be Equal   ${type}   full legacy globus proxy
   Destroy proxy
-  Create proxy   -rfc
-  ${output}   Create proxy   -noregen 
+  Create proxy 
+  ${output}   Create proxy   -noregen  -old
   Should Contain   ${output}   forced RFC3820 proxy type to be compatible with the type of the issuing proxy.
   ${type}   Get proxy info   --type
   Should Be Equal   ${type}   RFC3820 compliant impersonation proxy
   [Teardown]   Stop using certificate
 
 limited proxies can sign only limited proxies
+  [Tags]   rfc
   [Setup]   Use certificate   test0
-  Create proxy   -limited
+  Create proxy   -limited -old
   ${output}   Create proxy   -noregen
   Should Contain   ${output}   forced the creation of a limited proxy to be compatible with the type of the issuing proxy.
   ${type}   Get proxy info   --type
