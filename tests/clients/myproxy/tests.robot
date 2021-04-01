@@ -1,5 +1,5 @@
 *** Settings ***
-Resource   lib/vomslib.txt
+Resource   lib/vomslib.robot
 
 
 *** Keywords ***

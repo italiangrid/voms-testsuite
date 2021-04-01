@@ -2,7 +2,7 @@
 
 Library   OperatingSystem
 Library   String
-Resource  variables.txt
+Resource  variables.robot
 
 *** Variables ***
 

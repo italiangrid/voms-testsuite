@@ -1,6 +1,6 @@
 *** Settings ***
-Resource   lib/vomslib.txt
-Resource   lib/variables.txt
+Resource   lib/vomslib.robot
+Resource   lib/variables.robot
 Documentation  Tests for error conditions for voms-proxy-init
 
 *** Keywords ***

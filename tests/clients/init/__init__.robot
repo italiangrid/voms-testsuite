@@ -1,8 +1,8 @@
 *** Settings ***
 
 Library   OperatingSystem
-Resource   lib/variables.txt
-Resource   lib/vomslib.txt
+Resource   lib/variables.robot
+Resource   lib/vomslib.robot
 
 *** Keywords ***
 

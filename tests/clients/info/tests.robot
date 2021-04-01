@@ -1,6 +1,6 @@
 *** Settings ***
-Resource   lib/vomslib.txt
-Resource   lib/variables.txt
+Resource   lib/vomslib.robot
+Resource   lib/variables.robot
 Documentation  Generic tests for voms-proxy-info
 
 *** Test Cases ***

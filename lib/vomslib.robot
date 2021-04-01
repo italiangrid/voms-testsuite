@@ -3,7 +3,7 @@
 Library   OperatingSystem
 Library   Collections
 Library   VOMSLibrary
-Resource   variables.txt
+Resource   variables.robot
 
 *** Keywords ***
 

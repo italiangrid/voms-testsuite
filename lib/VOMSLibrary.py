@@ -36,10 +36,6 @@ class VOMSLibrary:
 		d0 = self._parse_date(date0)
 		d1 = self._parse_date(date1)
 		
-		print "*DEBUG* Input date 0 string: %s"  % date0
-		print "*DEBUG* Input date 1 string: %s" % date1
-		print "*DEBUG* Parsed dates: %s, %s" % (d0, d1)
-		
 		if d0 < d1:
 			return -1
 		elif d0 == d1:
