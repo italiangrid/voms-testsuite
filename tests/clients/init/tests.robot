@@ -258,6 +258,7 @@ voms-proxy-init should limit proxy lifetime to be consistent with issuing certif
   [Teardown]   Stop using certificate
 
 See if voms-proxy-init read timeout works
+  [Tags]   read-timeout
   [Setup]  Use certificate  test0
   ${beginLiteral}  Get Time  epoch
   ${begin}  Convert To Integer  ${beginLiteral}

@@ -1,5 +1,5 @@
 *** Settings ***
-Resource   lib/infosys.txt
+Resource   lib/infosys.robot
 Documentation  Tests information published in the resource bdii
 
 *** Test Cases ***

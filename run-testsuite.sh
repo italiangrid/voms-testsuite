@@ -16,12 +16,12 @@
 #
 set -ex
 
-VOMS_HOST=${VOMS_HOST:-dev.local.io}
+VOMS_HOST=${VOMS_HOST:-vgrid02.cnaf.infn.it}
 REPORTS_DIR=${REPORTS_DIR:-reports}
-ROBOT_ARGS=${ROBOT_ARGS:-}
-VO_NAME=${VO_NAME:-vo.0}
+ROBOT_ARGS=${ROBOT_ARGS:-"--exclude myproxy --exclude read-timeout"}
+VO_NAME=${VO_NAME:-test.vo}
 
-DEFAULT_ARGS="--pythonpath .:lib --variable vomsHost:${VOMS_HOST} --variable voName:${VO_NAME} -d ${REPORTS_DIR}"
+DEFAULT_ARGS="--pythonpath .:lib --variable vomsHost:${VOMS_HOST} --variable vo1:${VO_NAME} -d ${REPORTS_DIR}"
 
 ARGS=${DEFAULT_ARGS}
 
@@ -29,4 +29,4 @@ if [ -n "${ROBOT_ARGS}" ]; then
   ARGS="${ARGS} ${ROBOT_ARGS}"
 fi
 
-robot ${ARGS} tests
+robot ${ARGS} tests/clients

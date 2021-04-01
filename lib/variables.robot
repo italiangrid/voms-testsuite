@@ -7,8 +7,8 @@ ${vo1}   test.vo
 ${vo2}  test.vo.2
 ${vo1_host}  vgrid02.cnaf.infn.it 
 ${vo2_host}  vgrid02.cnaf.infn.it
-${vo1_issuer}  /C=IT/O=INFN/OU=Host/L=CNAF/CN=vgrid02.cnaf.infn.it
-${vo2_issuer}  /C=IT/O=INFN/OU=Host/L=CNAF/CN=vgrid02.cnaf.infn.it
+${vo1_issuer}  /DC=org/DC=terena/DC=tcs/C=IT/L=Frascati/O=Istituto Nazionale di Fisica Nucleare/OU=CNAF/CN=vgrid02.cnaf.infn.it
+${vo2_issuer}  /DC=org/DC=terena/DC=tcs/C=IT/L=Frascati/O=Istituto Nazionale di Fisica Nucleare/OU=CNAF/CN=vgrid02.cnaf.infn.it
 ${vo1CorePort}  15001
 
 ${myproxy_server}  omii001.cnaf.infn.it

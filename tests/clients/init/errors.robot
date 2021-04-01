@@ -124,7 +124,7 @@ A user gets the right message when trying to create a proxy without a certificat
 A user gets the right message when trying to create a proxy providing the wrong passphrase
   [Setup]  Use certificate   test0
   ${output}  Execute and Check Failure   echo "CAMAGHE" | voms-proxy-init -pwstdin
-  Should Contain  ${output}  Can not load PEM private key: the password is incorrect or the PEM data is corrupted.
+  Should Contain  ${output}  Error decrypting private key: the password is incorrect or the PEM data is corrupted.
   [Teardown]  Stop using certificate
 
 A user cannot get a proxy from a VO she does not belong to
@@ -157,6 +157,6 @@ See if voms-proxy-init -pwstdin fails correctly when no password is provided
   Should contain  ${output}  No credentials found!
   ${output}  Execute and Check Failure  echo "" | voms-proxy-init --pwstdin --debug
   Should contain  ${output}  Credentials couldn't be loaded
-  Should contain  ${output}  Can not load PEM private key: the password is incorrect or the PEM data is corrupted
+  Should contain  ${output}  Error decrypting private key: the password is incorrect or the PEM data is corrupted
   Should contain  ${output}  No credentials found!
   [Teardown]  Stop using certificate

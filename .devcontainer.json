@@ -1,0 +1,7 @@
+{
+  "name": "VOMS client testsuite development",
+  "dockerComposeFile": "compose/docker-compose.yml",
+  "service": "testsuite",
+  "workspaceFolder": "/home/test/voms-testsuite",
+  "shutdownAction": "stopCompose"
+}

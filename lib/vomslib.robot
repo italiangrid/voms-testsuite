@@ -91,17 +91,19 @@ Destroy proxy   [Arguments]   @{params}
 
 Get options list   [Arguments]   @{params}
   ${optionsList}  Set Variable  ${EMPTY}
-  :FOR    ${option}   IN   @{params}
-   \   ${optionsList} =  Catenate   ${optionsList}   ${option}
+  FOR    ${option}   IN   @{params}
+    ${optionsList} =  Catenate   ${optionsList}   ${option}
+  END
   Log Many   ${optionsList}
   [Return]   ${optionsList}
 
 Create voms proxy with roles   [Arguments]   @{roles}   
-   Should Be True   ${roles}   Please provide at least one role   
-   @{args}   Create List 
-   :FOR    ${r}   IN   ${roles}
-   \   Append To List   ${args}   -voms ${vo1}:${r}
-   Log Many   @{args}   WARN
+  Should Be True   ${roles}   Please provide at least one role   
+  @{args}   Create List 
+  FOR    ${r}   IN   ${roles}
+    Append To List   ${args}   -voms ${vo1}:${r}
+  END
+  Log Many   @{args}   WARN
  
 Get proxy info   [Arguments]   @{params}
    ${options}=  Get options list   @{params}

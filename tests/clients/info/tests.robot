@@ -37,7 +37,7 @@ See if a voms proxy has the right attributes
   Should Match Regexp  ${output}  issuer\\s+:\\s+/C=IT/O=IGI/CN=test0
   Should Match Regexp  ${output}  identity\\s+:\\s+/C=IT/O=IGI/CN=test0
   Should Match Regexp  ${output}  type\\s+:\\s+RFC3820 compliant impersonation proxy
-  Should Match Regexp  ${output}  strength\\s+:\\s+1024
+  Should Match Regexp  ${output}  strength\\s+:\\s+2048
   Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
   Should Match Regexp  ${output}  key usage\\s+:\\s+Digital Signature, Non Repudiation, Key Encipherment
@@ -68,7 +68,7 @@ Check if the option '-exists -valid' fails when it should
 See if voms-proxy-info '--exists --bits' works
   [Setup]  Use certificate  test0
   Create plain Proxy
-  ${output}   Get proxy info   -exists -bits 1024;echo $?
+  ${output}   Get proxy info   -exists -bits 2048;echo $?
   Should Contain  ${output}  0
   [Teardown]  Stop using certificate
 
@@ -137,7 +137,7 @@ See if voms-proxy-info -strength works
   [Tags]   remote
   Create voms proxy
   ${output} =  Get proxy info  -strength
-  Should Match Regexp  ${output}  1024  
+  Should Match Regexp  ${output}  2048  
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -timeleft works

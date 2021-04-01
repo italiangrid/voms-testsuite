@@ -1,0 +1,34 @@
+version: '3.5'
+
+volumes:
+  vscode-server:
+  dotlocal:
+
+services:
+  testsuite-init:
+    image: italiangrid/voms-testsuite-centos7
+    volumes:
+      - vscode-server:/home/test/.vscode-server
+      - dotlocal:/home/test/.local
+    command: sudo chown -R test:test /home/test/.vscode-server /home/test/.local
+
+  testsuite:
+    image: italiangrid/voms-testsuite-centos7
+
+    depends_on:
+      - testsuite-init
+
+    environment:
+      - TZ=Europe/Rome
+      - X509_USER_PROXY=/tmp/x509up_u501
+
+    volumes:
+      - vscode-server:/home/test/.vscode-server
+      - dotlocal:/home/test/.local
+      - ..:/home/test/voms-testsuite:cached
+      - ./assets/vomses:/etc/vomses
+      - ./assets/vomsdir:/etc/grid-security/vomsdir
+      - $HOME/grid-security:/etc/grid-security/certificates
+
+
+    command: sleep infinity
