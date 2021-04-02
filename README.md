@@ -23,3 +23,6 @@ Use the `italiangrid/voms-testsuite-centos7` docker image to run the testsuite.
 | `vo2_issuer`   | VOMS subject DN for the second VO  | DC=org/DC=terena/DC=tcs/C=IT/L=Frascati/O=Istituto Nazionale di Fisica Nucleare/OU=CNAF/CN=vgrid02.cnaf.infn.it  |
 
 For other parameters, see the [variables file](./lib/variables.robot).
+
+
+[robot-framework]: https://robotframework.org/
