@@ -267,7 +267,7 @@ See if voms-proxy-init read timeout works
   ${end}  Convert To Integer  ${endLiteral}
   ${time}  Evaluate  ${end}-${begin}
   Should Contain  ${output}  Read timed out
-  # behind connecting, voms-proxy-init needs two secs to do its business,
+  # besides connecting, voms-proxy-init needs two secs to do its business,
   # and there's two connections to try, so total time should be around 4s
   ${result}  Evaluate  ${time} < 8
   Should Be True  ${result}
@@ -284,7 +284,7 @@ See if voms-proxy-init connect timeout works
   ${end}  Convert To Integer  ${endLiteral}
   ${time}  Evaluate  ${end}-${begin}
   Should Contain  ${output}  connect timed out
-  # behind connecting, voms-proxy-init needs two secs to do its business,
+  # besides connecting, voms-proxy-init needs two secs to do its business,
   # and there's two connections to try, so total time should be around 4s
   Should Be True   ${time} < 8
   [Teardown]  Stop using certificate

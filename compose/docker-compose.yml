@@ -28,7 +28,5 @@ services:
       - ..:/home/test/voms-testsuite:cached
       - ./assets/vomses:/etc/vomses
       - ./assets/vomsdir:/etc/grid-security/vomsdir
-      - $HOME/grid-security:/etc/grid-security/certificates
-
 
     command: sleep infinity
