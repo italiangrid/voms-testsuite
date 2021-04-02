@@ -1,5 +1,6 @@
 #!/bin/bash
 set -ex
 
+mkdir -p /tmp/reports
 cd /home/test/voms-testsuite
-./run-testsuite.sh
+REPORTS_DIR="/tmp/reports" ./run-testsuite.sh
