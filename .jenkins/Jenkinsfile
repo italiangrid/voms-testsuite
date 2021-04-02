@@ -30,7 +30,7 @@ pipeline {
 
     stage('report'){
       steps {
-        sh "docker cp voms-testsuite_voms_1:/home/test/voms-testsuite/reports ."
+        sh "docker cp voms-testsuite_voms_1:/tmp/reports ."
         archive 'reports/**'
 
         step([$class: 'RobotPublisher',
