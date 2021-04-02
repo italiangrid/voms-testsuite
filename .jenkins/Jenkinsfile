@@ -55,7 +55,7 @@ pipeline {
     always {
       sh '''#!/bin/bash
       cd compose
-      docker-compose down
+      docker-compose down -v
       '''
     }
 
