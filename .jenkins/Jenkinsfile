@@ -54,6 +54,7 @@ pipeline {
   post {
     always {
       sh '''#!/bin/bash
+      set -ex
       cd compose
       docker-compose down -v
       '''
