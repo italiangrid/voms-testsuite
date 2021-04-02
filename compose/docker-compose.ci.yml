@@ -1,6 +1,20 @@
 version: '3.5'
 
+volumes:
+  trustanchors:
+  cabundle:
+
 services:
+  trust:
+    image: indigoiam/egi-trustanchors
+
+    volumes:
+      - trustanchors:/etc/grid-security/certificates
+      - cabundle:/etc/pki
+
+    environment:
+      FORCE_TRUST_ANCHORS_UPDATE: 1
+
   testsuite:
     image: italiangrid/voms-testsuite-centos7
 
@@ -10,6 +24,7 @@ services:
       - ROBOT_ARGS
 
     volumes:
+      - trustanchors:/etc/grid-security/certificates
       - ./assets/vomses:/etc/vomses
       - ./assets/vomsdir:/etc/grid-security/vomsdir
       - ./assets/scripts:/scripts

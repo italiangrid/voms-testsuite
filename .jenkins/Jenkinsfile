@@ -23,7 +23,12 @@ pipeline {
     stage ('run'){
       steps {
         script {
-          sh returnStatus: true, script: "cd compose && docker-compose -f docker-compose.ci.yml up"
+          sh returnStatus: true, script: '''#!/bin/bash 
+          set -ex
+          cd compose
+          docker-compose -f docker-compose.ci.yml up trust
+          docker-compose -f docker-compose.ci.yml up testsuite
+          '''
         }
       }
     }
