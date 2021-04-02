@@ -1,54 +1,25 @@
-# VOMS testsuite
+# VOMS clients testsuite
 
-A place for the VOMS testsuites.
+A [Robot-powered][robot-framework] VOMS clients testsuite.
 
-# Requirements
+## Requirements
 
-- Robot Framework https://code.google.com/p/robotframework/wiki/Installation.
-- The voms clients 3 package installed.
-- The dCache SRM clients must be installed
-- The myproxy client must be installed
-- The `$HOME/.globus` directory should exist for the user that runs the test suite and should be *EMPTY*.
-- The `$HOME/.glite/vomses` and `$HOME/.voms/vomses` directories could be wiped out by the testsuite, so
-if you have sensible information there save it somewhere else.
-- The test certificates must be available on the machine where the testsuite is run. Certificates
-can be installed from an [RPM] [1] or fetching the [code from github] [2] and placing the CA certs
-in /etc/grid-security/certificates and the certificate files where you prefer.
+-   A VOMS installation configured according to the [test fixture](./fixture/populate-vo.sh)
+-   The [IGI test-ca](https://github.com/italiangrid/test-ca) package installed & trusted
 
+## Running the testsuite
 
-# Getting the testsuite 
+Use the `italiangrid/voms-testsuite-centos7` docker image to run the testsuite.
 
-To run this testsuite, checkout the code using the following command:
+### Testsuite parameters
 
-    git clone git://github.com/italiangrid/voms-testsuite.git
+| Parameter name | Description                        | Default value                                                                                                    |
+| -------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `vo1`          | Name of the VO under test          | test.vo                                                                                                          |
+| `vo2`          | Name of the second VO under test   | test.vo.2                                                                                                        |
+| `vo1_host`     | Name of the host for the first VO  | vgrid02.cnaf.infn.it                                                                                             |
+| `vo2_host`     | Name of the host for the second VO | vgrid02.cnaf.infn.it                                                                                             |
+| `vo1_issuer`   | VOMS subject DN for the first VO   | /DC=org/DC=terena/DC=tcs/C=IT/L=Frascati/O=Istituto Nazionale di Fisica Nucleare/OU=CNAF/CN=vgrid02.cnaf.infn.it |
+| `vo2_issuer`   | VOMS subject DN for the second VO  | DC=org/DC=terena/DC=tcs/C=IT/L=Frascati/O=Istituto Nazionale di Fisica Nucleare/OU=CNAF/CN=vgrid02.cnaf.infn.it  |
 
-
-# Run the client test suite 
-
-## Test VO fixture
-
-The client test suite requires that you have a properly configured set of VOS and
-services running. 
-
-This section provides instructions on how the test VOs need to be configured
-for the test suite to run properly.
-
-*TBD*
-
-## Running the tests
-
-You will also need the local clients configured to talk to such VOMS server. 
-This means that vomsdir and vomses configuration must be in place. Consult the VOMS clients documentation
-on how to setup correctly the clients.
-
-To run the basic test suite, execute the Robot Framework command-line passing the following options 
-depending on your test setup:
-    
-    pybot --variable certsDir:/path/to/certs \
-          --variable voName:NameOfTheTestVo  \
-          --variable vomsHost:HostWhereTestVomsIsRunning \
-	  --pythonpath lib \
-          tests/clients
-
-[1]: http://radiohead.cnaf.infn.it:9999/job/test-ca/lastSuccessfulBuild/artifact/igi-test-ca/rpmbuild/RPMS/noarch/igi-test-ca-1.0.6-1.noarch.rpm  "The test certificates RPM package"
-[2]: https://github.com/andreaceccanti/test-ca/tree/master/igi-test-ca  "The test certificates on Github"
+For other parameters, see the [variables file](./lib/variables.robot).
