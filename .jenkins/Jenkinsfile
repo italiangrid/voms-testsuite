@@ -52,6 +52,13 @@ pipeline {
   }
 
   post {
+    always {
+      sh '''#!/bin/bash
+      cd compose
+      docker-compose down
+      '''
+    }
+
     failure {
       slackSend color: 'danger', message: "${env.JOB_NAME} - #${env.BUILD_NUMBER} Failure (<${env.BUILD_URL}|Open>)"
     }
