@@ -1,0 +1,18 @@
+version: '3.5'
+
+services:
+  testsuite:
+    image: italiangrid/voms-testsuite-centos7
+
+    environment:
+      - TZ=Europe/Rome
+      - X509_USER_PROXY=/tmp/x509up_u501
+      - ROBOT_ARGS
+
+    volumes:
+      - ./assets/vomses:/etc/vomses
+      - ./assets/vomsdir:/etc/grid-security/vomsdir
+      - ./assets/scripts:/scripts
+      - ..:/home/test/voms-testsuite:cached
+
+    command: /scripts/ci-run-testsuite.sh
