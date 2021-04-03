@@ -56,7 +56,7 @@ pipeline {
       sh '''#!/bin/bash
       set -ex
       cd compose
-      docker-compose down -v
+      docker-compose -f docker-compose.ci.yml down -v
       '''
     }
 
