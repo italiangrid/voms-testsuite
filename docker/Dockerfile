@@ -41,10 +41,5 @@ RUN yum install -y python36 python36-devel python36-setuptools && \
     pip3 install --upgrade shyaml && \
     rm -rf /var/cache/yum
 
-ENV TINI_VERSION v0.18.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-RUN chmod +x /tini
-ENTRYPOINT ["/tini", "--"]
-
 USER test
 WORKDIR /home/test
