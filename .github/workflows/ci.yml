@@ -25,11 +25,11 @@ jobs:
       working-directory: compose
 
     - name: deploy voms
-      run: docker-compose --file docker-compose.ci.yml exec --workdir /scripts voms bash /scripts/server_clean_EL7.sh
+      run: docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/server_clean_EL7.sh
       working-directory: compose
 
     - name: run testsuite
-      run: docker-compose --file docker-compose.ci.yml exec testsuite bash /scripts/ci-run-testsuite.sh
+      run: docker-compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh
       working-directory: compose
     
     - name: stop compose
