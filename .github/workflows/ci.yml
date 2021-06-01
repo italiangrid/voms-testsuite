@@ -10,12 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: docker version
-      run: docker --version
-
-    - name: docker-compose version
-      run: docker-compose --version
-
     - name: checkout
       uses: actions/checkout@v2
 
@@ -25,7 +19,7 @@ jobs:
     - name: build voms-testsuite
       uses: docker/build-push-action@v2
       with:
-        context: docker/voms-testsuite
+        context: docker/testsuite
         push: false
         tags: italiangrid/voms-testsuite-centos7:VOMS-882
 
@@ -35,3 +29,11 @@ jobs:
         context: docker/all-in-one-centos7
         push: false
         tags: italiangrid/voms-deployment-test-centos7:VOMS-882
+
+    - name: start compose
+      run: docker-compose -f docker-compose.ci.yml up -d
+      working-directory: compose
+
+    - name: stop compose
+      run: docker-compose -f docker-compose.ci.yml down --volumes
+      working-directory: compose
