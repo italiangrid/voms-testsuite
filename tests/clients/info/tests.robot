@@ -44,7 +44,8 @@ See if a voms proxy has the right attributes
   Should Match Regexp  ${output}  === VO ${vo1} extension information ===
   Should Match Regexp  ${output}  VO\\s+:\\s+${vo1}
   Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/
-  Should Match Regexp  ${output}  issuer\\s+:\\s+${vo1_issuer}
+  ${vo1_issuer_escaped} =  Regexp Escape  ${vo1_issuer}  
+  Should Match Regexp  ${output}  issuer\\s+:\\s+${vo1_issuer_escaped}
   Should Match Regexp  ${output}  attribute\\s+:\\s+/${vo1}/Role=NULL/Capability=NULL
   Should Match Regexp  ${output}  attribute\\s+:\\s+/${vo1}/G1/Role=NULL/Capability=NULL
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
@@ -93,7 +94,7 @@ See if voms-proxy-info -acissuer works
   [Tags]   remote
   Create voms proxy
   ${output}   Get proxy info  -acissuer
-  Should Match Regexp  ${output}  ${vo1_issuer} 
+  Should Match  ${output}  ${vo1_issuer} 
   [Teardown]  Stop using certificate
 
 See if voms-proxy-info -acsubject works
