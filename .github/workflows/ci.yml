@@ -6,8 +6,10 @@ on:
     - VOMS-882
 
 jobs:
-  docker:
+  deploy_and_run_testsuite:
     runs-on: ubuntu-latest
+    env:
+      ARTIFACTS_PATH: ${HOME}/artifacts
     steps:
 
     - name: checkout
@@ -31,7 +33,21 @@ jobs:
     - name: run testsuite
       run: docker-compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh
       working-directory: compose
-    
+
+    - name: collect results
+      run: |
+        mkdir -p ${ARTIFACTS_PATH}/logs
+        docker-compose --file docker-compose.ci.yml logs --no-color testsuite > ${ARTIFACTS_PATH}/logs/testsuite.log
+        docker-compose --file docker-compose.ci.yml logs --no-color voms > ${ARTIFACTS_PATH}/logs/voms.log
+        docker container cp voms-testsuite_testsuite_1:/tmp/reports ${ARTIFACTS_PATH}
+      working-directory: compose
+
     - name: stop compose
       run: docker-compose --file docker-compose.ci.yml down --volumes
       working-directory: compose
+
+    - name: upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-report-and-logs
+        path: ${ARTIFACTS_PATH}
