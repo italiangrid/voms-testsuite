@@ -8,8 +8,7 @@ on:
 jobs:
   deploy_and_run_testsuite:
     runs-on: ubuntu-latest
-    env:
-      ARTIFACTS_PATH: ${HOME}/artifacts
+
     steps:
 
     - name: checkout
@@ -34,9 +33,16 @@ jobs:
       run: docker-compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh
       working-directory: compose
 
+    - name: create artifacts dir
+      run: |
+        ARTIFACTS_PATH=${HOME}/artifacts
+        echo ARTIFACTS_PATH: ${ARTIFACTS_PATH}
+        # save it in the job environment
+        echo "ARTIFACTS_PATH=${ARTIFACTS_PATH}" >> ${GITHUB_ENV}
+        mkdir -p ${ARTIFACTS_PATH}/logs
+
     - name: collect results
       run: |
-        mkdir -p ${ARTIFACTS_PATH}/logs
         docker-compose --file docker-compose.ci.yml logs --no-color testsuite > ${ARTIFACTS_PATH}/logs/testsuite.log
         docker-compose --file docker-compose.ci.yml logs --no-color voms > ${ARTIFACTS_PATH}/logs/voms.log
         docker container cp voms-testsuite_testsuite_1:/tmp/reports ${ARTIFACTS_PATH}
