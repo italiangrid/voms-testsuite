@@ -9,11 +9,13 @@ services:
     image: indigoiam/egi-trustanchors
 
     volumes:
-      - trustanchors:/etc/grid-security/certificates
-      - cabundle:/etc/pki
+      - trustanchors:/tmp/certificates
+      - cabundle:/tmp/pki
 
     environment:
       FORCE_TRUST_ANCHORS_UPDATE: 1
+      TRUST_ANCHORS_TARGET: /tmp/certificates
+      CA_BUNDLE_TARGET: /tmp/pki
 
   testsuite:
     build: ../docker/testsuite
