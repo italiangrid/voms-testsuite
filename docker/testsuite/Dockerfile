@@ -6,40 +6,25 @@ ARG TEST_USER_UID=501
 ENV TEST_USER $TEST_USER
 ENV TEST_USER_UID $TEST_USER_UID
 
-RUN   yum clean all && \
-      yum install -y hostname epel-release && \
-      yum -y update && \
-      yum -y install which wget tar gcc openssl-devel sudo file make which && \
-      echo '%wheel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers && \
-      adduser --uid ${TEST_USER_UID} ${TEST_USER} && \
-      usermod -a -G wheel ${TEST_USER} && \
-      mkdir /home/test/.config && chown test:test /home/test/.config && \
-      yum -y install telnet nc
+COPY assets/scripts/*.sh /tmp/scripts/
 
-RUN cd /root && \
-    wget https://curl.haxx.se/download/curl-7.72.0.tar.gz && \
-    tar xvzf curl-7.72.0.tar.gz && \
-    cd curl-7.72.0 && \
-    ./configure --with-ssl --disable-dependency-tracking && \
-    make && make install && \
-    cd .. && rm -rf curl-7.72.0 && rm curl-7.72.0.tar.gz
+RUN    yum install -y wget epel-release \
+    && wget https://ci.cloud.cnaf.infn.it/view/repos/job/repo_test_ca/lastSuccessfulBuild/artifact/test-ca.repo -O /etc/yum.repos.d/test-ca.repo \
+    && yum -y update \
+    && yum -y install hostname tar gcc openssl-devel sudo file make which telnet nc \
+       igi-test-ca voms-clients-java gfal2-util gfal2-all gfal2-python davix jq \
+       python36 python36-devel python36-setuptools \
+    && rm -rf /var/cache/yum \
+    && adduser --uid ${TEST_USER_UID} ${TEST_USER} \
+    && echo ${TEST_USER} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${TEST_USER} \
+    && chmod 0440 /etc/sudoers.d/${TEST_USER} \
+    && mkdir /home/${TEST_USER}/.config /home/${TEST_USER}/.globus \
+    && cp /usr/share/igi-test-ca/test0.p12 /home/${TEST_USER}/.globus/usercred.p12 \
+    && chmod 600 /home/${TEST_USER}/.globus/usercred.p12 \
+    && chown -R ${TEST_USER}:${TEST_USER} /home/${TEST_USER} \
+    && bash /tmp/scripts/provide_curl.sh \
+    && bash /tmp/scripts/provide_robotframework.sh \
+    && rm -rf /tmp/scripts
 
-RUN wget https://ci.cloud.cnaf.infn.it/view/repos/job/repo_test_ca/lastSuccessfulBuild/artifact/test-ca.repo -O /etc/yum.repos.d/test-ca.repo && \
-    yum -y clean all && yum -y install igi-test-ca && \
-    mkdir -p /home/test/.globus && cp /usr/share/igi-test-ca/test0.p12 /home/test/.globus/usercred.p12 && \
-    chmod 600 /home/test/.globus/usercred.p12 && \
-    chown -R test:test /home/test/.globus
-
-RUN yum -y install voms-clients-java gfal2-util gfal2-all gfal2-python davix jq 
-
-RUN yum install -y python36 python36-devel python36-setuptools && \
-    python3 /usr/lib/python3.6/site-packages/easy_install.py pip && \
-    pip3 install --upgrade pip && \
-    pip3 install robotframework && pip3 install --upgrade robotframework-httplibrary && \
-    pip3 install --upgrade requests && \
-    pip3 install --upgrade pyyaml && \
-    pip3 install --upgrade shyaml && \
-    rm -rf /var/cache/yum
-
-USER test
-WORKDIR /home/test
+USER ${TEST_USER}
+WORKDIR /home/${TEST_USER}
