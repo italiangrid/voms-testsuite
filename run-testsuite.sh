@@ -21,10 +21,7 @@ DEFAULT_EXCLUDES=${DEFAULT_EXCLUDES:-"--exclude myproxy --exclude read-timeout"}
 REPORTS_DIR=${REPORTS_DIR:-"reports"}
 DEFAULT_ARGS="--pythonpath .:lib  -d ${REPORTS_DIR}"
 
-ARGS="${DEFAULT_ARGS} ${DEFAULT_EXCLUDES}"
+read -a ARGS <<< "${DEFAULT_ARGS} ${DEFAULT_EXCLUDES} ${ROBOT_ARGS}"
+ARGS+=("$@")
 
-if [ -n "${ROBOT_ARGS}" ]; then
-  ARGS="${ARGS} ${ROBOT_ARGS}"
-fi
-
-robot ${ARGS} tests/clients
+robot "${ARGS[@]}" tests/clients
