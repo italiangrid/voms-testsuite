@@ -22,7 +22,8 @@ jobs:
       working-directory: compose
 
     - name: Provide trustanchors
-      run: docker-compose --file docker-compose.ci.yml up trust 
+      run: docker-compose --file docker-compose.ci.yml up trust
+      working-directory: compose
 
     - name: Start compose
       run: docker-compose --file docker-compose.ci.yml up --detach voms testsuite
