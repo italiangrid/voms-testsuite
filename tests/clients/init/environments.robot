@@ -68,24 +68,27 @@ voms-proxy-init --vomsdir overrides standard vomsdir
   [Teardown]   Stop using certificate
 
 voms-proxy-init --certdir fails nicely with non-existent directory
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]   Use certificate   test0
   ${output}   Create proxy failure   -voms ${vo1} -certdir /unlikely/path
-  Should Contain   ${output}   Invalid trust anchors location: '/unlikely/path' (file not found)
+  ${expected}  Set Variable If  ${client_version} == 2  unable to access trusted certificates in:x509_cert_dir=/unlikely/path  Invalid trust anchors location: '/unlikely/path' (file not found)
+  Should Contain   ${output}   ${expected}
   [Teardown]   Stop using certificate
 
 See if voms-proxy-init reads ~/.voms/vomses
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Setup for vomses test  %{HOME}/.voms
   ${output}  Create Proxy  -debug -voms ${vo1}
-  Should Contain  ${output}  from %{HOME}/.voms
+  ${expected}  Set Variable If  ${client_version} == 2  Using configuration file %{HOME}/.voms/vomses  from %{HOME}/.voms
+  Should Contain  ${output}  ${expected}
   [Teardown]  Teardown for vomses test  %{HOME}/.voms
 
 See if voms-proxy-init reads ~/.glite/vomses
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Setup for vomses test  %{HOME}/.glite
   ${output}  Create Proxy  -debug -voms ${vo1}
-  Should Contain  ${output}  from %{HOME}/.glite
+  ${expected}  Set Variable If  ${client_version} == 2  Using configuration file %{HOME}/.glite/vomses  from %{HOME}/.glite
+  Should Contain  ${output}  ${expected}
   [Teardown]  Teardown for vomses test  %{HOME}/.glite
 
 See if AC validation fails when LSC file does not exist
@@ -134,11 +137,12 @@ See if voms-proxy-init honors X509_USER_PROXY
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --vomses fails correctly when given a wrong location
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   Should Not Exist  /unlikely/path
   ${output}  Create proxy failure  --voms ${vo1} --vomses /unlikely/path
-  Should contain  ${output}   No valid VOMSES information found locally while looking in: [/unlikely/path]
+  ${expected}=  Set Variable If  ${client_version} == 2  Cannot find file or dir: /unlikely/path  No valid VOMSES information found locally while looking in: [/unlikely/path]
+  Should contain  ${output}   ${expected}
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --certdir works
