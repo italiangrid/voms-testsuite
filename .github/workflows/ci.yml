@@ -11,29 +11,33 @@ jobs:
 
     steps:
 
-    - name: checkout
+    - name: Checkout
       uses: actions/checkout@v2
 
-    - name: set up docker buildx
+    - name: Set up docker buildx
       uses: docker/setup-buildx-action@v1
 
-    - name: build images
+    - name: Build images
       run: docker-compose --file docker-compose.ci.yml build
       working-directory: compose
- 
-    - name: start compose
-      run: docker-compose --file docker-compose.ci.yml up --detach
+
+    - name: Provide trustanchors
+      run: docker-compose --file docker-compose.ci.yml up trust 
+
+    - name: Start compose
+      run: docker-compose --file docker-compose.ci.yml up --detach voms testsuite
       working-directory: compose
 
-    - name: deploy voms
+    - name: Deploy voms
       run: docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/server_clean_EL7.sh
       working-directory: compose
 
-    - name: run testsuite
+    - name: Run testsuite
       run: docker-compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh
       working-directory: compose
 
-    - name: create artifacts dir
+    - name: Create artifacts dir
+      if: ${{ always() }}
       run: |
         ARTIFACTS_PATH=${HOME}/artifacts
         echo ARTIFACTS_PATH: ${ARTIFACTS_PATH}
@@ -41,18 +45,21 @@ jobs:
         echo "ARTIFACTS_PATH=${ARTIFACTS_PATH}" >> ${GITHUB_ENV}
         mkdir -p ${ARTIFACTS_PATH}/logs
 
-    - name: collect results
+    - name: Collect artifacts
+      if: ${{ always() }}
       run: |
         docker-compose --file docker-compose.ci.yml logs --no-color testsuite > ${ARTIFACTS_PATH}/logs/testsuite.log
         docker-compose --file docker-compose.ci.yml logs --no-color voms > ${ARTIFACTS_PATH}/logs/voms.log
         docker container cp voms-testsuite_testsuite_1:/tmp/reports ${ARTIFACTS_PATH}
       working-directory: compose
 
-    - name: stop compose
+    - name: Stop compose
+      if: ${{ always() }}
       run: docker-compose --file docker-compose.ci.yml down --volumes
       working-directory: compose
 
-    - name: upload artifacts
+    - name: Upload artifacts
+      if: ${{ always() }}
       uses: actions/upload-artifact@v2
       with:
         name: test-report-and-logs
