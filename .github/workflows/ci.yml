@@ -69,7 +69,6 @@ jobs:
       run: |
         docker-compose --file docker-compose.ci.yml logs --no-color testsuite > ${ARTIFACTS_PATH}/logs/testsuite.log
         docker-compose --file docker-compose.ci.yml logs --no-color voms > ${ARTIFACTS_PATH}/logs/voms.log
-        docker container cp voms-testsuite_testsuite_1:/tmp/reports ${ARTIFACTS_PATH}
       working-directory: compose
 
     - name: Stop compose

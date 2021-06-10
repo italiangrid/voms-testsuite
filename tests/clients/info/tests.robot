@@ -154,7 +154,7 @@ See if voms-proxy-info -strength works
 
 See if voms-proxy-info -timeleft works
   [Setup]  Use certificate  test0
-  [Tags]   remote legacy
+  [Tags]   remote  legacy
   Create voms proxy
   ${output} =  Get proxy info  -timeleft
   Should Match Regexp  ${output}  ^[0-9]{1,6}$
@@ -178,10 +178,11 @@ See if voms --serial works
 
 See if voms-proxy-info -keyusage works
   [Setup]  Use certificate  test0
-  [Tags]   remote
+  [Tags]   remote  legacy
   Create voms proxy
   ${output} =  Get proxy info  -keyusage
-  Should Contain  ${output}  key usage : Digital Signature, Non Repudiation, Key Encipherment
+  ${expected}=  Set Variable If  ${client_version} == 2  Digital Signature, Key Encipherment  Digital Signature, Non Repudiation, Key Encipherment
+  Should Contain  ${output}  key usage : ${expected}
   [Teardown]  Stop using certificate
 
 See if a proxy type is detected correctly

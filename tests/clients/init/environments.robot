@@ -92,27 +92,31 @@ See if voms-proxy-init reads ~/.glite/vomses
   [Teardown]  Teardown for vomses test  %{HOME}/.glite
 
 See if AC validation fails when LSC file does not exist
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Setup for X509_VOMS_DIR test
   ${output}  Create proxy failure   -voms ${vo1}
-  Should Contain  ${output}  VOMS AC validation for VO ${vo1} failed
+  ${expected}=  Set Variable If  ${client_version} == 2  Error: verification failed.\nCannot verify AC signature!  VOMS AC validation for VO ${vo1} failed
+  Should Contain  ${output}  ${expected}
   [Teardown]  Teardown for X509_VOMS_DIR test
 
 See if voms-proxy-init warns when X509_CERT_DIR does not point to a directory
-  [Tags]   dev
+  [Tags]   dev  legacy
   [Setup]  Setup for X509_CERT_DIR test   /unlikely/path
   ${output}  Create Proxy Failure  --verify
-  Should Contain  ${output}  Invalid trust anchors location
+  ${expected}=  Set Variable If  ${client_version} == 2  unable to access trusted certificates in:x509_cert_dir=  Invalid trust anchors location
+  Should Contain  ${output}  ${expected}
   [Teardown]  Teardown for X509_CERT_DIR test
 
 See if voms-proxy-init writes an error message when the trust anchors location does not contain the ca
+  [Tags]  legacy
   [Setup]  Setup for X509_CERT_DIR test   /tmp
   ${output}  Create Proxy Failure  --verify
-  Should Contain  ${output}  No trusted CA certificate was found for the certificate chain
+  ${expected}=  Set Variable If  ${client_version} == 2  certificate validation error: unable to get issuer certificate  No trusted CA certificate was found for the certificate chain
+  Should Contain  ${output}  ${expected}
   [Teardown]  Teardown for X509_CERT_DIR test
 
 See if voms-proxy-info honors X509_USER_PROXY
-  [Tags]  regression
+  [Tags]  regression  legacy
   [Documentation]  Regression test for https://issues.infn.it/jira/browse/VOMS-296. Command voms-proxy-info ignores variable X509_USER_PROXY.
   [Setup]  Use certificate  test0
   Create voms proxy
@@ -126,7 +130,7 @@ See if voms-proxy-info honors X509_USER_PROXY
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init honors X509_USER_PROXY
-  [Tags]  voms-proxy-init
+  [Tags]  voms-proxy-init  legacy
   [Documentation]  Command voms-proxy-init must save file to the path pointed to by the env variable X509_USER_PROXY when this is set.
   [Setup]  Use certificate  test0
   ${tmpFile}  Run  mktemp /tmp/voms-testXXX
@@ -146,14 +150,16 @@ See if voms-proxy-init --vomses fails correctly when given a wrong location
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --certdir works
+  [Tags]  legacy
   [Setup]  Setup for empty certdir test
   ${tmpCertDir}   Get Environment Variable   __VOMS__CUSTOM__CERTDIR__ 
   ${output}  Create Proxy Failure  --certdir ${tmpCertDir} --verify
-  Should Contain  ${output}  Certificate validation error: Trusted issuer of this certificate was not established
+  ${expected}=  Set Variable If  ${client_version} == 2  Error: Certificate verification failed.\ncertificate validation error: unable to get issuer certificate  Certificate validation error: Trusted issuer of this certificate was not established
+  Should Contain  ${output}  ${expected}
   [Teardown]  Teardown for empty certdir test
 
 Check that proxy is correctly understood by dCache SRM clients
-   [Tags]   regression   remote   VOMS-424
+   [Tags]   regression   remote   VOMS-424  legacy
    [Setup]   Use certificate   test0
    Create Proxy
    ${version}   Run   voms-proxy-init --version

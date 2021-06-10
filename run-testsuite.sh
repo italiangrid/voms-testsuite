@@ -17,7 +17,7 @@
 set -ex
 
 ROBOT_ARGS=${ROBOT_ARGS:-}
-DEFAULT_EXCLUDES=${DEFAULT_EXCLUDES:-"--exclude myproxy --exclude read-timeout"}
+DEFAULT_EXCLUDES=${DEFAULT_EXCLUDES:-"--exclude myproxy --exclude *-timeout"}
 REPORTS_DIR=${REPORTS_DIR:-"reports"}
 DEFAULT_ARGS="--pythonpath .:lib  -d ${REPORTS_DIR}"
 

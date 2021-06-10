@@ -14,12 +14,14 @@ Setup mixed proxy chain
 *** Test Cases ***
 
 See if voms-proxy-init --version returns after displaying the version
+  [Tags]  legacy
   ${output}  Create Proxy  --version
-  Should Match Regexp  ${output}  voms-proxy-init v. \\w
+  ${expected}  Set Variable If  ${client_version} == 2  voms-proxy-init\nVersion: \\w  voms-proxy-init v. \\w
+  Should Match Regexp  ${output}  ${expected}
 
 See if voms-proxy-init correctly set unlimited pathLen by default for rfc proxies
   [Documentation]   Regression test for https://issues.infn.it:8443/browse/VOMS-256
-  [Tags]   debug
+  [Tags]   debug  legacy
   [Setup]   Use certificate   test0
   Create Proxy   --rfc
   ${output}   Get proxy openssl
@@ -28,15 +30,16 @@ See if voms-proxy-init correctly set unlimited pathLen by default for rfc proxie
 
 See if voms-proxy-init correctly set pathLen as requested 
   [Documentation]   Regression test for https://issues.infn.it:8443/browse/VOMS-256
-  [Tags]   debug
+  [Tags]   debug  legacy
   [Setup]   Use certificate   test0
-  Create Proxy   --rfc --path_length 1
+  ${option}  Set Variable If  ${client_version} == 2  --path-length  --path_length
+  Create Proxy   --rfc ${option} 1
   ${output}   Get proxy openssl
   Should Match Regexp   ${output}   Path Length Constraint: 01
   [Teardown]  Stop using certificate
 
 See if a requested role ends up as primary fqan
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]   Use certificate   test0
   Create proxy   --voms ${vo1}:/${vo1}/G1/Role=R1
   ${output}  Get proxy info   --fqan
@@ -44,7 +47,7 @@ See if a requested role ends up as primary fqan
   [Teardown]  Stop using certificate
 
 See if multiple -voms work as expected
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]   Use certificate   test0
   Create proxy   --voms ${vo1}:/${vo1}/G1 --voms ${vo1}:/${vo1}/G1/Role=R1 
   ${output}  Get proxy info   --fqan
@@ -53,7 +56,7 @@ See if multiple -voms work as expected
   [Teardown]  Stop using certificate
 
 See if request for multiple VOs work as expected
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Documentation]   ACs for multiple VOs should be included in the proxy in the same order as they are requested
   [Setup]   Use certificate   test0
   Create proxy   --voms ${vo2} --voms ${vo1} 
@@ -64,7 +67,7 @@ See if request for multiple VOs work as expected
 
 voms-proxy-init can parse p12 certificates
   [Setup]   Use p12 certificate   test0
-  [Tags]   rfc
+  [Tags]   rfc  legacy
   Create proxy 
   ${proxySubject}   Get proxy info   --subject
   ${certSubject}   Get named certificate subject   test0
@@ -84,6 +87,7 @@ voms-proxy-init -cert option understands p12 certificates
   [Teardown]   Stop using certificate
 
 voms-proxy-init generates proxy with the appropriate file permissions
+  [Tags]  legacy
   [Setup]   Use certificate   test0
   Create proxy
   ${proxyFile}   Get proxy path
@@ -124,7 +128,7 @@ limited proxies can sign only limited proxies
   [Teardown]   Stop using certificate
 
 voms-proxy-init --order cannot force role requests
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]   Use certificate   test0
   Create proxy   -voms ${vo1} -order /${vo1}/G1/Role=R1 -order /${vo1}/G1
   ${output}   Get proxy info   --fqan
@@ -133,54 +137,56 @@ voms-proxy-init --order cannot force role requests
   [Teardown]   Stop using certificate
 
 long delegation chain work as expected
-  [Tags]   dev,remote
+  [Tags]   dev,remote  legacy
   [Setup]   Use certificate   test0
   Create proxy
-  Create proxy   -noregen
-  Create proxy   -noregen
-  Create proxy   -noregen
-  Create proxy   -noregen
+  Create proxy   -noregen -hours 11
+  Create proxy   -noregen -hours 10
+  Create proxy   -noregen -hours 9
+  Create proxy   -noregen -hours 8
   ${output}   Create proxy   -voms ${vo1}
   [Teardown]   Stop using certificate
 
 See if AC validation works when LSC file exists
+  [Tags]  legacy
   [Setup]  Use certificate   test0
   Create voms proxy
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --dont_verify_ac works
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Use certificate   test0
-  ${output}  Create Proxy   -debug -voms ${vo1} --dont_verify_ac
+  ${option}  Set Variable If  ${client_version} == 2  --dont-verify-ac  --dont_verify_ac
+  ${output}  Create Proxy   -debug -voms ${vo1} ${option}
   Should Not Contain  ${output}  VOMS AC validation for VO ${vo1} succeded 
   [Teardown]  Stop using certificate
 
 Check that voms-proxy-init requesting more than two FQANs works as expected
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Use certificate   test0
-  Create Proxy  voms-proxy-init -voms ${vo1}:/${vo1}/G1/Role=R1 -voms ${vo1}:/${vo1}/G1 -voms ${vo1}:/${vo1}
+  Create Proxy  -voms ${vo1}:/${vo1}/G1/Role=R1 -voms ${vo1}:/${vo1}/G1 -voms ${vo1}:/${vo1}
   [Teardown]  Stop using certificate
 
 A user can get a proxy from a VO she belongs to
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]   Use certificate   test0
   Create voms proxy
   [Teardown]   Stop using certificate 
 
 A user cannot obtain a proxy with an expired certificate
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]   Use certificate   expired
   Check voms-proxy-init failure   expired
   [Teardown]   Stop using certificate
 
 A user cannot obtain a proxy with a revoked certificate
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]   Use certificate   revoked
   Check voms-proxy-init failure   revoked
   [Teardown]   Stop using certificate
 
 A user can obtain a role she holds from a VO she belongs to
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   Create proxy   -voms ${vo1}:/${vo1}/G1/Role=R1
   ${output}  Get proxy info  -fqan
@@ -188,9 +194,11 @@ A user can obtain a role she holds from a VO she belongs to
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --hours works
+  [Tags]  legacy
   [Setup]   Use certificate   test0
   ${output}   Create proxy   -hours 3
-  Should Contain  ${output}  Created proxy
+  ${expected}   Set Variable If  ${client_version} == 2  Creating proxy \.+ Done  Created proxy
+  Should Match Regexp  ${output}  ${expected}
   ${output} =  Get proxy info  --timeleft
   ${result} =  Convert to integer  ${output}
   Should be true  ${result} > 10000
@@ -201,43 +209,47 @@ See if voms-proxy-init --hours works
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --old works
+  [Tags]  legacy
   [Setup]   Use certificate   test0
   ${output}   Create proxy   -old
-  ${output}   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-info
-  Should Match Regexp  ${output}  type\\s+:\\s+full legacy globus proxy
+  ${output}   Execute and Check Success   voms-proxy-info
+  ${expected}  Set Variable If  ${client_version} == 2  proxy  full legacy globus proxy
+  Should Match Regexp  ${output}  type\\s+:\\s+${expected}
   [Teardown]   Stop using certificate
 
 See if voms-proxy-init detects fake arguments
+  [Tags]  legacy
   [Setup]  Use certificate  test0
   ${output}   Create proxy failure  --voms voms1 junk
-  Should Contain  ${output}  Check your vomses configuration
+  ${expected}  Set Variable If  ${client_version} == 2  junk  Check your vomses configuration
+  Should Contain  ${output}  ${expected}
   [Teardown]  Stop using certificate
 
 See if requesting a too long proxy fails
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} --valid 100:00
   Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
   [Teardown]  Stop using certificate
 
 Can AC validity be limited?
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} --vomslife 5:00
   ${output}   Get proxy info  -all
   Should Match Regexp  ${output}  timeleft\\s+:\\s+(11|12):\\d+:\\d+
-  Should Match Regexp  ${output}  timeleft\\s+:\\s+(04|05):\\d+:\\d+
+  Should Match Regexp  ${output}  timeleft\\s+:\\s+0?(4|5):\\d+:\\d+
   [Teardown]  Stop using certificate
 
 See if requesting a too long ac length fails
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} --vomslife 100:00
   Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
   [Teardown]  Stop using certificate
 
 See if a target can be added to a proxy
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   ${target}  Run   hostname -f
   ${output}  Create proxy  -voms ${vo1} -target ${target}
@@ -274,6 +286,7 @@ See if voms-proxy-init read timeout works
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init connect timeout works
+  [Tags]  connect-timeout
   [Setup]  Use certificate  test0
   ${beginLiteral}  Get Time  epoch
   ${begin}  Convert To Integer  ${beginLiteral}
@@ -283,14 +296,15 @@ See if voms-proxy-init connect timeout works
   ${endLiteral}  Get Time  epoch
   ${end}  Convert To Integer  ${endLiteral}
   ${time}  Evaluate  ${end}-${begin}
-  Should Contain  ${output}  connect timed out
+  ${expected}  Set Variable If  ${client_version} == 2  None of the contacted servers for timeout were capable  connect timed out
+  Should Contain  ${output}  ${expected}
   # besides connecting, voms-proxy-init needs two secs to do its business,
   # and there's two connections to try, so total time should be around 4s
   Should Be True   ${time} < 8
   [Teardown]  Stop using certificate
 
 See if voms does not allow expansion of credential set
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   Create proxy   -voms ${vo1}
   Create proxy   -voms ${vo1}:/${vo1}/G1/Role=R1 --valid 10:00 --noregen
@@ -299,25 +313,30 @@ See if voms does not allow expansion of credential set
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --debug works
-  [Tags]  remote
+  [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   ${output}  Create proxy  --voms ${vo1} --debug
-  Should Contain  ${output}  Looking for user credentials in
-  Should Contain  ${output}  Credentials loaded successfully
-  Should contain  ${output}  Loading CA Certificate
-  Should contain  ${output}  Looking for VOMSES information in
-  Should contain  ${output}  Loaded vomses information
-  Should contain  ${output}  Contacting
-  Should contain  ${output}  Sent HTTP request for
-  Should contain  ${output}  Received VOMS response:
-  Should contain  ${output}  Remote VOMS server contacted succesfully.
-  Should contain  ${output}  Looking for VOMS AA certificates in 
-  Should contain  ${output}  Looking for LSC information in 
-  Should contain  ${output}  Loaded LSC information from file
-  Should contain  ${output}  VOMS AC validation for
+  IF  ${client_version} == 2
+    Should Contain  ${output}  Files being used:
+  ELSE
+    Should Contain  ${output}  Looking for user credentials in
+    Should Contain  ${output}  Credentials loaded successfully
+    Should contain  ${output}  Loading CA Certificate
+    Should contain  ${output}  Looking for VOMSES information in
+    Should contain  ${output}  Loaded vomses information
+    Should contain  ${output}  Contacting
+    Should contain  ${output}  Sent HTTP request for
+    Should contain  ${output}  Received VOMS response:
+    Should contain  ${output}  Remote VOMS server contacted succesfully.
+    Should contain  ${output}  Looking for VOMS AA certificates in 
+    Should contain  ${output}  Looking for LSC information in 
+    Should contain  ${output}  Loaded LSC information from file
+    Should contain  ${output}  VOMS AC validation for
+  END
   [Teardown]  Stop using certificate
   
 See if voms-proxy-init works using a 600 userkey
+  [Tags]  legacy
   [Setup]   Use certificate   test0
   Execute and Check Success   chmod 600 %{HOME}/.globus/userkey.pem
   ${output}   Create proxy
