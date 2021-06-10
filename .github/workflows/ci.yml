@@ -29,19 +29,8 @@ jobs:
       run: docker-compose --file docker-compose.ci.yml up --detach voms testsuite
       working-directory: compose
 
-    - name: Check igi-test-ca
-      run: |
-        docker-compose --file docker-compose.ci.yml exec -T testsuite rpm -ql igi-test-ca || true
-        docker-compose --file docker-compose.ci.yml exec -T testsuite ls -l /etc/grid-security/certificates/igi-test-ca.pem || true
-        docker-compose --file docker-compose.ci.yml exec -T testsuite ls -l /usr/share/igi-test-ca/test0.cert.pem
-      working-directory: compose
-
     - name: Deploy voms
       run: docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/server_clean_EL7.sh
-      working-directory: compose
-
-    - name: Run testsuite
-      run: docker-compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh
       working-directory: compose
 
     - name: Create artifacts dir
@@ -51,9 +40,31 @@ jobs:
         echo ARTIFACTS_PATH: ${ARTIFACTS_PATH}
         # save it in the job environment
         echo "ARTIFACTS_PATH=${ARTIFACTS_PATH}" >> ${GITHUB_ENV}
-        mkdir -p ${ARTIFACTS_PATH}/logs
+        mkdir -p ${ARTIFACTS_PATH}/logs ${ARTIFACTS_PATH}/java ${ARTIFACTS_PATH}/cpp
 
-    - name: Collect artifacts
+    - name: Run testsuite for java clients
+      run: docker-compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh
+      working-directory: compose
+
+    - name: Collect test report for java clients
+      if: ${{ always() }}
+      run: |
+        docker container cp voms-testsuite_testsuite_1:/tmp/reports ${ARTIFACTS_PATH}/java
+        docker-compose --file docker-compose.ci.yml exec -T testsuite rm -rf /tmp/reports
+      working-directory: compose
+
+    - name: Run testsuite for cpp clients
+      run: |
+        docker-compose --file docker-compose.ci.yml exec -T -u user testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
+        docker-compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
+      working-directory: compose
+
+    - name: Collect test report for cpp clients
+      if: ${{ always() }}
+      run: docker container cp voms-testsuite_testsuite_1:/tmp/reports ${ARTIFACTS_PATH}/cpp
+      working-directory: compose
+
+    - name: Collect logs
       if: ${{ always() }}
       run: |
         docker-compose --file docker-compose.ci.yml logs --no-color testsuite > ${ARTIFACTS_PATH}/logs/testsuite.log
