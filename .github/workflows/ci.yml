@@ -29,6 +29,13 @@ jobs:
       run: docker-compose --file docker-compose.ci.yml up --detach voms testsuite
       working-directory: compose
 
+    - name: Check igi-test-ca
+      run: |
+        docker-compose --file docker-compose.ci.yml exec -T testsuite rpm -ql igi-test-ca || true
+        docker-compose --file docker-compose.ci.yml exec -T testsuite ls -l /etc/grid-security/certificates/igi-test-ca.pem || true
+        docker-compose --file docker-compose.ci.yml exec -T testsuite ls -l /usr/share/igi-test-ca/test0.cert.pem
+      working-directory: compose
+
     - name: Deploy voms
       run: docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/server_clean_EL7.sh
       working-directory: compose
