@@ -14,3 +14,5 @@ ${vo1CorePort}  15001
 ${myproxy_server}  omii001.cnaf.infn.it
 ${myProxyPassPhrase}   123456
 ${srmEndpoint}   srm://omii005-vm03.cnaf.infn.it:8444/testers.eu-emi.eu
+
+${client_version}  3
