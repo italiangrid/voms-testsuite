@@ -67,8 +67,8 @@ jobs:
       run: docker-compose --file docker-compose.ci.yml up --detach voms testsuite
       working-directory: compose
       env:
-        TS_TAG: :${{ fromJSON(steps.meta_ts.outputs.json).tags[0] }}
-        VOMS_TAG: :${{ fromJSON(steps.meta_voms.outputs.json).tags[0] }}
+        TS_IMAGE: ${{ fromJSON(steps.meta_ts.outputs.json).tags[0] }}
+        VOMS_IMAGE: ${{ fromJSON(steps.meta_voms.outputs.json).tags[0] }}
 
     - name: Deploy voms
       run: docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/server_clean_EL7.sh

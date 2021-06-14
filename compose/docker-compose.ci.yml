@@ -18,7 +18,7 @@ services:
       CA_BUNDLE_TARGET: /tmp/pki
 
   testsuite:
-    image: italiangrid/voms-testsuite-centos7${TS_TAG}
+    image: ${TS_IMAGE}
     init: true
 
     environment:
@@ -36,7 +36,7 @@ services:
     command: ["sleep", "infinity"]
 
   voms:
-    image: italiangrid/voms-deployment-test-centos7${VOMS_TAG}
+    image: ${VOMS_IMAGE}
 
     environment:
       VOMS_HOSTNAME: dev.local.io
