@@ -18,7 +18,6 @@ services:
       CA_BUNDLE_TARGET: /tmp/pki
 
   testsuite:
-    build: ../docker/testsuite
     image: italiangrid/voms-testsuite-centos7
     init: true
 
@@ -37,7 +36,6 @@ services:
     command: ["sleep", "infinity"]
 
   voms:
-    build: ../docker/all-in-one-centos7
     image: italiangrid/voms-deployment-test-centos7
 
     environment:
