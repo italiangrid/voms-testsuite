@@ -9,6 +9,9 @@ jobs:
   deploy_and_run_testsuite:
     runs-on: ubuntu-latest
 
+    env:
+      ROBOT_OPTIONS: --variable vo1:test.vo --variable vo1_host:dev.local.io --variable vo1_issuer:/C=IT/O=IGI/CN=*.local.io --variable vo2:test.vo.2 --variable vo2_host:dev.local.io --variable vo2_issuer:/C=IT/O=IGI/CN=*.local.io
+
     steps:
 
     - name: Checkout
