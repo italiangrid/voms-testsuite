@@ -66,6 +66,9 @@ jobs:
     - name: Start compose
       run: docker-compose --file docker-compose.ci.yml up --detach voms testsuite
       working-directory: compose
+      env:
+        TS_TAG: :${{ steps.meta_ts.output.tags[0] }}
+        VOMS_TAG: :${{ steps.meta_voms.output.tags[0] }}
 
     - name: Deploy voms
       run: docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/server_clean_EL7.sh
