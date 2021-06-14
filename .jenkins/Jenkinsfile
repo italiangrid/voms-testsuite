@@ -28,7 +28,6 @@ pipeline {
           cd compose
           docker-compose --file docker-compose.ci.yml up trust
           docker-compose --file docker-compose.ci.yml up --detach voms testsuite
-          docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/server_clean_EL7.sh
           docker-compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh
           '''
         }
