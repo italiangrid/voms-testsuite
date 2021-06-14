@@ -47,6 +47,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: docker/testsuite
+        load: true
         push: ${{ github.ref == 'refs/heads/master' }}
         tags: ${{ steps.meta_ts.outputs.tags }}
         labels: ${{ steps.meta_ts.outputs.labels }}
@@ -55,6 +56,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         context: docker/all-in-one-centos7
+        load: true
         push: ${{ github.ref == 'refs/heads/master' }}
         tags: ${{ steps.meta_voms.outputs.tags }}
         labels: ${{ steps.meta_voms.outputs.labels }}
