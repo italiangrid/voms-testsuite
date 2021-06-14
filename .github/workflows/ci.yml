@@ -31,7 +31,7 @@ jobs:
       id: meta_voms
       uses: docker/metadata-action@v3
       with:
-        images: italiangrd/voms-deployment-test-centos7
+        images: italiangrid/voms-deployment-test-centos7
         tags: |
           type=sha
           type=semver,pattern={{raw}}
