@@ -1,9 +1,6 @@
-name: ci
+name: build images, deploy and run testsuite
 
-on:
-  push:
-    branches:
-    - VOMS-882
+on: push
 
 jobs:
   deploy_and_run_testsuite:
