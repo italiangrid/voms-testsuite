@@ -1,4 +1,4 @@
-version: '3.5'
+version: '3.7'
 
 volumes:
   trustanchors:
@@ -9,14 +9,17 @@ services:
     image: indigoiam/egi-trustanchors
 
     volumes:
-      - trustanchors:/etc/grid-security/certificates
-      - cabundle:/etc/pki
+      - trustanchors:/tmp/certificates
+      - cabundle:/tmp/pki
 
     environment:
       FORCE_TRUST_ANCHORS_UPDATE: 1
+      TRUST_ANCHORS_TARGET: /tmp/certificates
+      CA_BUNDLE_TARGET: /tmp/pki
 
   testsuite:
-    image: italiangrid/voms-testsuite-centos7
+    image: ${TS_IMAGE}
+    init: true
 
     environment:
       - TZ=Europe/Rome
@@ -30,4 +33,26 @@ services:
       - ./assets/scripts:/scripts
       - ..:/home/test/voms-testsuite:cached
 
-    command: /scripts/ci-run-testsuite.sh
+    command: ["sleep", "infinity"]
+
+  voms:
+    image: ${VOMS_IMAGE}
+
+    environment:
+      VOMS_HOSTNAME: dev.local.io
+
+    volumes:
+      - ./assets/scripts:/scripts
+      - ./assets/certs/:/certs
+
+    ports:
+      - "8443:8443"
+      - "15000:15000"
+      - "15001:15001"
+
+    privileged: true
+
+    networks:
+      default:
+        aliases:
+          - dev.local.io

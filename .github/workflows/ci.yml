@@ -1,0 +1,127 @@
+name: build images, deploy and run testsuite
+
+on: push
+
+jobs:
+  deploy_and_run_testsuite:
+    runs-on: ubuntu-latest
+
+    env:
+      ROBOT_OPTIONS: --variable vo1:vo.0 --variable vo1_host:dev.local.io --variable vo1_issuer:/C=IT/O=IGI/CN=*.local.io --variable vo2:vo.1 --variable vo2_host:dev.local.io --variable vo2_issuer:/C=IT/O=IGI/CN=*.local.io
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Set up docker buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Docker meta for testsuite
+      id: meta_ts
+      uses: docker/metadata-action@v3
+      with:
+        images: italiangrid/voms-testsuite-centos7
+        tags: |
+          type=sha
+          type=semver,pattern={{raw}}
+          type=ref,event=branch
+
+    - name: Docker meta for VOMS
+      id: meta_voms
+      uses: docker/metadata-action@v3
+      with:
+        images: italiangrid/voms-deployment-test-centos7
+        tags: |
+          type=sha
+          type=semver,pattern={{raw}}
+          type=ref,event=branch
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v1 
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Build and push testsuite
+      uses: docker/build-push-action@v2
+      with:
+        context: docker/testsuite
+        load: true
+        push: ${{ github.ref == 'refs/heads/master' }}
+        tags: ${{ steps.meta_ts.outputs.tags }}
+        labels: ${{ steps.meta_ts.outputs.labels }}
+
+    - name: Build and push VOMS
+      uses: docker/build-push-action@v2
+      with:
+        context: docker/all-in-one-centos7
+        load: true
+        push: ${{ github.ref == 'refs/heads/master' }}
+        tags: ${{ steps.meta_voms.outputs.tags }}
+        labels: ${{ steps.meta_voms.outputs.labels }}
+
+    - name: Provide trustanchors
+      run: docker-compose --file docker-compose.ci.yml up trust
+      working-directory: compose
+
+    - name: Start compose
+      run: docker-compose --file docker-compose.ci.yml up --detach voms testsuite
+      working-directory: compose
+      env:
+        TS_IMAGE: ${{ fromJSON(steps.meta_ts.outputs.json).tags[0] }}
+        VOMS_IMAGE: ${{ fromJSON(steps.meta_voms.outputs.json).tags[0] }}
+
+    - name: Deploy voms
+      run: docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/server_clean_EL7.sh
+      working-directory: compose
+
+    - name: Create artifacts dir
+      if: ${{ always() }}
+      run: |
+        ARTIFACTS_PATH=${HOME}/artifacts
+        echo ARTIFACTS_PATH: ${ARTIFACTS_PATH}
+        # save it in the job environment
+        echo "ARTIFACTS_PATH=${ARTIFACTS_PATH}" >> ${GITHUB_ENV}
+        mkdir -p ${ARTIFACTS_PATH}/logs ${ARTIFACTS_PATH}/java ${ARTIFACTS_PATH}/cpp
+
+    - name: Run testsuite for java clients
+      run: docker-compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
+      working-directory: compose
+
+    - name: Collect test report for java clients
+      if: ${{ always() }}
+      run: |
+        docker container cp voms-testsuite_testsuite_1:/tmp/reports ${ARTIFACTS_PATH}/java
+        docker-compose --file docker-compose.ci.yml exec -T testsuite rm -rf /tmp/reports
+      working-directory: compose
+
+    - name: Run testsuite for cpp clients
+      run: |
+        docker-compose --file docker-compose.ci.yml exec -T -u root testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
+        docker-compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
+      working-directory: compose
+
+    - name: Collect test report for cpp clients
+      if: ${{ always() }}
+      run: docker container cp voms-testsuite_testsuite_1:/tmp/reports ${ARTIFACTS_PATH}/cpp
+      working-directory: compose
+
+    - name: Collect logs
+      if: ${{ always() }}
+      run: |
+        docker-compose --file docker-compose.ci.yml logs --no-color testsuite > ${ARTIFACTS_PATH}/logs/testsuite.log
+        docker-compose --file docker-compose.ci.yml logs --no-color voms > ${ARTIFACTS_PATH}/logs/voms.log
+      working-directory: compose
+
+    - name: Stop compose
+      if: ${{ always() }}
+      run: docker-compose --file docker-compose.ci.yml down --volumes
+      working-directory: compose
+
+    - name: Upload artifacts
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-report-and-logs
+        path: ${{ env.ARTIFACTS_PATH }}

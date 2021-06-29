@@ -26,8 +26,9 @@ pipeline {
           sh returnStatus: true, script: '''#!/bin/bash 
           set -ex
           cd compose
-          docker-compose -f docker-compose.ci.yml up trust
-          docker-compose -f docker-compose.ci.yml up testsuite
+          docker-compose --file docker-compose.ci.yml up trust
+          docker-compose --file docker-compose.ci.yml up --detach testsuite
+          docker-compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh
           '''
         }
       }

@@ -3,4 +3,4 @@
 /report.html
 /.project
 /reports
-/lib/VOMSLibrary.pyc
+*.pyc
