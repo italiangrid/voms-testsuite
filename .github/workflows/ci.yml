@@ -3,77 +3,87 @@ name: build images, deploy and run testsuite
 on: push
 
 jobs:
-  deploy_and_run_testsuite:
+
+  build-and-push-testsuite:
+    name: Build & Push testsuite docker image
+
     runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build & Push image
+        uses: docker/build-push-action@v2
+        with:
+          context: docker/testsuite
+          file: ./docker/testsuite/Dockerfile
+          push: true
+          tags: italiangrid/voms-testsuite
+
+  build-and-push-voms:
+    name: Build & Push VOMS core docker image
+
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build & Push image
+        uses: docker/build-push-action@v2
+        with:
+          context: docker/all-in-one-centos7
+          file: ./docker/all-in-one-centos7/Dockerfile
+          push: true
+          tags: italiangrid/voms
+
+  build-and-push-voms-admin:
+    name: Build & Push voms-admin docker image
+
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build & Push image
+        uses: docker/build-push-action@v2
+        with:
+          context: docker/all-in-one-centos7
+          file: ./docker/all-in-one-centos7/Dockerfile
+          push: true
+          tags: italiangrid/voms-admin
+
+  run-testsuite:
+    name: Run VOMS robot testsuite
+
+    runs-on: ubuntu-latest
+
+    needs: [build-and-push-testsuite, build-and-push-voms, build-and-push-voms-admin]
 
     env:
       ROBOT_OPTIONS: --variable vo1:vo.0 --variable vo1_host:dev.local.io --variable vo1_issuer:/C=IT/O=IGI/CN=*.local.io --variable vo2:vo.1 --variable vo2_host:dev.local.io --variable vo2_issuer:/C=IT/O=IGI/CN=*.local.io
 
     steps:
-
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - name: Set up docker buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Docker meta for testsuite
-      id: meta_ts
-      uses: docker/metadata-action@v3
-      with:
-        images: italiangrid/voms-testsuite-centos7
-        tags: |
-          type=sha
-          type=semver,pattern={{raw}}
-          type=ref,event=branch
-
-    - name: Docker meta for VOMS
-      id: meta_voms
-      uses: docker/metadata-action@v3
-      with:
-        images: italiangrid/voms-deployment-test-centos7
-        tags: |
-          type=sha
-          type=semver,pattern={{raw}}
-          type=ref,event=branch
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v1 
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-    - name: Build testsuite image
-      uses: docker/build-push-action@v2
-      with:
-        context: docker/testsuite
-        load: true
-        tags: ${{ steps.meta_ts.outputs.tags }}
-        labels: ${{ steps.meta_ts.outputs.labels }}
-
-    - name: Push testsuite image
-      uses: docker/build-push-action@v2
-      with:
-        context: docker/testsuite
-        push: ${{ github.ref == 'refs/heads/master' }}
-        tags: ${{ steps.meta_ts.outputs.tags }}
-        labels: ${{ steps.meta_ts.outputs.labels }}
-
-    - name: Build VOMS image
-      uses: docker/build-push-action@v2
-      with:
-        context: docker/all-in-one-centos7
-        load: true
-        tags: ${{ steps.meta_voms.outputs.tags }}
-        labels: ${{ steps.meta_voms.outputs.labels }}
-
-    - name: Push VOMS image
-      uses: docker/build-push-action@v2
-      with:
-        context: docker/all-in-one-centos7
-        push: ${{ github.ref == 'refs/heads/master' }}
-        tags: ${{ steps.meta_voms.outputs.tags }}
-        labels: ${{ steps.meta_voms.outputs.labels }}
 
     - name: Provide trustanchors
       run: docker-compose --file docker-compose.ci.yml up trust
