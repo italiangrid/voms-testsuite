@@ -17,7 +17,7 @@ jobs:
 
     runs-on: ubuntu-latest
     env:
-      VOMS_REPO: https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${{ matrix.repo }}-centos${{ matrix.rhel }}.repo$
+      VOMS_REPO: ${{ matrix.repo }}
       RHEL_VERSON: ${{ matrix.rhel }}
 
     steps:
