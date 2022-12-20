@@ -5,12 +5,21 @@ name: build docker image
 on:
   push:
     branches:
-      - master
+      - voms # to be renamed in master before merge
 jobs:
 
   build-docker-image:
+
+    strategy:
+      matrix:
+        repo: [stable, beta]
+        os: [el7, el9]
+
     runs-on: ubuntu-latest
-    
+    env:
+      VOMS_REPO: https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${{ matrix.repo }}-${{ matrix.os }}.repo$
+      PLATFORM: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v2
 
@@ -23,12 +32,14 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v2
         with:
-          tags: italiangrid/voms-testsuite-centos7:latest
+          tags: italiangrid/voms:${{ env.VOMS_REPO }}-${{ env.PLATFORM }}
           context: ./docker
-          file: ./docker/Dockerfile
+          file: ./voms/Dockerfile
           push: false
+          build-args: |
+            VOMS_REPO=${{ env.VOMS_REPO }}
 
       - name: Push docker image
-        run: docker push italiangrid/voms-testsuite-centos7:latest
+        run: docker push italiangrid/voms:${{ env.VOMS_REPO }}-${{ env.PLATFORM }}
 
         
