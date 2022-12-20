@@ -7,6 +7,10 @@ jobs:
   build-and-push-testsuite:
     name: Build & Push testsuite docker image
 
+    strategy:
+      matrix:
+        ts-tag: [centos7, centos7-beta, centos9-beta]
+
     runs-on: ubuntu-latest
     
     steps:
@@ -25,11 +29,15 @@ jobs:
           context: docker/testsuite
           file: ./docker/testsuite/Dockerfile
           push: true
-          tags: italiangrid/voms-testsuite
+          tags: italiangrid/voms-testsuite:${{ matrix.ts-tag }}
 
   build-and-push-voms:
     name: Build & Push VOMS core docker image
 
+    strategy:
+      matrix:
+        voms-tag: [centos7, centos7-beta, centos9-beta]
+
     runs-on: ubuntu-latest
     
     steps:
@@ -48,11 +56,15 @@ jobs:
           context: docker/all-in-one-centos7
           file: ./docker/all-in-one-centos7/Dockerfile
           push: true
-          tags: italiangrid/voms
+          tags: italiangrid/voms:${{ matrix.voms-tag }}
 
   build-and-push-voms-admin:
     name: Build & Push voms-admin docker image
 
+    strategy:
+      matrix:
+        voms-admin-tag: [centos7, centos7-beta]
+
     runs-on: ubuntu-latest
     
     steps:
@@ -71,7 +83,7 @@ jobs:
           context: docker/all-in-one-centos7
           file: ./docker/all-in-one-centos7/Dockerfile
           push: true
-          tags: italiangrid/voms-admin
+          tags: italiangrid/voms-admin:${{ matrix.voms-admin-tag }}
 
   run-testsuite:
     name: Run VOMS robot testsuite
