@@ -33,8 +33,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           tags: italiangrid/voms:${{ env.VOMS_REPO }}-centos${{ env.RHEL_VERSON }}
-          context: ./docker
-          file: ./voms/Dockerfile
+          context: docker/voms
+          load: true
           push: false
           build-args: |
             VOMS_REPO=${{ env.VOMS_REPO }}
