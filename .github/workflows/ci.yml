@@ -12,10 +12,10 @@ jobs:
     steps:
 
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up docker buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
 
     - name: Docker meta for testsuite
       id: meta_ts
@@ -38,13 +38,13 @@ jobs:
           type=ref,event=branch
 
     - name: Login to DockerHub
-      uses: docker/login-action@v1 
+      uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
     - name: Build testsuite image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
         context: docker/testsuite
         load: true
@@ -52,7 +52,7 @@ jobs:
         labels: ${{ steps.meta_ts.outputs.labels }}
 
     - name: Push testsuite image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
         context: docker/testsuite
         push: ${{ github.ref == 'refs/heads/master' }}
@@ -60,7 +60,7 @@ jobs:
         labels: ${{ steps.meta_ts.outputs.labels }}
 
     - name: Build VOMS image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
         context: docker/all-in-one-centos7
         load: true
@@ -68,7 +68,7 @@ jobs:
         labels: ${{ steps.meta_voms.outputs.labels }}
 
     - name: Push VOMS image
-      uses: docker/build-push-action@v2
+      uses: docker/build-push-action@v3
       with:
         context: docker/all-in-one-centos7
         push: ${{ github.ref == 'refs/heads/master' }}
@@ -135,7 +135,7 @@ jobs:
 
     - name: Upload artifacts
       if: ${{ always() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: test-report-and-logs
         path: ${{ env.ARTIFACTS_PATH }}
