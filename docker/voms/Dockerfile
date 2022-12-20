@@ -14,7 +14,7 @@ ENV VOMS_URL_REPO=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${
 
 RUN echo "include_only=.garr.it,.cern.ch" >> /etc/yum/pluginconf.d/fastestmirror.conf && \
   yum -y install hostname which wget tar sudo file less epel-release ${UMD_RELEASE_PACKAGE_URL} && \
-  wget ${VOMS_URL_REPO} -o /etc/yum.repos.d/ && \
+  wget ${VOMS_URL_REPO} -o /etc/yum.repos.d/voms-${VOMS_REPO}-el${RHEL_VERSION}.repo && \
   yum -y update && \
   yum clean all && \
   rm -rf /var/cache/yum && \
