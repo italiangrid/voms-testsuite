@@ -3,6 +3,7 @@ version: '3.7'
 volumes:
   trustanchors:
   cabundle:
+  db_data:
 
 services:
   trust:
@@ -44,11 +45,27 @@ services:
     volumes:
       - ./assets/scripts:/scripts
       - ./assets/certs/:/certs
+      - db_data:/var/lib/mysql
+
+    ports:
+      - "15000:15000"
+      - "15001:15001"
+
+    privileged: true
+
+  voms-admin:
+    image: ${VOMS_ADMIN_IMAGE}
+
+    environment:
+      VOMS_HOSTNAME: dev.local.io
+
+    volumes:
+      - ./assets/scripts:/scripts
+      - ./assets/certs/:/certs
+      - db_data:/var/lib/mysql
 
     ports:
       - "8443:8443"
-      - "15000:15000"
-      - "15001:15001"
 
     privileged: true
 
