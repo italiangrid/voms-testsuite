@@ -1,6 +1,9 @@
 name: build images, deploy and run testsuite
 
-on: push
+on:
+  push:
+    branches:
+      - all-you-can-voms
 
 jobs:
 
@@ -9,10 +12,14 @@ jobs:
 
     strategy:
       matrix:
-        ts-tag: [centos7, centos7-beta, centos9-beta]
+        rhel: [7, 9]
+        repo: [stable, beta]
+        include:
+          - rhel: 9
+            repo: beta
 
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -27,16 +34,23 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: docker/testsuite
-          file: ./docker/testsuite/Dockerfile
+          file: ./docker/testsuite/Dockerfile.centos${{ matrix.rhel }}
           push: true
-          tags: italiangrid/voms-testsuite:${{ matrix.ts-tag }}
+          tags: italiangrid/voms-testsuite:centos${{ matrix.rhel }}-${{ matrix.repo }}
+          build-args: |
+            VOMS_REPO=${{ matrix.repo }}
+            RHEL_VERSON=${{ matrix.rhel }}
 
   build-and-push-voms:
     name: Build & Push VOMS core docker image
 
     strategy:
       matrix:
-        voms-tag: [centos7, centos7-beta, centos9-beta]
+        rhel: [7, 9]
+        repo: [stable, beta]
+        include:
+          - rhel: 9
+            repo: beta
 
     runs-on: ubuntu-latest
     
@@ -53,10 +67,13 @@ jobs:
       - name: Build & Push image
         uses: docker/build-push-action@v3
         with:
-          context: docker/all-in-one-centos7
-          file: ./docker/all-in-one-centos7/Dockerfile
+          context: docker/voms
+          file: ./docker/voms/Dockerfile.centos${{ matrix.rhel }}
           push: true
-          tags: italiangrid/voms:${{ matrix.voms-tag }}
+          tags: italiangrid/voms:centos${{ matrix.rhel }}-${{ matrix.repo }}
+          build-args: |
+            VOMS_REPO=${{ matrix.repo }}
+            RHEL_VERSON=${{ matrix.rhel }}
 
   build-and-push-voms-admin:
     name: Build & Push voms-admin docker image
