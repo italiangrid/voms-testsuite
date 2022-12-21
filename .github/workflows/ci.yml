@@ -75,44 +75,20 @@ jobs:
             VOMS_REPO=${{ matrix.repo }}
             RHEL_VERSON=${{ matrix.rhel }}
 
-  build-and-push-voms-admin:
-    name: Build & Push voms-admin docker image
-
-    strategy:
-      matrix:
-        voms-admin-tag: [centos7]
-
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Build & Push image
-        uses: docker/build-push-action@v3
-        with:
-          context: docker/all-in-one-centos7
-          file: ./docker/all-in-one-centos7/Dockerfile
-          push: true
-          tags: italiangrid/voms-admin:${{ matrix.voms-admin-tag }}
-
   run-testsuite:
     name: Run VOMS robot testsuite
 
     strategy:
       matrix:
-        ts-tag: [centos7, centos7-beta, centos9-beta]
-        voms-tag: [centos7, centos7-beta, centos9-beta]
+        rhel: [7, 9]
+        repo: [stable, beta]
+        exclude:
+          - rhel: 9
+            repo: stable
 
     runs-on: ubuntu-latest
 
-    needs: [build-and-push-testsuite, build-and-push-voms, build-and-push-voms-admin]
+    needs: [build-and-push-testsuite, build-and-push-voms]
 
     env:
       ROBOT_OPTIONS: --variable vo1:vo.0 --variable vo1_host:dev.local.io --variable vo1_issuer:/C=IT/O=IGI/CN=*.local.io --variable vo2:vo.1 --variable vo2_host:dev.local.io --variable vo2_issuer:/C=IT/O=IGI/CN=*.local.io
@@ -129,8 +105,8 @@ jobs:
       run: docker-compose --file docker-compose.ci.yml up --detach voms voms-admin testsuite
       working-directory: compose
       env:
-        TS_IMAGE: italiangrid/voms-testsuite:${{ matrix.ts-tag }}
-        VOMS_IMAGE: italiangrid/voms:${{ matrix.voms-tag }}
+        TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.rhel }}-${{ matrix.repo }}
+        VOMS_IMAGE: italiangrid/voms:centos${{ matrix.rhel }}-${{ matrix.repo }}
 
     - name: Deploy voms-admin and voms
       run: |
