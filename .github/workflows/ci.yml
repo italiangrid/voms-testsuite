@@ -3,7 +3,7 @@ name: build images, deploy and run testsuite
 on:
   push:
     branches:
-      - all-you-can-voms
+      - all-u-can-voms
 
 jobs:
 
