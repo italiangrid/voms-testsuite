@@ -1,20 +1,21 @@
 ARG RHEL_VERSION=7
 FROM centos:$RHEL_VERSION
 
+ARG RHEL_VERSION
+ARG VOMS_REPO=stable
+
 # Allow customization of test user ID and name
 ARG TEST_USER=test
 ARG TEST_USER_UID=501
 
 ARG UMD_RELEASE_PACKAGE_URL=http://repository.egi.eu/sw/production/umd/4/centos7/x86_64/updates/umd-release-4.1.3-1.el7.centos.noarch.rpm
 
-ARG VOMS_REPO=stable
-
 # Allow customization of VOMS_REPO
-ENV VOMS_URL_REPO=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${VOMS_REPO}-el$RHEL_VERSION.repo
+ENV VOMS_URL_REPO=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${VOMS_REPO}-el${RHEL_VERSION}.repo
 
 RUN echo "include_only=.garr.it,.cern.ch" >> /etc/yum/pluginconf.d/fastestmirror.conf && \
   yum -y install hostname which wget tar sudo file less epel-release ${UMD_RELEASE_PACKAGE_URL} && \
-  wget ${VOMS_URL_REPO} -o /etc/yum.repos.d/voms-${VOMS_REPO}-el$RHEL_VERSION.repo && \
+  wget ${VOMS_URL_REPO} -o /etc/yum.repos.d/voms-${VOMS_REPO}-el${RHEL_VERSION}.repo && \
   yum -y update && \
   yum clean all && \
   rm -rf /var/cache/yum && \
