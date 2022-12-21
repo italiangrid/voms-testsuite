@@ -14,9 +14,9 @@ get_cert(){
         echo "$TEST_CERTS_PATH/$1.cert.pem"
 }
 
-TEST0_CERT=`get_cert test0`
-TEST1_CERT=`get_cert test1`
-PARENS=`get_cert dn_with_parenthesis`
+TEST0_CERT=$(get_cert test0)
+TEST1_CERT=$(get_cert test1)
+PARENS=$(get_cert dn_with_parenthesis)
 
 G1=/$VO/G1
 G2=/$VO/G2
