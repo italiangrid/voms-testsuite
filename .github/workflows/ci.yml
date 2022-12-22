@@ -80,11 +80,8 @@ jobs:
 
     strategy:
       matrix:
-        rhel: [7, 9]
-        repo: [stable, beta]
-        exclude:
-          - rhel: 9
-            repo: stable
+        client: [7-beta, 7-stable, 9-beta]
+        server: [7-beta, 7-stable, 9-beta]
 
     runs-on: ubuntu-latest
 
@@ -105,8 +102,8 @@ jobs:
       run: docker-compose --file docker-compose.ci.yml up --detach voms voms-admin testsuite
       working-directory: compose
       env:
-        TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.rhel }}-${{ matrix.repo }}
-        VOMS_IMAGE: italiangrid/voms:centos${{ matrix.rhel }}-${{ matrix.repo }}
+        TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
+        VOMS_IMAGE: italiangrid/voms:centos${{ matrix.server }}
 
     - name: Deploy voms-admin and voms
       run: |
