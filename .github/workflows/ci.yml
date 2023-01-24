@@ -99,7 +99,7 @@ jobs:
       working-directory: compose
 
     - name: Start compose
-      run: docker-compose --file docker-compose.ci.yml up --detach voms voms-admin testsuite
+      run: docker-compose --file docker-compose.ci.yml up --detach db voms voms-admin testsuite
       working-directory: compose
       env:
         TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
@@ -107,8 +107,9 @@ jobs:
 
     - name: Deploy voms-admin and voms
       run: |
-        docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms-admin bash /scripts/admin_clean_EL7.sh
-        docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/server_clean_EL7.sh
+        docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
+        docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms-admin bash /scripts/setup-and-start-voms-admin.sh
+        docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
       working-directory: compose
 
     - name: Create artifacts dir

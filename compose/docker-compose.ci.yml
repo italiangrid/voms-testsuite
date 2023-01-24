@@ -3,9 +3,9 @@ version: '3.7'
 volumes:
   trustanchors:
   cabundle:
-  db_data:
 
 services:
+
   trust:
     image: indigoiam/egi-trustanchors
 
@@ -17,6 +17,23 @@ services:
       FORCE_TRUST_ANCHORS_UPDATE: 1
       TRUST_ANCHORS_TARGET: /tmp/certificates
       CA_BUNDLE_TARGET: /tmp/pki
+
+  db:
+    image: mariadb
+    container_name: db
+
+    volumes:
+      - ./assets/db:/home/mysql/
+      - ./assets/scripts:/scripts/
+
+
+    environment:
+      - MYSQL_ROOT_PASSWORD=pwd
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pwd
+
+    ports:
+      - "3306:3306"
 
   testsuite:
     image: ${TS_IMAGE}
@@ -45,7 +62,7 @@ services:
     volumes:
       - ./assets/scripts:/scripts
       - ./assets/certs/:/certs
-      - db_data:/var/lib/mysql
+      - ./assets/vomsdir/:/etc/grid-security/vomsdir
 
     ports:
       - "15000:15000"
@@ -62,7 +79,7 @@ services:
     volumes:
       - ./assets/scripts:/scripts
       - ./assets/certs/:/certs
-      - db_data:/var/lib/mysql
+      - trustanchors:/etc/grid-security/certificates
 
     ports:
       - "8443:8443"
