@@ -21,6 +21,8 @@ load_db_dump(){
 
 }
 
+/scripts/wait-for-it.sh -h db -p 3306 -t 5 -- echo "db is up and running"
+
 for i in $(seq 0 ${VO_COUNT}); do
   load_db_dump $i
 done
