@@ -73,7 +73,7 @@ jobs:
           tags: italiangrid/voms:centos${{ matrix.rhel }}-${{ matrix.repo }}
           build-args: |
             VOMS_REPO=${{ matrix.repo }}
-            RHEL_VERSON=${{ matrix.rhel }}
+            RHEL_VERSION=${{ matrix.rhel }}
 
   run-testsuite:
     name: Run VOMS robot testsuite
@@ -88,7 +88,7 @@ jobs:
     needs: [build-and-push-testsuite, build-and-push-voms]
 
     env:
-      ROBOT_OPTIONS: --variable vo1:vo.0 --variable vo1_host:dev.local.io --variable vo1_issuer:/C=IT/O=IGI/CN=*.local.io --variable vo2:vo.1 --variable vo2_host:dev.local.io --variable vo2_issuer:/C=IT/O=IGI/CN=*.local.io
+      ROBOT_OPTIONS: --variable vo1:vo.0 --variable vo1_host:voms.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=*.local.io --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.local.io
 
     steps:
     - name: Checkout
@@ -99,16 +99,15 @@ jobs:
       working-directory: compose
 
     - name: Start compose
-      run: docker-compose --file docker-compose.ci.yml up --detach db voms voms-admin testsuite
+      run: docker-compose --file docker-compose.ci.yml up --detach db voms testsuite
       working-directory: compose
       env:
         TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
         VOMS_IMAGE: italiangrid/voms:centos${{ matrix.server }}
 
-    - name: Deploy voms-admin and voms
+    - name: Deploy db and voms
       run: |
         docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
-        docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms-admin bash /scripts/setup-and-start-voms-admin.sh
         docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
       working-directory: compose
 

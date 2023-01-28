@@ -57,12 +57,13 @@ services:
     image: ${VOMS_IMAGE}
 
     environment:
-      VOMS_HOSTNAME: dev.local.io
+      VOMS_HOSTNAME: voms.test.example
 
     volumes:
       - ./assets/scripts:/scripts
-      - ./assets/certs/:/certs
       - ./assets/vomsdir/:/etc/grid-security/vomsdir
+      - ./assets/conf/vo0.conf:/etc/voms/vo.0/voms.conf
+      - ./assets/conf/vo1.conf:/etc/voms/vo.1/voms.conf
 
     ports:
       - "15000:15000"
@@ -74,7 +75,7 @@ services:
     image: ${VOMS_ADMIN_IMAGE}
 
     environment:
-      VOMS_HOSTNAME: dev.local.io
+      VOMS_HOSTNAME: voms.test.example
 
     volumes:
       - ./assets/scripts:/scripts
@@ -89,4 +90,4 @@ services:
     networks:
       default:
         aliases:
-          - dev.local.io
+          - voms.test.example
