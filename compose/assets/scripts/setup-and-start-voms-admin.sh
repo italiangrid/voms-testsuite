@@ -16,7 +16,7 @@ VO_1_PORT=${VO_1_PORT:-15001}
 
 SLEEP_TIME=${SLEEP_TIME:-5}
 
-SCRIPT_PREFIX=${SCRIPTS_PREFIX:-/scripts}
+SCRIPTS_PREFIX=${SCRIPTS_PREFIX:-/scripts}
 CONFIGURE_VO_OPTIONS={CONFIGURE_VO_OPTIONS:-}
 
 # install igi-test-ca repo
@@ -24,23 +24,6 @@ wget ${WGET_OPTIONS} ${TEST_CA_REPO_URL} -O /etc/yum.repos.d/igi-test-ca.repo
 
 yum clean all
 yum install -y hostname epel-release openssl mysql voms-admin-server voms-admin-client igi-test-ca
-
-# Check that mysql is up and running
-VOMS_MYSQL_HOST=${VOMS_MYSQL_HOST:-db}
-VOMS_MYSQL_PORT=${VOMS_MYSQL_PORT:-3306}
-
-mysql_host=${VOMS_MYSQL_HOST}
-mysql_port=${VOMS_MYSQL_PORT}
-
-echo -n "waiting for TCP connection to $mysql_host:$mysql_port..."
-
-while ! ${SCRIPTS_PREFIX}/wait-for-it.sh -h $mysql_host -p $mysql_port -t 1 2>/dev/null
-do
-  echo -n .
-  sleep 1
-done
-
-echo 'Database server is up.'
 
 ${SCRIPTS_PREFIX}/setup-voms-user.sh
 
