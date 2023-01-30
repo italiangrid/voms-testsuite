@@ -26,5 +26,3 @@ load_db_dump(){
 for i in $(seq 0 ${VO_COUNT}); do
   load_db_dump $i
 done
-
-mysql -h db -u root -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON *.* TO 'user'@'%'"

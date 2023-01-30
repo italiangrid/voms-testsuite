@@ -19,8 +19,6 @@ wget ${WGET_OPTIONS} ${TEST_CA_REPO_URL} -O /etc/yum.repos.d/igi-test-ca.repo
 yum clean all
 yum -y install voms-mysql-plugin voms-server igi-test-ca
 
-#${SCRIPTS_PREFIX}/setup-voms-user.sh
-
 # Setup host certificate
 cp /usr/share/igi-test-ca/star.test.example.cert.pem /etc/grid-security/vomscert.pem
 cp /usr/share/igi-test-ca/star.test.example.key.pem /etc/grid-security/vomskey.pem
@@ -45,7 +43,7 @@ source /etc/sysconfig/voms
 su voms -s /bin/bash -c "voms --conf /etc/voms/${VO_0_NAME}/voms.conf"
 su voms -s /bin/bash -c "voms --conf /etc/voms/${VO_1_NAME}/voms.conf"
 
-${SCRIPTS_PREFIX}/wait-for-it.sh -h voms.test.example -p 15000 -t 60 -- echo "VOMS daemon running for VO ${VO_0_NAME}"
-${SCRIPTS_PREFIX}/wait-for-it.sh -h voms.test.example -p 15001 -t 60 -- echo "VOMS daemon running for VO ${VO_1_NAME}"
+${SCRIPTS_PREFIX}/wait-for-it.sh -h voms.test.example -p 15000 -t 10 -- echo "VOMS daemon running for VO ${VO_0_NAME}"
+${SCRIPTS_PREFIX}/wait-for-it.sh -h voms.test.example -p 15001 -t 10 -- echo "VOMS daemon running for VO ${VO_1_NAME}"
 
 echo "Done."
