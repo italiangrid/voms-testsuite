@@ -88,7 +88,7 @@ jobs:
     needs: [build-and-push-testsuite, build-and-push-voms]
 
     env:
-      ROBOT_OPTIONS: --variable vo1:vo.0 --variable vo1_host:voms.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=*.local.io --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.local.io
+      ROBOT_OPTIONS: --variable vo1:vo.0 --variable vo1_host:voms.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=*.test.example --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example
 
     steps:
     - name: Checkout
