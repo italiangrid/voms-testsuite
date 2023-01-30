@@ -71,22 +71,6 @@ services:
 
     privileged: true
 
-  voms-admin:
-    image: ${VOMS_ADMIN_IMAGE}
-
-    environment:
-      VOMS_HOSTNAME: voms.test.example
-
-    volumes:
-      - ./assets/scripts:/scripts
-      - ./assets/certs/:/certs
-      - trustanchors:/etc/grid-security/certificates
-
-    ports:
-      - "8443:8443"
-
-    privileged: true
-
     networks:
       default:
         aliases:
