@@ -26,3 +26,6 @@ load_db_dump(){
 for i in $(seq 0 ${VO_COUNT}); do
   load_db_dump $i
 done
+
+echo "VOMS db has been populated !"
+echo "Exit $?"
