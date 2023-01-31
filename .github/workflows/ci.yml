@@ -78,11 +78,6 @@ jobs:
   run-testsuite:
     name: Run VOMS robot testsuite
 
-    strategy:
-      matrix:
-        client: [7-beta, 7-stable, 9-beta]
-        server: [7-beta, 7-stable, 9-beta]
-
     runs-on: ubuntu-latest
 
     needs: [build-and-push-testsuite, build-and-push-voms]
