@@ -6,7 +6,7 @@ set -ex
 # of that directory
 sudo yum -y reinstall igi-test-ca
 
-voms-proxy-init -version
+echo -e "voms-clients version:\n\n$(voms-proxy-init -version)"
 
 mkdir -p /tmp/reports
 cd /home/test/voms-testsuite
