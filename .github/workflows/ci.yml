@@ -78,7 +78,14 @@ jobs:
   run-testsuite:
     name: Run VOMS robot testsuite
 
+    strategy:
+      max-parallel: 9
+      matrix:
+        client: [7-beta, 7-stable, 9-beta]
+        server: [7-beta, 7-stable, 9-beta]
+
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     needs: [build-and-push-testsuite, build-and-push-voms]
 
