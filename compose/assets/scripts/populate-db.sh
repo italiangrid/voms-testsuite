@@ -27,5 +27,7 @@ for i in $(seq 0 ${VO_COUNT}); do
   load_db_dump $i
 done
 
+mysql -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON *.* TO 'user'@'%'"
+
 echo "VOMS db has been populated !"
 echo "Exit $?"
