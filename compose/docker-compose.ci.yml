@@ -65,6 +65,8 @@ services:
       - ./assets/conf/vo0.conf:/etc/voms/vo.0/voms.conf
       - ./assets/conf/vo1.conf:/etc/voms/vo.1/voms.conf
 
+    command: ["sleep", "infinity"]
+
     ports:
       - "15000:15000"
       - "15001:15001"
