@@ -41,7 +41,6 @@ services:
 
     environment:
       - TZ=Europe/Rome
-      - X509_USER_PROXY=/tmp/x509up_u501
       - ROBOT_ARGS
 
     volumes:
