@@ -20,6 +20,3 @@ RUN yum-config-manager --add-repo ${VOMS_REPO_URL} && \
   sh /tmp/scripts/provide-user.sh ${USERNAME} ${USER_UID} ${USER_GID}
 
 ENV container=docker
-
-VOLUME [ "/sys/fs/cgroup" ]
-CMD ["/usr/sbin/init"]
