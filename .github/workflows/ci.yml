@@ -39,7 +39,7 @@ jobs:
           tags: italiangrid/voms-testsuite:centos${{ matrix.rhel }}-${{ matrix.repo }}
           build-args: |
             VOMS_REPO=${{ matrix.repo }}
-            RHEL_VERSON=${{ matrix.rhel }}
+            RHEL_VERSION=${{ matrix.rhel }}
 
   build-and-push-voms:
     name: Build & Push VOMS core docker image
