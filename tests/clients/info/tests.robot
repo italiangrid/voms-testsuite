@@ -44,8 +44,7 @@ See if a voms proxy has the right attributes
   Should Match Regexp  ${output}  identity\\s+:\\s+/C=IT/O=IGI/CN=test0
   ${expected}=  Set Variable If  ${client_version} == 2  RFC compliant proxy  RFC3820 compliant impersonation proxy
   Should Match Regexp  ${output}  type\\s+:\\s+${expected}
-  ${expected}=  Set Variable If  ${client_version} == 2  1024  2048
-  Should Match Regexp  ${output}  strength\\s+:\\s+${expected}
+  Should Match Regexp  ${output}  strength\\s+:\\s+2048
   Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
   ${expected}=  Set Variable If  ${client_version} == 2  Digital Signature, Key Encipherment  Digital Signature, Non Repudiation, Key Encipherment
