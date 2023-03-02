@@ -38,7 +38,7 @@ chown voms:voms /etc/voms/${VO_1_NAME}/voms.pass
 echo ${VOMS_USER} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${VOMS_USER}
 chmod 0440 /etc/sudoers.d/${VOMS_USER}
 
-echo -e "VOMS version:\n\n$(voms -version --conf /etc/voms/vo.0/voms.conf)"
+echo -e "VOMS version:\n\n$(rpm -q voms)"
 
 source /etc/sysconfig/voms
 
