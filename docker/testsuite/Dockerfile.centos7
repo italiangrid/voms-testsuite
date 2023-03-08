@@ -16,7 +16,7 @@ RUN yum install -y epel-release \
     && curl -s https://ci.cloud.cnaf.infn.it/view/repos/job/repo_test_ca/lastSuccessfulBuild/artifact/test-ca.repo > /etc/yum.repos.d/test-ca.repo \
     && yum -y update \
     && yum -y install wget hostname tar gcc openssl-devel sudo file make which telnet nc \
-       igi-test-ca voms-clients-java voms-clients-cpp gfal2-util gfal2-all gfal2-python davix jq \
+       igi-test-ca voms-clients-java voms-clients gfal2-util gfal2-all gfal2-python davix jq \
        python36 python36-devel python36-setuptools \
     && rm -rf /var/cache/yum \
     && sh /tmp/scripts/provide-user.sh ${USERNAME} ${USER_UID} ${USER_GID} \
