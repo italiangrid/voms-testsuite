@@ -13,8 +13,8 @@ load_db_dump(){
   dump_file=dump-${VO_NAME}.sql
   if [ -f ${SCRIPTS_PREFIX}/${dump_file} ]; then
     echo "Loading dump file ${SCRIPTS_PREFIX}/${dump_file} for VO ${VO_NAME}"
-    mysql -h db -u root -p${MYSQL_ROOT_PASSWORD} -e "create database ${VO_NAME}"
-    cat ${SCRIPTS_PREFIX}/${dump_file} | mysql -h db -u root -p${MYSQL_ROOT_PASSWORD} ${VO_NAME}
+    mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "create database ${VO_NAME}"
+    cat ${SCRIPTS_PREFIX}/${dump_file} | mysql -u root -p${MYSQL_ROOT_PASSWORD} ${VO_NAME}
   else
     echo "${dump_file} not found"
   fi
