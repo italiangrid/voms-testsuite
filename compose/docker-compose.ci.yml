@@ -19,7 +19,7 @@ services:
       CA_BUNDLE_TARGET: /tmp/pki
 
   db:
-    image: mysql:5.7
+    image: mariadb
     container_name: db
 
     volumes:
