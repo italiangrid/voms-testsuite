@@ -13,7 +13,7 @@ COPY assets/scripts/*.sh /tmp/scripts/
 
 RUN yum install -y epel-release \
     && curl -s ${VOMS_REPO_URL} > /etc/yum.repos.d/voms.repo \
-    && curl -s https://jenkins-ci.cr.cnaf.infn.it:8443/job/igi-test-ca-repo/job/master/lastSuccessfulBuild/artifact/test-ca.repo > /etc/yum.repos.d/test-ca.repo \
+    && curl -s -L https://jenkins-ci.cr.cnaf.infn.it:8443/job/igi-test-ca-repo/job/master/lastSuccessfulBuild/artifact/test-ca.repo > /etc/yum.repos.d/test-ca.repo \
     && yum -y update \
     && yum -y install wget hostname tar gcc openssl-devel sudo file make which telnet nc \
        igi-test-ca voms-clients-java voms-clients gfal2-util gfal2-all gfal2-python3 davix jq \
