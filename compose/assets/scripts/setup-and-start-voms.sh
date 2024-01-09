@@ -4,7 +4,7 @@ trap "exit 1" TERM
 
 WGET_OPTIONS=${WGET_OPTIONS:-}
 
-TEST_CA_REPO_URL=${TEST_CA_REPO_URL:-https://ci.cloud.cnaf.infn.it/view/repos/job/repo_test_ca/lastSuccessfulBuild/artifact/test-ca.repo}
+TEST_CA_REPO_URL=${TEST_CA_REPO_URL:-https://jenkins-ci.cr.cnaf.infn.it:8443/job/igi-test-ca-repo/job/master/lastSuccessfulBuild/artifact/test-ca.repo}
 
 VO_0_NAME=${VO_0_NAME:-vo.0}
 VO_1_NAME=${VO_1_NAME:-vo.1}
