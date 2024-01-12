@@ -67,7 +67,7 @@ See if request for multiple VOs work as expected
   ${expected}=   Set Variable If   ${vo2_legacy_fqan_enabled} == True   /${vo2}/Role=NULL/Capability=NULL   /${vo2}
   Should Start With   ${output}   ${expected}
   ${expected}=   Set Variable If   ${vo1_legacy_fqan_enabled} == True   /${vo1}/Role=NULL/Capability=NULL   /${vo1}
-  Should Contain   ${output}   /${vo1}/Role=NULL/Capability=NULL
+  Should Contain   ${output}   ${expected}
   [Teardown]   Stop using certificate
 
 voms-proxy-init can parse p12 certificates
