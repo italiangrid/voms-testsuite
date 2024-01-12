@@ -12,7 +12,8 @@ See if voms-proxy-init -noregen work as expected
   ${proxySubject}   Get proxy info   --subject
   ${certSubject}   Get named certificate subject   test0
   Should Match Regexp   ${proxySubject}   ${certSubject}/CN=[0-9]+/CN=[0-9]+
-  Should Contain   ${fqans}   /${vo1}/Role=NULL/Capability=NULL
+  ${expected}=  Set Variable If  ${vo1_legacy_fqan_enabled} == True  /${vo1}/Role=NULL/Capability=NULL   /${vo1}
+  Should Contain   ${fqans}   ${expected}
   [Teardown]   Stop using certificate
 
 multiple voms-proxy-init -noregen work as expected
@@ -28,7 +29,8 @@ multiple voms-proxy-init -noregen work as expected
   ${subject}   Get proxy info   --subject
   ${fqans}   Get proxy info   --fqan
   Should Match Regexp  ${subject}  ${certificateSubject}(/CN=[0-9]+){6}
-  Should Start With   ${fqans}  /${vo1}/Role=NULL/Capability=NULL 
+  ${expected}=   Set Variable If  ${vo1_legacy_fqan_enabled} == True   /${vo1}/Role=NULL/Capability=NULL   /${vo1}
+  Should Start With   ${fqans}  ${expected}
   [Teardown]   Stop using certificate
 
 See if voms-proxy-init --noregen of an rfc proxy works
