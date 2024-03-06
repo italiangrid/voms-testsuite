@@ -1,9 +1,7 @@
 name: run testsuite against iam-dev
 
 on:
-  push:
-    branches:
-      - all-u-can-voms
+  push
 
 jobs:
 
