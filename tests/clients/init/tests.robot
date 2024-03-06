@@ -43,7 +43,8 @@ See if a requested role ends up as primary fqan
   [Setup]   Use certificate   test0
   Create proxy   --voms ${vo1}:/${vo1}/G1/Role=R1
   ${output}  Get proxy info   --fqan
-  Should Start With   ${output}   /${vo1}/G1/Role=R1/Capability=NULL
+  ${primary_fqan}=   Set Variable If   ${vo1_legacy_fqan_enabled} == True   /${vo1}/G1/Role=R1/Capability=NULL   /${vo1}/G1/R1
+  Should Start With   ${output}   ${primary_fqan}
   [Teardown]  Stop using certificate
 
 See if multiple -voms work as expected
@@ -51,8 +52,10 @@ See if multiple -voms work as expected
   [Setup]   Use certificate   test0
   Create proxy   --voms ${vo1}:/${vo1}/G1 --voms ${vo1}:/${vo1}/G1/Role=R1 
   ${output}  Get proxy info   --fqan
-  Should Start With   ${output}   /${vo1}/G1/Role=NULL/Capability=NULL
-  Should Contain   ${output}   /${vo1}/G1/Role=R1/Capability=NULL
+  ${voms_role}=   Set Variable If   ${vo1_legacy_fqan_enabled} == True   /${vo1}/G1/Role=NULL/Capability=NULL   /${vo1}/G1
+  Should Start With   ${output}   ${voms_role}
+  ${voms_role}=   Set Variable If   ${vo1_legacy_fqan_enabled} == True   /${vo1}/G1/Role=R1/Capability=NULL   /${vo1}/G1/R1
+  Should Contain   ${output}   ${voms_role}
   [Teardown]  Stop using certificate
 
 See if request for multiple VOs work as expected
@@ -61,8 +64,10 @@ See if request for multiple VOs work as expected
   [Setup]   Use certificate   test0
   Create proxy   --voms ${vo2} --voms ${vo1} 
   ${output}  Get proxy info   --fqan
-  Should Start With   ${output}   /${vo2}/Role=NULL/Capability=NULL
-  Should Contain   ${output}   /${vo1}/Role=NULL/Capability=NULL
+  ${expected}=   Set Variable If   ${vo2_legacy_fqan_enabled} == True   /${vo2}/Role=NULL/Capability=NULL   /${vo2}
+  Should Start With   ${output}   ${expected}
+  ${expected}=   Set Variable If   ${vo1_legacy_fqan_enabled} == True   /${vo1}/Role=NULL/Capability=NULL   /${vo1}
+  Should Contain   ${output}   ${expected}
   [Teardown]   Stop using certificate
 
 voms-proxy-init can parse p12 certificates
@@ -132,8 +137,10 @@ voms-proxy-init --order cannot force role requests
   [Setup]   Use certificate   test0
   Create proxy   -voms ${vo1} -order /${vo1}/G1/Role=R1 -order /${vo1}/G1
   ${output}   Get proxy info   --fqan
-  Should Start With   ${output}   /${vo1}/G1/Role=NULL/Capability=NULL
-  Should Not Contain   ${output}   /${vo1}/G1/Role=R1/Capability=NULL
+  ${expected}=  Set Variable If  ${vo1_legacy_fqan_enabled} == True  /${vo1}/G1/Role=NULL/Capability=NULL  /${vo1}/G1
+  Should Start With   ${output}   ${expected}
+  ${expected}=  Set Variable If  ${vo1_legacy_fqan_enabled} == True  /${vo1}/G1/Role=R1/Capability=NULL  /${vo1}/G1/R1
+  Should Not Contain   ${output}   ${expected}
   [Teardown]   Stop using certificate
 
 long delegation chain work as expected
@@ -307,9 +314,10 @@ See if voms does not allow expansion of credential set
   [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   Create proxy   -voms ${vo1}
-  Create proxy   -voms ${vo1}:/${vo1}/G1/Role=R1 --valid 10:00 --noregen
+  ${voms_role}=  Set Variable If  ${vo1_legacy_fqan_enabled} == True   /${vo1}/G1/Role=R1   /${vo1}/G1/R1
+  Create proxy   -voms ${vo1}:${voms_role} --valid 10:00 --noregen
   ${output}  Get proxy info  -all
-  Should Not Contain   ${output}  /${vo1}/G1/Role=R1
+  Should Not Contain   ${output}  ${voms_role}
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --debug works

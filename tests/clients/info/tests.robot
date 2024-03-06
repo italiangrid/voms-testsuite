@@ -44,8 +44,7 @@ See if a voms proxy has the right attributes
   Should Match Regexp  ${output}  identity\\s+:\\s+/C=IT/O=IGI/CN=test0
   ${expected}=  Set Variable If  ${client_version} == 2  RFC compliant proxy  RFC3820 compliant impersonation proxy
   Should Match Regexp  ${output}  type\\s+:\\s+${expected}
-  ${expected}=  Set Variable If  ${client_version} == 2  1024  2048
-  Should Match Regexp  ${output}  strength\\s+:\\s+${expected}
+  Should Match Regexp  ${output}  strength\\s+:\\s+2048
   Should Match Regexp  ${output}  path\\s+:\\s+/tmp/x509up_u\\d+
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
   ${expected}=  Set Variable If  ${client_version} == 2  Digital Signature, Key Encipherment  Digital Signature, Non Repudiation, Key Encipherment
@@ -55,8 +54,10 @@ See if a voms proxy has the right attributes
   Should Match Regexp  ${output}  subject\\s+:\\s+/C=IT/O=IGI/CN=test0/
   ${vo1_issuer_escaped} =  Regexp Escape  ${vo1_issuer}  
   Should Match Regexp  ${output}  issuer\\s+:\\s+${vo1_issuer_escaped}
-  Should Match Regexp  ${output}  attribute\\s+:\\s+/${vo1}/Role=NULL/Capability=NULL
-  Should Match Regexp  ${output}  attribute\\s+:\\s+/${vo1}/G1/Role=NULL/Capability=NULL
+  ${expected}=  Set Variable If  ${vo1_legacy_fqan_enabled} == True   attribute\\s+:\\s+/${vo1}/Role=NULL/Capability=NULL   attribute\\s+:\\s+/${vo1}
+  Should Match Regexp  ${output}  ${expected}
+  ${expected}=  Set Variable If  ${vo1_legacy_fqan_enabled} == True  attribute\\s+:\\s+/${vo1}/G1/Role=NULL/Capability=NULL   attribute\\s+:\\s+/${vo1}/G1
+  Should Match Regexp  ${output}  ${expected}
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
   Should Match Regexp  ${output}  uri\\s+:\\s+${vo1_host}:\\d+
   [Teardown]  Stop using certificate
@@ -130,7 +131,7 @@ See if voms-proxy-info -fqan works
   Create voms proxy
   ${output}   Get proxy info  -fqan
   Log  ${output}
-  ${expected}   Set Variable  /${vo1}/Role=NULL/Capability=NULL\n/${vo1}/G1/Role=NULL/Capability=NULL\n/${vo1}/G2/Role=NULL/Capability=NULL\n/${vo1}/G2/G3/Role=NULL/Capability=NULL
+  ${expected}   Set Variable If  ${vo1_legacy_fqan_enabled} == True   /${vo1}/Role=NULL/Capability=NULL\n/${vo1}/G1/Role=NULL/Capability=NULL\n/${vo1}/G2/Role=NULL/Capability=NULL\n/${vo1}/G2/G3/Role=NULL/Capability=NULL   /${vo1}\n/${vo1}/G1\n/${vo1}/G2\n/${vo1}/G2/G3
   Log  ${expected}
   Should Be Equal As Strings  ${output}  ${expected}
   [Teardown]  Stop using certificate

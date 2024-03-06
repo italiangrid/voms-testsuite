@@ -5,6 +5,7 @@ volumes:
   cabundle:
 
 services:
+
   trust:
     image: indigoiam/egi-trustanchors
 
@@ -17,13 +18,29 @@ services:
       TRUST_ANCHORS_TARGET: /tmp/certificates
       CA_BUNDLE_TARGET: /tmp/pki
 
+  db:
+    image: mariadb:10.11.2
+    container_name: db
+
+    volumes:
+      - ./assets/db:/home/mysql/
+      - ./assets/scripts:/scripts/
+
+
+    environment:
+      - MYSQL_ROOT_PASSWORD=pwd
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pwd
+
+    ports:
+      - "3306:3306"
+
   testsuite:
     image: ${TS_IMAGE}
     init: true
 
     environment:
       - TZ=Europe/Rome
-      - X509_USER_PROXY=/tmp/x509up_u501
       - ROBOT_ARGS
 
     volumes:
@@ -39,14 +56,17 @@ services:
     image: ${VOMS_IMAGE}
 
     environment:
-      VOMS_HOSTNAME: dev.local.io
+      VOMS_HOSTNAME: voms.test.example
 
     volumes:
       - ./assets/scripts:/scripts
-      - ./assets/certs/:/certs
+      - ./assets/vomsdir/:/etc/grid-security/vomsdir
+      - ./assets/conf/vo0.conf:/etc/voms/vo.0/voms.conf
+      - ./assets/conf/vo1.conf:/etc/voms/vo.1/voms.conf
+
+    command: ["sleep", "infinity"]
 
     ports:
-      - "8443:8443"
       - "15000:15000"
       - "15001:15001"
 
@@ -55,4 +75,4 @@ services:
     networks:
       default:
         aliases:
-          - dev.local.io
+          - voms.test.example

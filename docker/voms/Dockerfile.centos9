@@ -1,0 +1,23 @@
+FROM quay.io/centos/centos:stream9
+
+ARG USERNAME=test
+ARG USER_UID=1000
+ARG USER_GID=${USER_UID}
+
+ARG RHEL_VERSION=9
+ARG VOMS_REPO=stable
+
+ENV VOMS_REPO_URL=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${VOMS_REPO}-el${RHEL_VERSION}.repo
+
+COPY assets/scripts/*.sh /tmp/scripts/
+
+RUN echo "include_only=.garr.it,.cern.ch" >> /etc/yum/pluginconf.d/fastestmirror.conf && \
+  yum -y install hostname which wget tar sudo file less epel-release yum-utils util-linux-user
+RUN yum-config-manager --add-repo ${VOMS_REPO_URL} && \
+  yum -y update && \
+  yum clean all && \
+  rm -rf /var/cache/yum && \
+  sh /tmp/scripts/provide-user.sh ${USERNAME} ${USER_UID} ${USER_GID} && \
+  update-crypto-policies --set DEFAULT:SHA1
+
+ENV container=docker

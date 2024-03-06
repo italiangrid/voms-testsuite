@@ -1,4 +1,4 @@
-name: build images, deploy and run testsuite
+name: run testsuite against iam-dev
 
 on:
   push:
@@ -7,89 +7,18 @@ on:
 
 jobs:
 
-  build-and-push-testsuite:
-    name: Build & Push testsuite docker image
-
-    strategy:
-      matrix:
-        rhel: [7, 9]
-        repo: [stable, beta]
-        exclude:
-          - rhel: 9
-            repo: stable
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v2 
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Build & Push image
-        uses: docker/build-push-action@v3
-        with:
-          context: docker/testsuite
-          file: ./docker/testsuite/Dockerfile.centos${{ matrix.rhel }}
-          push: true
-          tags: italiangrid/voms-testsuite:centos${{ matrix.rhel }}-${{ matrix.repo }}
-          build-args: |
-            VOMS_REPO=${{ matrix.repo }}
-            RHEL_VERSION=${{ matrix.rhel }}
-
-  build-and-push-voms:
-    name: Build & Push VOMS core docker image
-
-    strategy:
-      matrix:
-        rhel: [7, 9]
-        repo: [stable, beta]
-        exclude:
-          - rhel: 9
-            repo: stable
-
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v2 
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Build & Push image
-        uses: docker/build-push-action@v3
-        with:
-          context: docker/voms
-          file: ./docker/voms/Dockerfile.centos${{ matrix.rhel }}
-          push: true
-          tags: italiangrid/voms:centos${{ matrix.rhel }}-${{ matrix.repo }}
-          build-args: |
-            VOMS_REPO=${{ matrix.repo }}
-            RHEL_VERSION=${{ matrix.rhel }}
-
   run-testsuite:
-    name: Run VOMS robot testsuite
+    name: Run VOMS robot testsuite against iam-dev
 
     strategy:
       matrix:
         client: [7-beta, 7-stable, 9-beta]
-        server: [7-beta, 7-stable, 9-beta]
 
     runs-on: ubuntu-latest
     continue-on-error: true
 
-    needs: [build-and-push-testsuite, build-and-push-voms]
-
     env:
-      ROBOT_OPTIONS: --variable vo1:vo.0 --variable vo1_host:voms.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=*.test.example --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example
+      ROBOT_OPTIONS: --variable vo1:test.vo --variable vo1_host:voms-dev.cloud.cnaf.infn.it --variable vo1_issuer:'/DC=org/DC=terena/DC=tcs/C=IT/ST=Roma/O=Istituto Nazionale di Fisica Nucleare/CN=voms-dev.cloud.cnaf.infn.it' --variable vo1_legacy_fqan_enabled:False --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example
 
     steps:
     - name: Checkout
@@ -104,7 +33,7 @@ jobs:
       working-directory: compose
       env:
         TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
-        VOMS_IMAGE: italiangrid/voms:centos${{ matrix.server }}
+        VOMS_IMAGE: italiangrid/voms:centos7-stable
 
     - name: Deploy db and voms
       run: |

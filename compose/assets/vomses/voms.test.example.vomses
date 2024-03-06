@@ -1,0 +1,2 @@
+"vo.0" "voms.test.example" "15000" "/C=IT/O=IGI/CN=*.test.example" "vo.0"
+"vo.1" "voms.test.example" "15001" "/C=IT/O=IGI/CN=*.test.example" "vo.1"
