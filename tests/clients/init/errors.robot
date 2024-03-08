@@ -167,7 +167,7 @@ A user cannot get a proxy from a VO she does not belong to
   [Teardown]   Stop using certificate
 
 See if voms-proxy-init fails with a fake target
-  [Tags]  remote  legacy
+  [Tags]  remote  legacy  issue-723
   [Setup]  Use certificate  test0       
   ${output}  Create proxy failure  -voms ${vo1} -target fake.cnaf.infn.it
   ${expected}  Set Variable If  ${client_version} == 2  Cannot find match among allowed hosts.  AC target check failed
