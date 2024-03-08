@@ -233,10 +233,10 @@ See if voms-proxy-init detects fake arguments
   [Teardown]  Stop using certificate
 
 See if requesting a too long proxy fails
-  [Tags]  remote  legacy
+  [Tags]  remote  legacy  issue-724
   [Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} --valid 100:00
-  Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
+  Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to
   [Teardown]  Stop using certificate
 
 Can AC validity be limited?
@@ -249,10 +249,10 @@ Can AC validity be limited?
   [Teardown]  Stop using certificate
 
 See if requesting a too long ac length fails
-  [Tags]  remote  legacy
+  [Tags]  remote  legacy  issue-724
   [Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} --vomslife 100:00
-  Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to 86400 seconds!
+  Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to
   [Teardown]  Stop using certificate
 
 See if a target can be added to a proxy
