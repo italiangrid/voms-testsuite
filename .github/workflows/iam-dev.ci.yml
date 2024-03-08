@@ -27,10 +27,17 @@ jobs:
       working-directory: compose
 
     - name: Start compose
-      run: docker-compose --file docker-compose.ci.yml up --detach testsuite
+      run: docker-compose --file docker-compose.ci.yml up --detach db voms testsuite
       working-directory: compose
       env:
         TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
+        VOMS_IMAGE: italiangrid/voms:centos7-stable
+
+    - name: Deploy db and voms
+      run: |
+        docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
+        docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
+      working-directory: compose
 
     - name: Create artifacts dir
       if: ${{ always() }}
