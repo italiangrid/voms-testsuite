@@ -16,7 +16,7 @@ jobs:
     continue-on-error: true
 
     env:
-      ROBOT_OPTIONS: --variable vo1:test.vo --variable vo1_host:voms-dev.cloud.cnaf.infn.it --variable vo1_issuer:'/DC=org/DC=terena/DC=tcs/C=IT/ST=Roma/O=Istituto Nazionale di Fisica Nucleare/CN=voms-dev.cloud.cnaf.infn.it' --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example --exclude issue-723 --exclude issue-724
+      ROBOT_OPTIONS: --variable vo1:test.vo --variable vo1_host:voms-dev.cloud.cnaf.infn.it --variable vo1_issuer:'/DC=org/DC=terena/DC=tcs/C=IT/ST=Roma/O=Istituto Nazionale di Fisica Nucleare/CN=voms-dev.cloud.cnaf.infn.it' --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example --exclude issue-723 --exclude issue-724 --exclude issue-726
 
     steps:
     - name: Checkout
