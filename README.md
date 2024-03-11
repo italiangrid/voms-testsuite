@@ -61,7 +61,7 @@ $ docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash
 $ docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
 ```
 
-Run the testsuite. Some variables will be overwritten using the `ROBOT_OPTIONS` environment variable
+Run the testsuite. Some variables will be overridden using the `ROBOT_OPTIONS` environment variable
 
 ```
 $ export ROBOT_OPTIONS="--variable vo1:vo.0 --variable vo1_host:voms.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=*.test.example --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example"
@@ -90,7 +90,7 @@ Start the testsuite container
 $ docker-compose --file docker-compose.ci.yml up --detach testsuite
 ```
 
-Run the testsuite. Some variables will be overwritten using the `ROBOT_OPTIONS` environment variable
+Run the testsuite. Some variables will be overridden using the `ROBOT_OPTIONS` environment variable
 
 ```
 $ export ROBOT_OPTIONS="--variable vo1:test.vo --variable vo1_host:voms-dev.cloud.cnaf.infn.it --variable vo1_issuer:'/DC=org/DC=terena/DC=tcs/C=IT/ST=Roma/O=Istituto Nazionale di Fisica Nucleare/CN=voms-dev.cloud.cnaf.infn.it' --variable vo1_legacy_fqan_enabled:False --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example"
