@@ -10,12 +10,12 @@ Resource   variables.robot
 Execute and Check Success   [Arguments]   ${cmd}
   ${rc}   ${output}=   Run and Return RC And Output   ${cmd}
   Should Be Equal As Integers   ${rc}   0   ${output}   False
-  [Return]   ${output}
+  RETURN   ${output}
 
 Execute and Check Failure   [Arguments]   ${cmd}
   ${rc}   ${output}=   Run and Return RC And Output   ${cmd}
   Should Not Be Equal As Integers   ${rc}   0   ${output}
-  [Return]   ${output}
+  RETURN   ${output}
 
 Use p12 certificate   [Arguments]   ${cert}
   File Should Exist   ${certsDir}/${cert}.p12
@@ -47,40 +47,40 @@ Stop using certificate
 Get certificate subject   [Arguments]   ${certFile}
   File Should Exist   ${certFile}
   ${subject}   Execute and Check Success   openssl x509 -in ${certFile} -noout -subject | sed "s#subject= ##"
-  [Return]   ${subject}
+  RETURN   ${subject}
 
 Get named certificate subject   [Arguments]   ${cert}
   File Should Exist   ${certsDir}/${cert}.cert.pem
   ${subject}  Get certificate subject   ${certsDir}/${cert}.cert.pem
-  [Return]   ${subject}
+  RETURN   ${subject}
   
 Get certificate start date   [Arguments]   ${certFile}
   File Should Exist   ${certFile}
   ${startDate}   Execute and Check Success   openssl x509 -in ${certFile} -noout -startdate | sed "s#notBefore=##"
-  [Return]   ${startDate}
+  RETURN   ${startDate}
 
 Get certificate end date   [Arguments]   ${certFile}
   File Should Exist   ${certFile}
   ${endDate}   Execute and Check Success   openssl x509 -in ${certFile} -noout -enddate | sed "s#notAfter=##"
-  [Return]   ${endDate}
+  RETURN   ${endDate}
 
 Get named certificate start date   [Arguments]   ${cert}
   File Should Exist   ${certsDir}/${cert}.cert.pem
   ${startDate}   Get certificate start date   ${certsDir}/${cert}.cert.pem
-  [Return]   ${startDate}
+  RETURN   ${startDate}
 
 Get named certificate end date   [Arguments]   ${cert}
   File Should Exist   ${certsDir}/${cert}.cert.pem
   ${endDate}   Get certificate end date   ${certsDir}/${cert}.cert.pem
-  [Return]   ${endDate}
+  RETURN   ${endDate}
 
 Get named certificate path   [Arguments]   ${cert}
   File Should Exist   ${certsDir}/${cert}.cert.pem
-  [Return]   ${certsDir}/${cert}.cert.pem
+  RETURN   ${certsDir}/${cert}.cert.pem
 
 Get named p12 certificate path   [Arguments]   ${cert}
   File Should Exist   ${certsDir}/${cert}.p12
-  [Return]   ${certsDir}/${cert}.p12
+  RETURN   ${certsDir}/${cert}.p12
 
 Create plain proxy
   Execute and Check Success   echo ${privateKeyPassword} | voms-proxy-init -pwstdin
@@ -95,7 +95,7 @@ Get options list   [Arguments]   @{params}
     ${optionsList} =  Catenate   ${optionsList}   ${option}
   END
   Log Many   ${optionsList}
-  [Return]   ${optionsList}
+  RETURN   ${optionsList}
 
 Create voms proxy with roles   [Arguments]   @{roles}   
   Should Be True   ${roles}   Please provide at least one role   
@@ -108,21 +108,21 @@ Create voms proxy with roles   [Arguments]   @{roles}
 Get proxy info   [Arguments]   @{params}
    ${options}=  Get options list   @{params}
    ${output}=   Run   voms-proxy-info ${options}
-   [Return]   ${output}
+   RETURN   ${output}
  
 Get proxy openssl
    ${output}  Execute and Check Success  openssl x509 -in /tmp/x509up_u`id -u` -noout -text  
-   [Return]  ${output}
+   RETURN  ${output}
 
 Create proxy   [Arguments]   @{params}
    ${options}=  Get options list   @{params}
    ${output}   Execute and Check Success   echo ${privateKeyPassword}|voms-proxy-init -pwstdin ${options}
-   [Return]   ${output}
+   RETURN   ${output}
 
 Create proxy failure  [Arguments]   @{params}
    ${options}=  Get options list   @{params}
    ${output}   Execute and Check Failure   echo ${privateKeyPassword}|voms-proxy-init -pwstdin ${options}
-   [Return]   ${output}
+   RETURN   ${output}
 
 Create voms proxy   [Arguments]   ${vo}=${vo1}
   ${output}   Execute and Check Success   echo ${privateKeyPassword}|voms-proxy-init -pwstdin -voms ${vo}
@@ -130,7 +130,7 @@ Create voms proxy   [Arguments]   ${vo}=${vo1}
 Check voms-proxy-init failure   [Arguments]   ${failMessage}   ${vo}=${vo1}
   ${output}   Execute and Check Failure   echo ${privateKeyPassword}|voms-proxy-init -pwstdin -voms ${vo}
   Should Contain   ${output}   ${failMessage}
-  [Return]   ${output}
+  RETURN   ${output}
 
 Use admin certificate   [Arguments]  ${adminCert}=VO_Admin  
   Use certificate   VO_Admin
@@ -192,7 +192,7 @@ Proxy should exist
 
 Get proxy path
 	${userId}   Run   id -u
-	[Return]   /tmp/x509up_u${userId}
+	RETURN   /tmp/x509up_u${userId}
 
 Myproxy init  [Arguments]  @{params}
   ${options}=  Get options list   @{params}
@@ -201,15 +201,15 @@ Myproxy init  [Arguments]  @{params}
 Myproxy get delegation  [Arguments]   @{params}
   ${options}=  Get options list   @{params}
   ${output}  Execute and Check Success   echo ${myProxyPassPhrase}|myproxy-get-delegation -s ${myproxy_server} ${options} -S
-  [Return]  ${output}
+  RETURN  ${output}
 
 Myproxy info  [Arguments]   @{params}
   ${options}=  Get options list   @{params}
   ${output}  Execute and Check Success   myproxy-info -s ${myproxy_server} ${options}
-  [Return]  ${output}
+  RETURN  ${output}
 
 Myproxy destroy  [Arguments]   @{params}
   ${options}=  Get options list   @{params}
   ${output}  Execute and Check Success   myproxy-destroy -s ${myproxy_server} ${options}
-  [Return]  ${output}
+  RETURN  ${output}
 

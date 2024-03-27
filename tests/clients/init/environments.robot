@@ -42,7 +42,7 @@ Setup for empty certdir test
   Run  mkdir ${tmpCertDir}
   Set Environment Variable   __VOMS__CUSTOM__CERTDIR__   ${tmpCertDir}
   Use certificate  test0
-  [Return]   ${tmpCertDir}
+  RETURN   ${tmpCertDir}
 
 Teardown for empty certdir test
   Remove Environment Variable   __VOMS__CUSTOM__CERTDIR__
