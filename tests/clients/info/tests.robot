@@ -166,7 +166,8 @@ See if voms --uri works
   [Tags]   remote  legacy
   Create voms proxy
   ${output} =  Get proxy info  -uri
-  Should Match Regexp  ${output}  ${vo1_host}:\\d+
+  ${vomses_hosts} =  Get Vomses
+  Should Contain  ${vomses_hosts}  ${output}
   [Teardown]  Stop using certificate
 
 See if voms --serial works
