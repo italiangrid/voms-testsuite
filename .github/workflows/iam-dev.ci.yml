@@ -61,7 +61,7 @@ jobs:
     - name: Collect test report for java clients
       if: ${{ always() }}
       run: |
-        docker container cp voms-testsuite_testsuite_1:/tmp/reports ${ARTIFACTS_PATH}/java
+        docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/java
         docker compose --file docker-compose.ci.yml exec -T testsuite rm -rf /tmp/reports
       working-directory: compose
 
@@ -74,7 +74,7 @@ jobs:
 
     - name: Collect test report for cpp clients
       if: ${{ always() }}
-      run: docker container cp voms-testsuite_testsuite_1:/tmp/reports ${ARTIFACTS_PATH}/cpp
+      run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
       working-directory: compose
 
     - name: Collect logs
