@@ -7,7 +7,7 @@ volumes:
 services:
 
   trust:
-    image: indigoiam/egi-trustanchors
+    image: indigoiam/egi-trustanchors:igi-test-ca
 
     volumes:
       - trustanchors:/tmp/certificates

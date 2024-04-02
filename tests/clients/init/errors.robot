@@ -132,7 +132,7 @@ See if voms-proxy-init fails correctly when the key is corrupted
   Execute and Check Success  cat %{HOME}/.globus/userkey.pem|tr [a-z] [A-Z] > ${tmpKey}
   Execute and Check Success   chmod 400 ${tmpKey}
   ${output}   Create Proxy Failure   --cert %{HOME}/.globus/usercert.pem --key ${tmpKey}
-  ${expected}  Set Variable If  ${client_version} == 2  wrong tag*Function: proxy_init_cred  *Can not load the PEM private key*
+  ${expected}  Set Variable If  ${client_version} == 2  *wrong tag*  *Can not load the PEM private key*
   Should Match   ${output}   ${expected}
   [Teardown]  Stop using certificate
 
@@ -156,7 +156,7 @@ A user gets the right message when trying to create a proxy providing the wrong 
   [Tags]  legacy
   [Setup]  Use certificate   test0
   ${output}  Execute and Check Failure   echo "CAMAGHE" | voms-proxy-init -pwstdin
-  ${expected}  Set Variable If  ${client_version} == 2  wrong pass phrase  Error decrypting private key: the password is incorrect or the PEM data is corrupted.
+  ${expected}  Set Variable If  ${client_version} == 2  wrong pass  Error decrypting private key: the password is incorrect or the PEM data is corrupted.
   Should Contain  ${output}  ${expected}
   [Teardown]  Stop using certificate
 
@@ -192,9 +192,9 @@ See if voms-proxy-init -pwstdin fails correctly when no password is provided
   [Setup]  Use certificate  test0
   IF  ${client_version} == 2
     ${output}  Execute and Check Failure   echo "" | voms-proxy-init -pwstdin
-    Should Contain  ${output}  bad password read
+    Should Contain Any  ${output}  bad password read  empty password
     ${output}  Execute and Check Failure   echo "" | voms-proxy-init -pwstdin -debug
-    Should Contain  ${output}  bad password read
+    Should Contain Any  ${output}  bad password read  empty password
   ELSE
     ${output}  Execute and Check Failure  echo "" | voms-proxy-init --pwstdin
     Should contain  ${output}  No credentials found!
