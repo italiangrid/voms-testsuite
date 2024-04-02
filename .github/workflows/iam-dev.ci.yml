@@ -23,11 +23,11 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Provide trustanchors
-      run: docker-compose --file docker-compose.ci.yml up trust
+      run: docker compose --file docker-compose.ci.yml up trust
       working-directory: compose
 
     - name: Start compose
-      run: docker-compose --file docker-compose.ci.yml up --detach db voms testsuite
+      run: docker compose --file docker-compose.ci.yml up --detach db voms testsuite
       working-directory: compose
       env:
         TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
@@ -35,8 +35,8 @@ jobs:
 
     - name: Deploy db and voms
       run: |
-        docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
-        docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
+        docker compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
+        docker compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
       working-directory: compose
 
     - name: Create artifacts dir
@@ -49,7 +49,7 @@ jobs:
         mkdir -p ${ARTIFACTS_PATH}/logs ${ARTIFACTS_PATH}/java ${ARTIFACTS_PATH}/cpp
 
     - name: Run testsuite for java clients
-      run: docker-compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
+      run: docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
       working-directory: compose
       continue-on-error: true
 
@@ -57,13 +57,13 @@ jobs:
       if: ${{ always() }}
       run: |
         docker container cp voms-testsuite_testsuite_1:/tmp/reports ${ARTIFACTS_PATH}/java
-        docker-compose --file docker-compose.ci.yml exec -T testsuite rm -rf /tmp/reports
+        docker compose --file docker-compose.ci.yml exec -T testsuite rm -rf /tmp/reports
       working-directory: compose
 
     - name: Run testsuite for cpp clients
       run: |
-        docker-compose --file docker-compose.ci.yml exec -T -u root testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
-        docker-compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
+        docker compose --file docker-compose.ci.yml exec -T -u root testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
+        docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
       working-directory: compose
       continue-on-error: true
 
@@ -75,13 +75,13 @@ jobs:
     - name: Collect logs
       if: ${{ always() }}
       run: |
-        docker-compose --file docker-compose.ci.yml logs --no-color testsuite > ${ARTIFACTS_PATH}/logs/testsuite.log
-        docker-compose --file docker-compose.ci.yml logs --no-color voms > ${ARTIFACTS_PATH}/logs/voms.log
+        docker compose --file docker-compose.ci.yml logs --no-color testsuite > ${ARTIFACTS_PATH}/logs/testsuite.log
+        docker compose --file docker-compose.ci.yml logs --no-color voms > ${ARTIFACTS_PATH}/logs/voms.log
       working-directory: compose
 
     - name: Stop compose
       if: ${{ always() }}
-      run: docker-compose --file docker-compose.ci.yml down --volumes
+      run: docker compose --file docker-compose.ci.yml down --volumes
       working-directory: compose
 
     - name: Upload artifacts

@@ -28,9 +28,9 @@ Use the `italiangrid/voms-testsuite` docker image to run the testsuite.
 For other parameters, see the [variables file](./lib/variables.robot).
 
 
-### Using docker-compose
+### Using docker compose
 
-A [docker-compose](./compose/docker-compose.ci.yml) file collecting all the necessary services can be used to run the testsuite.
+A [docker compose](./compose/docker-compose.ci.yml) file collecting all the necessary services can be used to run the testsuite.
 
 #### Tests using local VOMS server
 
@@ -38,7 +38,7 @@ Start the trustanchor job with
 
 ```
 $ cd compose
-$ docker-compose --file docker-compose.ci.yml up trust
+$ docker compose --file docker-compose.ci.yml up trust
 trust_1      | + FETCH_CRL_TIMEOUT_SECS=5
 trust_1      | + [[ -z 1 ]]
 trust_1      | + fetch-crl --verbose -T 5
@@ -51,21 +51,21 @@ voms-testsuite_trust_1 exited with code 0
 Start the db, VOMS and testsuite containers
 
 ```
-$ docker-compose --file docker-compose.ci.yml up --detach db voms testsuite
+$ docker compose --file docker-compose.ci.yml up --detach db voms testsuite
 ```
 
 Populate the VOMS DB with a dbdump for testing and start VOMS
 
 ```
-$ docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
-$ docker-compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
+$ docker compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
+$ docker compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
 ```
 
 Run the testsuite. Some variables will be overridden using the `ROBOT_OPTIONS` environment variable
 
 ```
 $ export ROBOT_OPTIONS="--variable vo1:vo.0 --variable vo1_host:voms.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=*.test.example --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example"
-$ docker-compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
+$ docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
 ```
 
 #### Tests using the VOMS-AA microservice
@@ -74,7 +74,7 @@ Start the trustanchor job with
 
 ```
 $ cd compose
-$ docker-compose --file docker-compose.ci.yml up trust
+$ docker compose --file docker-compose.ci.yml up trust
 trust_1      | + FETCH_CRL_TIMEOUT_SECS=5
 trust_1      | + [[ -z 1 ]]
 trust_1      | + fetch-crl --verbose -T 5
@@ -87,14 +87,14 @@ voms-testsuite_trust_1 exited with code 0
 Start the testsuite container
 
 ```
-$ docker-compose --file docker-compose.ci.yml up --detach testsuite
+$ docker compose --file docker-compose.ci.yml up --detach testsuite
 ```
 
 Run the testsuite. Some variables will be overridden using the `ROBOT_OPTIONS` environment variable
 
 ```
 $ export ROBOT_OPTIONS="--variable vo1:test.vo --variable vo1_host:voms-dev.cloud.cnaf.infn.it --variable vo1_issuer:'/DC=org/DC=terena/DC=tcs/C=IT/ST=Roma/O=Istituto Nazionale di Fisica Nucleare/CN=voms-dev.cloud.cnaf.infn.it' --variable vo1_legacy_fqan_enabled:False --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example"
-$ docker-compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
+$ docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
 ```
 
 [robot-framework]: https://robotframework.org/
