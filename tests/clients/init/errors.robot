@@ -206,9 +206,9 @@ See if voms-proxy-init -pwstdin fails correctly when no password is provided
   [Teardown]  Stop using certificate
 
 See if suspended users can get a proxy
-  [Tags]  legacy   dbg
+  [Tags]  legacy
   [Setup]  Use certificate  test2
   ${output}  Create proxy failure  -voms ${vo1}
-  ${expected}  Set Variable  User 'CN=test2,O=IGI,C=IT, CN=Test CA,O=IGI,C=IT' is not active.
+  ${expected}  Set Variable If  ${vo1_legacy_voms}  User is currently suspended!  User 'CN=test2,O=IGI,C=IT, CN=Test CA,O=IGI,C=IT' is not active.
   Should Contain   ${output}  ${expected}
   [Teardown]  Stop using certificate
