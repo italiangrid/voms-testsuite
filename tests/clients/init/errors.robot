@@ -204,3 +204,11 @@ See if voms-proxy-init -pwstdin fails correctly when no password is provided
     Should contain  ${output}  No credentials found!
   END
   [Teardown]  Stop using certificate
+
+See if suspended users can get a proxy
+  [Tags]  legacy   dbg
+  [Setup]  Use certificate  test2
+  ${output}  Create proxy failure  -voms ${vo1}
+  ${expected}  Set Variable  User 'CN=test2,O=IGI,C=IT, CN=Test CA,O=IGI,C=IT' is not active.
+  Should Contain   ${output}  ${expected}
+  [Teardown]  Stop using certificate
