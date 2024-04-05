@@ -44,26 +44,32 @@ class VOMSLibrary:
 		else:
 			return 1
 
-	def parse_vomses_files(self, vomses_dirs: list = ["/etc/vomses", "~/.glite/vomses"]) -> dict:
+	def parse_vomses_files(self, vomses: list = ["/etc/vomses", "~/.glite/vomses"]) -> dict:
 		"""Read the files in /etc/vomses and in ~/.glite/vomses, returning a dictionary with the following items:
 		vo: [hosts]"""
 
 		vomses_files = []
-		for vomses_dir in vomses_dirs:
-			if os.path.exists(os.path.expanduser(vomses_dir)):
-				vomses_files.extend(glob.glob(os.path.expanduser(os.path.join(vomses_dir,"*"))))
+		for voms in vomses:
+			voms_path = os.path.expanduser(voms)
+			if os.path.isfile(voms_path):
+				vomses_files.append(voms_path)
+			elif os.path.isdir(voms_path):
+				vomses_files.extend(glob.glob(os.path.join(voms_path,"*")))
 		vomses = {}
 		
 		for vomses_file in vomses_files:
 			try:
 				with open(vomses_file) as f:
-					for line in f:
-						if not line.startswith("#"):
-							vo, host, port = line.split()[:3]
-							vo = vo.strip("\"")
+					for line in f.readlines():
+						# ignore commented lines
+						line = line.split("#")[0].strip()
+						if line:
+							# extract the first 5 mandatory fields and ignore further optional ones
+							alias, host, port, cn, vo = line.split('"')[1:10:2]
+							vo = vo.strip()
 							if vo not in vomses:
 								vomses[vo] = []
-							vomses[vo].append(host.strip("\"")+":"+port.strip("\""))
+							vomses[vo].append(host.strip()+":"+port.strip())
 			except Exception:
 				pass
 		
