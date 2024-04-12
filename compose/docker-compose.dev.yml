@@ -1,31 +1,108 @@
-version: '3.5'
-
 volumes:
-  vscode-server:
-  dotlocal:
+  trustanchors:
+  cabundle:
+  voms-src:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${VOMS_SRC}
 
 services:
-  testsuite-init:
-    image: italiangrid/voms-testsuite-centos7
+
+  db:
+    image: mariadb:10.11.2
+    init: true
+
     volumes:
-      - vscode-server:/home/test/.vscode-server
-      - dotlocal:/home/test/.local
-    command: sudo chown -R test:test /home/test/.vscode-server /home/test/.local
+      - ./assets/db:/home/mysql/
+      - ./assets/scripts:/scripts/
 
-  testsuite:
-    image: italiangrid/voms-testsuite-centos7
+    environment:
+      - MYSQL_ROOT_PASSWORD=pwd
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pwd
 
-    depends_on:
-      - testsuite-init
+  voms-7-stable:
+    image: italiangrid/voms:centos7-stable
+    init: true
 
     environment:
       - TZ=Europe/Rome
-      - X509_USER_PROXY=/tmp/x509up_u501
 
     volumes:
-      - vscode-server:/home/test/.vscode-server
-      - dotlocal:/home/test/.local
-      - ..:/home/test/voms-testsuite:cached
+      - ./assets/scripts:/scripts
+      - ./assets/vomsdir/:/etc/grid-security/vomsdir
+      - ./assets/conf/vo0.conf:/etc/voms/vo.0/voms.conf
+      - ./assets/conf/vo1.conf:/etc/voms/vo.1/voms.conf
+      - voms-src:/voms-src:ro
+
+    command: ["sleep", "infinity"]
+
+    privileged: true
+
+    networks:
+      default:
+        aliases:
+          - voms-7-stable.test.example
+
+  voms-7-beta:
+    image: italiangrid/voms:centos7-beta
+    init: true
+
+    environment:
+      - TZ=Europe/Rome
+
+    volumes:
+      - ./assets/scripts:/scripts
+      - ./assets/vomsdir/:/etc/grid-security/vomsdir
+      - ./assets/conf/vo0.conf:/etc/voms/vo.0/voms.conf
+      - ./assets/conf/vo1.conf:/etc/voms/vo.1/voms.conf
+      - voms-src:/voms-src:ro
+
+    command: ["sleep", "infinity"]
+
+    privileged: true
+
+    networks:
+      default:
+        aliases:
+          - voms-7-beta.test.example
+
+  voms-9-beta:
+    image: italiangrid/voms:centos9-beta
+    init: true
+
+    environment:
+      - TZ=Europe/Rome
+
+    volumes:
+      - ..:/voms-testsuite
+      - ./assets/scripts:/scripts
+      - ./assets/vomsdir/:/etc/grid-security/vomsdir
+      - ./assets/conf/vo0.conf:/etc/voms/vo.0/voms.conf
+      - ./assets/conf/vo1.conf:/etc/voms/vo.1/voms.conf
+      - voms-src:/voms-src:ro
+
+    command: ["sleep", "infinity"]
+
+    privileged: true
+
+    networks:
+      default:
+        aliases:
+          - voms-9-beta.test.example
+
+  testsuite:
+    image: italiangrid/voms-testsuite-centos7
+    init: true
+
+    environment:
+      - TZ=Europe/Rome
+
+    volumes:
+      - ..:/voms-testsuite
+      - voms-src:/voms-src:ro
       - ./assets/vomses:/etc/vomses
       - ./assets/vomsdir:/etc/grid-security/vomsdir
 
