@@ -24,8 +24,8 @@ Use the `italiangrid/voms-testsuite` docker image to run the testsuite.
 | `vo2_issuer`   | VOMS subject DN for the second VO  | DC=org/DC=terena/DC=tcs/C=IT/L=Frascati/O=Istituto Nazionale di Fisica Nucleare/OU=CNAF/CN=vgrid02.cnaf.infn.it  |
 | `vo1_legacy_fqan_enabled`     | Encode FQANs released by first VO as per legacy VOMS | True                                                                                             |
 | `vo2_legacy_fqan_enabled`     | Encode FQANs released by second VO as per legacy VOMS | True                                                                                             |
-| `vo1_legacy_voms`     | First VO is served by a legacy VOMS server | True                                                                                             |
-| `vo2_legacy_voms`     | Second VO is served by a legacy VOMS server | True                                                                                             |
+| `vo1_is_voms_aa`     | First VO is served by a voms-aa server | False                                                                                             |
+| `vo2_is_voms_aa`     | Second VO is served by a voms-aa server | False                                                                                             |
 
 For other parameters, see the [variables file](./lib/variables.robot).
 
@@ -95,7 +95,7 @@ $ docker compose --file docker-compose.ci.yml up --detach testsuite
 Run the testsuite. Some variables will be overridden using the `ROBOT_OPTIONS` environment variable
 
 ```
-$ export ROBOT_OPTIONS="--variable vo1:test.vo --variable vo1_host:voms-dev.cloud.cnaf.infn.it --variable vo1_issuer:'/DC=org/DC=terena/DC=tcs/C=IT/ST=Roma/O=Istituto Nazionale di Fisica Nucleare/CN=voms-dev.cloud.cnaf.infn.it' --variable vo1_legacy_fqan_enabled:False --variable vo1_legacy_voms:False --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example"
+$ export ROBOT_OPTIONS="--variable vo1:test.vo --variable vo1_host:voms-dev.cloud.cnaf.infn.it --variable vo1_issuer:'/DC=org/DC=terena/DC=tcs/C=IT/ST=Roma/O=Istituto Nazionale di Fisica Nucleare/CN=voms-dev.cloud.cnaf.infn.it' --variable vo1_legacy_fqan_enabled:False --variable vo1_is_voms_aa:True --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example"
 $ docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
 ```
 

@@ -209,6 +209,6 @@ See if suspended users can get a proxy
   [Tags]  legacy
   [Setup]  Use certificate  test2
   ${output}  Create proxy failure  -voms ${vo1}
-  ${expected}  Set Variable If  ${vo1_legacy_voms}  User is currently suspended!  User 'CN=test2,O=IGI,C=IT, CN=Test CA,O=IGI,C=IT' is not active.
+  ${expected}  Set Variable If  ${vo1_is_voms_aa}  is not active.  User is currently suspended!
   Should Contain   ${output}  ${expected}
   [Teardown]  Stop using certificate
