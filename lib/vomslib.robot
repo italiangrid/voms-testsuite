@@ -46,7 +46,7 @@ Stop using certificate
 
 Get certificate subject   [Arguments]   ${certFile}
   File Should Exist   ${certFile}
-  ${subject}   Execute and Check Success   openssl x509 -in ${certFile} -noout -subject $(grep -q "^OpenSSL 3\." <(openssl version) && echo -nameopt compat) | sed -E "s#subject= ?##"
+  ${subject}   Execute and Check Success   openssl x509 -in ${certFile} -noout -subject $(openssl version | grep -q "^OpenSSL 3\." && echo -nameopt compat) | sed -E "s#subject= ?##"
   RETURN   ${subject}
 
 Get named certificate subject   [Arguments]   ${cert}
