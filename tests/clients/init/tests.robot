@@ -310,10 +310,20 @@ See if voms-proxy-init connect timeout works
   Should Be True   ${time} < 8
   [Teardown]  Stop using certificate
 
-See if voms does not allow expansion of credential set
+See if voms does not allow expansion of credential set from an AC
   [Tags]  remote  legacy   issue-726
   [Setup]  Use certificate  test0
   Create proxy   -voms ${vo1}
+  ${voms_role}=  Set Variable If  ${vo1_legacy_fqan_enabled} == True   /${vo1}/G1/Role=R1   /${vo1}/G1/R1
+  Create proxy   -voms ${vo1}:${voms_role} --valid 10:00 --noregen
+  ${output}  Get proxy info  -all
+  Should Not Contain   ${output}  ${voms_role}
+  [Teardown]  Stop using certificate
+
+See if voms does not allow expansion of credential set from a proxy
+  [Tags]  remote  legacy
+  [Setup]  Use certificate  test0
+  Create proxy
   ${voms_role}=  Set Variable If  ${vo1_legacy_fqan_enabled} == True   /${vo1}/G1/Role=R1   /${vo1}/G1/R1
   Create proxy   -voms ${vo1}:${voms_role} --valid 10:00 --noregen
   ${output}  Get proxy info  -all
