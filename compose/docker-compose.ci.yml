@@ -84,6 +84,8 @@ services:
         condition: service_started
       trust:
         condition: service_completed_successfully
+
+    restart: unless-stopped
     
     environment:
       TZ: Europe/Rome
