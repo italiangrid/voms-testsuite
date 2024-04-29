@@ -59,7 +59,7 @@ services:
 
     volumes:
       - ./assets/scripts:/scripts
-      - ./assets/vomsdir/:/etc/grid-security/vomsdir:ro
+      - ./assets/vomsdir/:/etc/grid-security/vomsdir
       - ./assets/conf/vo.0.conf:/etc/voms/vo.0/voms.conf
       - ./assets/conf/vo.1.conf:/etc/voms/vo.1/voms.conf
 
