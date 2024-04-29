@@ -31,7 +31,7 @@ voms:
     trust-anchors-refresh-interval-secs: 14400
   aa:
     host: voms-aa.test.example
-    port: ${server.port}
+    port: 443
     vo-name: vo.2
     optional-group-label: voms.role
     use-legacy-fqan-encoding: true

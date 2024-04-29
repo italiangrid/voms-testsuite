@@ -113,12 +113,8 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       
-    - name: Provide trustanchors
-      run: docker compose --file docker-compose.ci.yml up trust
-      working-directory: compose
-      
     - name: Start compose
-      run: docker compose --file docker-compose.ci.yml up --detach db voms ngx vomsaa testsuite
+      run: docker compose --file docker-compose.ci.yml up --detach
       working-directory: compose
       env:
         TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
