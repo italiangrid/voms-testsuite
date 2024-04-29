@@ -115,7 +115,7 @@ services:
       TZ: Europe/Rome
       JAVA_DEBUG_OPTS: -Djava.security.egd=file:/dev/./urandom -agentlib:jdwp=server=y,transport=dt_socket,suspend=n,address=1044
       JAVA_OPTS: -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=mysql-test
-      IAM_DB_NAME: indigo_dc
+      IAM_DB_NAME: vo_2
       IAM_DB_USERNAME: user
 
     ports:
