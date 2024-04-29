@@ -45,7 +45,7 @@ services:
     volumes:
       - trustanchors:/etc/grid-security/certificates
       - ./assets/vomses:/etc/vomses
-      - ./assets/vomsdir:/etc/grid-security/vomsdir
+      - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts
       - ..:/home/test/voms-testsuite:cached
 
@@ -59,7 +59,7 @@ services:
 
     volumes:
       - ./assets/scripts:/scripts
-      - ./assets/vomsdir/:/etc/grid-security/vomsdir
+      - ./assets/vomsdir/:/etc/grid-security/vomsdir:ro
       - ./assets/conf/vo.0.conf:/etc/voms/vo.0/voms.conf
       - ./assets/conf/vo.1.conf:/etc/voms/vo.1/voms.conf
 
@@ -99,7 +99,7 @@ services:
       - trustanchors:/etc/grid-security/certificates
       - ./assets/certs/star.test.example.cert.pem:/certs/voms-aa.test.example.cert.pem
       - ./assets/certs/star.test.example.key.pem:/certs/voms-aa.test.example.key.pem
-      - ./assets/vomsdir:/vomsdir
+      - ./assets/vomsdir:/vomsdir:ro
       - ./assets/nginx/conf.d/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./assets/nginx/conf.d/voms.test.example.conf:/etc/nginx/conf.d/voms-aa.test.example.conf:ro
 
@@ -115,7 +115,7 @@ services:
       TZ: Europe/Rome
       JAVA_DEBUG_OPTS: -Djava.security.egd=file:/dev/./urandom -agentlib:jdwp=server=y,transport=dt_socket,suspend=n,address=1044
       JAVA_OPTS: -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=mysql-test
-      IAM_DB_NAME: vo_2
+      IAM_DB_NAME: voms_vo_2
       IAM_DB_USERNAME: user
 
     ports:
