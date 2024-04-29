@@ -68,32 +68,35 @@ $ export ROBOT_OPTIONS="--variable vo1:vo.0 --variable vo1_host:voms.test.exampl
 $ docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
 ```
 
-#### Tests using the VOMS-AA microservice
+#### Tests using local VOMS-AA microservice
 
-Start the trustanchor job with
+Start all services with
 
 ```
 $ cd compose
-$ docker compose --file docker-compose.ci.yml up trust
-trust_1      | + FETCH_CRL_TIMEOUT_SECS=5
-trust_1      | + [[ -z 1 ]]
-trust_1      | + fetch-crl --verbose -T 5
-trust_1      | VERBOSE(1) Initializing trust anchor AC-GRID-FR-Personnels
-trust_1      | VERBOSE(1) Initializing trust anchor AC-GRID-FR-Robots
-...
-voms-testsuite_trust_1 exited with code 0
+$ docker compose --file docker-compose.ci.yml up -d
+[+] Running 9/9
+ ⠿ Network voms-testsuite_default           Created     0.1s
+ ⠿ Volume "voms-testsuite_cabundle"         Created     0.0s
+ ⠿ Volume "voms-testsuite_trustanchors"     Created     0.0s
+ ⠿ Container voms-testsuite-trust-1         Started     1.6s
+ ⠿ Container db                             Started     1.4s
+ ⠿ Container voms-testsuite-testsuite-1     Started     1.6s
+ ⠿ Container voms-testsuite-voms-1          Started     1.4s
+ ⠿ Container voms-testsuite-vomsaa-1        Started     2.2s
+ ⠿ Container voms-testsuite-ngx-1           Started     44.7s
 ```
 
-Start the testsuite container
+Populate the VOMS-AA db with a dbdump for testing (it is a shared db with the VOMS one, that will be populated as well)
 
 ```
-$ docker compose --file docker-compose.ci.yml up --detach testsuite
+$ docker compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
 ```
 
 Run the testsuite. Some variables will be overridden using the `ROBOT_OPTIONS` environment variable
 
 ```
-$ export ROBOT_OPTIONS="--variable vo1:test.vo --variable vo1_host:voms-dev.cloud.cnaf.infn.it --variable vo1_issuer:'/DC=org/DC=terena/DC=tcs/C=IT/ST=Roma/O=Istituto Nazionale di Fisica Nucleare/CN=voms-dev.cloud.cnaf.infn.it' --variable vo1_legacy_fqan_enabled:False --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example"
+$ export ROBOT_OPTIONS="--variable vo1:indigo-dc --variable vo1_host:voms-aa.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=*.test.example --variable --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example"
 $ docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
 ```
 

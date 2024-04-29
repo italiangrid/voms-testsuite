@@ -29,9 +29,13 @@ done
 
 VO_NAME=indigo_dc
 dump_file=dump-${VO_NAME}.sql
-echo "Loading dump file ${SCRIPTS_PREFIX}/${dump_file} for VO indigo-dc"
-mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "create database ${VO_NAME}"
-cat ${SCRIPTS_PREFIX}/${dump_file} | mysql -u root -p${MYSQL_ROOT_PASSWORD} ${VO_NAME}
+if [ -f ${SCRIPTS_PREFIX}/${dump_file} ]; then
+  echo "Loading dump file ${SCRIPTS_PREFIX}/${dump_file} for VO indigo-dc"
+  mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "create database ${VO_NAME}"
+  cat ${SCRIPTS_PREFIX}/${dump_file} | mysql -u root -p${MYSQL_ROOT_PASSWORD} ${VO_NAME}
+else
+  echo "${dump_file} not found"
+fi
 
 mysql -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON *.* TO 'user'@'%'"
 
