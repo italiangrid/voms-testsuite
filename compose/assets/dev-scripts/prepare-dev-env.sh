@@ -22,7 +22,7 @@ for service in testsuite-7-stable testsuite-7-beta testsuite-9-beta voms-7-stabl
 done
 
 for service in testsuite-7-stable testsuite-7-beta testsuite-9-beta; do
-  docker compose -f compose/docker-compose.dev.yml exec -u root -e VOMS_HOST=${VOMS_HOST}-T $service bash -c "sudo ${SCRIPTS}/setup-testsuite.sh"
+  docker compose -f compose/docker-compose.dev.yml exec -u root -e VOMS_HOST=${VOMS_HOST} -T $service bash -c "sudo ${SCRIPTS}/setup-testsuite.sh"
 done
 
 for service in voms-7-stable voms-7-beta voms-9-beta; do

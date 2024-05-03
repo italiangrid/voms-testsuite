@@ -140,7 +140,7 @@ services:
       - ROBOT_ARGS
 
     volumes:
-      - ..:/home/test/voms-testsuite
+      - ..:/voms-testsuite
       - voms-src:/voms-src:ro
       - trustanchors:/etc/grid-security/certificates
 
