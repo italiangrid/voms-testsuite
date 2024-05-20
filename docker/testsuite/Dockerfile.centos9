@@ -1,4 +1,4 @@
-FROM quay.io/centos/centos:stream9
+FROM almalinux:9
 
 ARG USERNAME=test
 ARG USER_UID=1000

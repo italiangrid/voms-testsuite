@@ -1,32 +1,147 @@
-version: '3.5'
-
 volumes:
-  vscode-server:
-  dotlocal:
+  trustanchors:
+  cabundle:
+  voms-src:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${VOMS_SRC}
 
 services:
-  testsuite-init:
-    image: italiangrid/voms-testsuite-centos7
+
+  trust:
+    image: indigoiam/egi-trustanchors:igi-test-ca
+
     volumes:
-      - vscode-server:/home/test/.vscode-server
-      - dotlocal:/home/test/.local
-    command: sudo chown -R test:test /home/test/.vscode-server /home/test/.local
+      - trustanchors:/tmp/certificates
+      - cabundle:/tmp/pki
 
-  testsuite:
-    image: italiangrid/voms-testsuite-centos7
+    environment:
+      FORCE_TRUST_ANCHORS_UPDATE: 1
+      TRUST_ANCHORS_TARGET: /tmp/certificates
+      CA_BUNDLE_TARGET: /tmp/pki
 
-    depends_on:
-      - testsuite-init
+  db:
+    image: mariadb:10.11.2
+    init: true
+
+    volumes:
+      - ./assets/db:/home/mysql/
+      - ./assets/scripts:/scripts/
+
+    environment:
+      - MYSQL_ROOT_PASSWORD=pwd
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=pwd
+
+  voms-7-stable:
+    image: italiangrid/voms:centos7-stable
+    init: true
 
     environment:
       - TZ=Europe/Rome
-      - X509_USER_PROXY=/tmp/x509up_u501
+      - VOMS_HOST=voms-7-stable.test.example
 
     volumes:
-      - vscode-server:/home/test/.vscode-server
-      - dotlocal:/home/test/.local
-      - ..:/home/test/voms-testsuite:cached
-      - ./assets/vomses:/etc/vomses
-      - ./assets/vomsdir:/etc/grid-security/vomsdir
+      - ..:/voms-testsuite
+      - voms-src:/voms-src:ro
+      - trustanchors:/etc/grid-security/certificates
 
-    command: sleep infinity
+    command: ["sleep", "infinity"]
+
+    privileged: true
+
+    networks:
+      default:
+        aliases:
+          - voms-7-stable.test.example
+
+  voms-7-beta:
+    image: italiangrid/voms:centos7-beta
+    init: true
+
+    environment:
+      - TZ=Europe/Rome
+      - VOMS_HOST=voms-7-beta.test.example
+
+    volumes:
+      - ..:/voms-testsuite
+      - voms-src:/voms-src:ro
+      - trustanchors:/etc/grid-security/certificates
+
+    command: ["sleep", "infinity"]
+
+    privileged: true
+
+    networks:
+      default:
+        aliases:
+          - voms-7-beta.test.example
+
+  voms-9-beta:
+    image: italiangrid/voms:centos9-beta
+    init: true
+
+    environment:
+      - TZ=Europe/Rome
+      - VOMS_HOST=voms-9-beta.test.example
+
+    volumes:
+      - ..:/voms-testsuite
+      - voms-src:/voms-src:ro
+      - trustanchors:/etc/grid-security/certificates
+
+    command: ["sleep", "infinity"]
+
+    privileged: true
+
+    networks:
+      default:
+        aliases:
+          - voms-9-beta.test.example
+
+  testsuite-7-stable:
+    image: italiangrid/voms-testsuite:centos7-stable
+    init: true
+
+    environment:
+      - TZ=Europe/Rome
+      - ROBOT_ARGS
+
+    volumes:
+      - ..:/voms-testsuite
+      - voms-src:/voms-src:ro
+      - trustanchors:/etc/grid-security/certificates
+
+    command: ["sleep", "infinity"]
+
+  testsuite-7-beta:
+    image: italiangrid/voms-testsuite:centos7-beta
+    init: true
+
+    environment:
+      - TZ=Europe/Rome
+      - ROBOT_ARGS
+
+    volumes:
+      - ..:/voms-testsuite
+      - voms-src:/voms-src:ro
+      - trustanchors:/etc/grid-security/certificates
+
+    command: ["sleep", "infinity"]
+
+  testsuite-9-beta:
+    image: italiangrid/voms-testsuite:centos9-beta
+    init: true
+
+    environment:
+      - TZ=Europe/Rome
+      - ROBOT_ARGS
+
+    volumes:
+      - ..:/voms-testsuite
+      - voms-src:/voms-src:ro
+      - trustanchors:/etc/grid-security/certificates
+
+    command: ["sleep", "infinity"]

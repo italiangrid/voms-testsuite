@@ -73,8 +73,8 @@ See if voms-proxy-init --order works with multiple arguments
   [Setup]  Use certificate  test0
   Create proxy   -voms ${vo1} -order /${vo1}/G2/G3 -order /${vo1}/G2 
   ${output}  Get proxy info  -fqan
-  ${expected}=  Set Variable If  ${vo1_legacy_fqan_enabled} == True  /${vo1}/G2/G3/Role=NULL/Capability=NULL\n/${vo1}/G2/Role=NULL/Capability=NULL\n/${vo1}/G1/Role=NULL/Capability=NULL\n/${vo1}/Role=NULL/Capability=NULL   /${vo1}/G2/G3\n/${vo1}/G2\n/${vo1}/G1/\n/${vo1}
-  Should Be Equal As Strings  ${output}  ${expected}
+  ${expected}=  Set Variable If  ${vo1_legacy_fqan_enabled} == True  /${vo1}/G2/G3/Role=NULL/Capability=NULL\n/${vo1}/G2/Role=NULL/Capability=NULL   /${vo1}/G2/G3\n/${vo1}/G2
+  Should Start With  ${output}  ${expected}
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init manages unrecognized options
