@@ -13,25 +13,9 @@ ENV VOMS_REPO_URL=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${
 
 COPY assets/scripts/*.sh /tmp/scripts/
 
-RUN echo "include_only=.garr.it,.cern.ch" >> /etc/yum/pluginconf.d/fastestmirror.conf && \
-  yum -y install hostname which wget tar sudo file less epel-release ${UMD_RELEASE_PACKAGE_URL} yum-utils
+RUN yum -y install hostname which wget tar sudo file less epel-release ${UMD_RELEASE_PACKAGE_URL} yum-utils
 RUN yum-config-manager --add-repo ${VOMS_REPO_URL} && \
   yum -y update && \
   yum clean all && \
   rm -rf /var/cache/yum && \
   sh /tmp/scripts/provide-user.sh ${USERNAME} ${USER_UID} ${USER_GID}
-RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do \
-  [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done);
-RUN rm -f /lib/systemd/system/multi-user.target.wants/*; \
-  rm -f /etc/systemd/system/*.wants/*; \
-  rm -f /lib/systemd/system/local-fs.target.wants/*; \
-  rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-  rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-  rm -f /lib/systemd/system/basic.target.wants/*; \
-  rm -f /lib/systemd/system/anaconda.target.wants/*;
-
-ENV container=docker
-
-VOLUME [ "/sys/fs/cgroup" ]
-CMD ["/usr/sbin/init"]
-
