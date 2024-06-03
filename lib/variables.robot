@@ -12,6 +12,8 @@ ${vo2_issuer}  /DC=org/DC=terena/DC=tcs/C=IT/ST=Roma/O=Istituto Nazionale di Fis
 ${vo1_legacy_fqan_enabled}   True
 ${vo2_legacy_fqan_enabled}   True
 ${vo1CorePort}  15001
+${vo1_is_voms_aa}   False
+${vo2_is_voms_aa}   False
 
 ${myproxy_server}  omii001.cnaf.infn.it
 ${myProxyPassPhrase}   123456

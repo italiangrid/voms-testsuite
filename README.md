@@ -24,6 +24,8 @@ Use the `italiangrid/voms-testsuite` docker image to run the testsuite.
 | `vo2_issuer`   | VOMS subject DN for the second VO  | DC=org/DC=terena/DC=tcs/C=IT/L=Frascati/O=Istituto Nazionale di Fisica Nucleare/OU=CNAF/CN=vgrid02.cnaf.infn.it  |
 | `vo1_legacy_fqan_enabled`     | Encode FQANs released by first VO as per legacy VOMS | True                                                                                             |
 | `vo2_legacy_fqan_enabled`     | Encode FQANs released by second VO as per legacy VOMS | True                                                                                             |
+| `vo1_is_voms_aa`     | First VO is served by a voms-aa server | False                                                                                             |
+| `vo2_is_voms_aa`     | Second VO is served by a voms-aa server | False                                                                                             |
 
 For other parameters, see the [variables file](./lib/variables.robot).
 
