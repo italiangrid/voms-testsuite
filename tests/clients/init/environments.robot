@@ -154,7 +154,7 @@ See if voms-proxy-init --certdir works
   [Setup]  Setup for empty certdir test
   ${tmpCertDir}   Get Environment Variable   __VOMS__CUSTOM__CERTDIR__ 
   ${output}  Create Proxy Failure  --certdir ${tmpCertDir} --verify
-  ${expected}=  Set Variable If  ${client_version} == 2  Error: Certificate verification failed.\ncertificate validation error: unable to get issuer certificate  Certificate validation error: Trusted issuer of this certificate was not established
+  ${expected}=  Set Variable If  ${client_version} == 2  certificate validation error: unable to get issuer certificate  Certificate validation error: Trusted issuer of this certificate was not established
   Should Contain  ${output}  ${expected}
   [Teardown]  Teardown for empty certdir test
 
