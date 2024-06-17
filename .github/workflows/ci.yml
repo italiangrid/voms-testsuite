@@ -6,7 +6,7 @@ on:
 jobs:
 
   build-and-push-testsuite:
-    name: Build & Push testsuite docker image
+    name: Build & Push testsuite image
 
     strategy:
       matrix:
@@ -40,7 +40,7 @@ jobs:
             RHEL_VERSION=${{ matrix.rhel }}
 
   build-and-push-voms:
-    name: Build & Push VOMS core docker image
+    name: Build & Push VOMS core image
 
     strategy:
       matrix:
@@ -74,7 +74,7 @@ jobs:
             RHEL_VERSION=${{ matrix.rhel }}
 
   run-testsuite-vomsadmin:
-    name: Run VOMS robot testsuite (against VOMS Admin)
+    name: Run VOMS Admin testsuite
 
     strategy:
       matrix:
@@ -168,7 +168,7 @@ jobs:
         path: ${{ env.ARTIFACTS_PATH }}
 
   run-testsuite-vomsaa:
-    name: Run VOMS robot testsuite (against VOMS-AA)
+    name: Run VOMS-AA testsuite
       
     strategy:
       matrix:
