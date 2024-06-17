@@ -6,7 +6,7 @@ on:
 jobs:
 
   build-and-push-testsuite:
-    name: Build & Push testsuite image
+    name: Build & Push testsuite
 
     strategy:
       matrix:
@@ -40,7 +40,7 @@ jobs:
             RHEL_VERSION=${{ matrix.rhel }}
 
   build-and-push-voms:
-    name: Build & Push VOMS core image
+    name: Build & Push VOMS core
 
     strategy:
       matrix:
