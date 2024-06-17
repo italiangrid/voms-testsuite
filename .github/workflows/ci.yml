@@ -1,4 +1,4 @@
-name: build images, deploy and run testsuite
+name: Build images, deploy and run testsuite (against VOMS Admin)
 
 on:
   push
@@ -73,7 +73,7 @@ jobs:
             VOMS_REPO=${{ matrix.repo }}
             RHEL_VERSION=${{ matrix.rhel }}
 
-  run-testsuite:
+  run-testsuite-vomsadmin:
     name: Run VOMS robot testsuite
 
     strategy:
