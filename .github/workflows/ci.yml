@@ -1,4 +1,4 @@
-name: build images, deploy and run testsuite
+name: Build images, deploy and run testsuite
 
 on:
   push
@@ -6,7 +6,7 @@ on:
 jobs:
 
   build-and-push-testsuite:
-    name: Build & Push testsuite docker image
+    name: Build & Push testsuite
 
     strategy:
       matrix:
@@ -40,7 +40,7 @@ jobs:
             RHEL_VERSION=${{ matrix.rhel }}
 
   build-and-push-voms:
-    name: Build & Push VOMS core docker image
+    name: Build & Push VOMS core
 
     strategy:
       matrix:
@@ -73,8 +73,8 @@ jobs:
             VOMS_REPO=${{ matrix.repo }}
             RHEL_VERSION=${{ matrix.rhel }}
 
-  run-testsuite:
-    name: Run VOMS robot testsuite
+  run-testsuite-vomsadmin:
+    name: Run VOMS Admin testsuite
 
     strategy:
       matrix:
