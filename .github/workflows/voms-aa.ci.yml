@@ -39,7 +39,7 @@ jobs:
 
       - name: Create artifacts dir
         if: ${{ always() }}
-        run: >
+        run: |
           ARTIFACTS_PATH=${HOME}/artifacts
           echo ARTIFACTS_PATH: ${ARTIFACTS_PATH}
           # save it in the job environment
