@@ -32,7 +32,7 @@ jobs:
           VOMS_IMAGE: italiangrid/voms:centos7-stable
 
       - name: Deploy db and voms
-        run: >
+        run: |
           docker compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
           docker compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
         working-directory: compose
@@ -64,7 +64,7 @@ jobs:
         working-directory: compose
 
       - name: Run testsuite for cpp clients
-        run: >
+        run: |
           docker compose --file docker-compose.ci.yml exec -T -u root testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
           docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
         working-directory: compose
@@ -72,7 +72,9 @@ jobs:
 
       - name: Collect test report for cpp clients
         if: ${{ always() }}
-        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
+        run: |
+          docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
+          docker compose --file docker-compose.ci.yml exec -T testsuite rm -rf /tmp/reports
         working-directory: compose
 
       - name: Collect logs
