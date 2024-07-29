@@ -9,7 +9,6 @@ jobs:
     strategy:
       matrix:
         client:
-          - 7-stable
           - 9-beta
 
     runs-on: ubuntu-latest

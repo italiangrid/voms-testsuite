@@ -46,13 +46,11 @@ jobs:
 
     strategy:
       matrix:
-        rhel: [7, 9]
+        rhel: [9]
         repo: [stable, beta]
         exclude:
           - rhel: 9
             repo: stable
-          - rhel: 7
-            repo: beta
 
     runs-on: ubuntu-latest
     
@@ -82,8 +80,8 @@ jobs:
 
     strategy:
       matrix:
-        client: [7-stable, 9-beta]
-        server: [7-stable, 9-beta]
+        client: [9-beta]
+        server: [9-beta]
 
     runs-on: ubuntu-latest
     continue-on-error: true
