@@ -92,4 +92,3 @@ jobs:
         with:
           name: test-report-and-logs_${{ matrix.client }}_voms-aa
           path: ${{ env.ARTIFACTS_PATH }}
-
