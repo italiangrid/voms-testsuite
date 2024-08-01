@@ -11,6 +11,7 @@ ARG UMD_RELEASE_PACKAGE_URL=http://repository.egi.eu/sw/production/umd/4/centos7
 
 ENV VOMS_REPO_URL=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${VOMS_REPO}-el${RHEL_VERSION}.repo
 
+COPY ../CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
 COPY assets/scripts/*.sh /tmp/scripts/
 
 RUN yum -y install hostname which wget tar sudo file less epel-release ${UMD_RELEASE_PACKAGE_URL} yum-utils

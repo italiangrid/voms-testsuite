@@ -8,8 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        client:
-          - 9-beta
+        client: [7-stable, 9-beta]
 
     runs-on: ubuntu-latest
 
