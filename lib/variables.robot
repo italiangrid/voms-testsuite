@@ -1,6 +1,6 @@
 *** Variables ***
 
-${certsDir}   /usr/share/igi-test-ca
+${certsDir}   /usercerts
 ${privateKeyPassword}   pass
 
 ${vo1}   test.vo

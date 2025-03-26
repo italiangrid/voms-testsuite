@@ -2,10 +2,6 @@
 set -ex
 trap "exit 1" TERM
 
-WGET_OPTIONS=${WGET_OPTIONS:-}
-
-TEST_CA_REPO_URL=${TEST_CA_REPO_URL:-https://jenkins-ci.cr.cnaf.infn.it:8443/job/igi-test-ca-repo/job/master/lastSuccessfulBuild/artifact/test-ca.repo}
-
 VO_0_NAME=${VO_0_NAME:-vo.0}
 VO_1_NAME=${VO_1_NAME:-vo.1}
 
@@ -13,15 +9,12 @@ VOMS_USER=${VOMS_USER:-voms}
 
 SCRIPTS_PREFIX=${SCRIPTS_PREFIX:-/scripts}
 
-# install igi-test-ca repo
-wget ${WGET_OPTIONS} ${TEST_CA_REPO_URL} -O /etc/yum.repos.d/igi-test-ca.repo
-
 yum clean all
-yum -y install voms-mysql-plugin voms-server igi-test-ca
+yum -y install voms-mysql-plugin voms-server
 
 # Setup host certificate
-cp /usr/share/igi-test-ca/star.test.example.cert.pem /etc/grid-security/vomscert.pem
-cp /usr/share/igi-test-ca/star.test.example.key.pem /etc/grid-security/vomskey.pem
+cp /hostcerts/star_test_example.cert.pem /etc/grid-security/vomscert.pem
+cp /hostcerts/star_test_example.key.pem /etc/grid-security/vomskey.pem
 chmod 644 /etc/grid-security/vomscert.pem
 chmod 400 /etc/grid-security/vomskey.pem
 chown voms:voms /etc/grid-security/voms*.pem

@@ -40,14 +40,20 @@ Start the trustanchor job with
 
 ```
 $ cd compose
-$ docker compose --file docker-compose.ci.yml up trust
-trust_1      | + FETCH_CRL_TIMEOUT_SECS=5
-trust_1      | + [[ -z 1 ]]
-trust_1      | + fetch-crl --verbose -T 5
-trust_1      | VERBOSE(1) Initializing trust anchor AC-GRID-FR-Personnels
-trust_1      | VERBOSE(1) Initializing trust anchor AC-GRID-FR-Robots
+$ docker compose --file docker-compose.ci.yml up --build trust
+[+] Building 38.3s (7/9)                                                               docker-container:practical_dewdney
+ => [trust internal] load metadata for docker.io/library/almalinux:9                                                 0.9s
+ => [trust auth] library/almalinux:pull token for registry-1.docker.io                                               0.0s
+ => [trust internal] load .dockerignore                                                                              0.0s
+ => => transferring context: 2B                                                                                      0.0s
+ => [trust internal] load build context                                                                              0.0s
+ => => transferring context: 4.41kB                                                                                  0.0s
+ => CACHED [trust 1/4] FROM docker.io/library/almalinux:9@sha256:787a2698464bf554d02aeeba4e0b022384b21d1419511bfb03  0.0s
+ => => resolve docker.io/library/almalinux:9@sha256:787a2698464bf554d02aeeba4e0b022384b21d1419511bfb033a2d440d9f230  0.0s
+ => [trust 2/4] COPY ./x509 /                                                                                        0.1s
+ => [trust 3/4] RUN dnf install -y epel-release &&       dnf -y update &&       dnf -y install git voms-clients-cp  37.2s
 ...
-voms-testsuite_trust_1 exited with code 0
+trust-1 exited with code 0
 ```
 
 Start the db, VOMS and testsuite containers
@@ -76,7 +82,7 @@ Start all services with
 
 ```
 $ cd compose
-$ docker compose --file docker-compose.ci.yml up -d
+$ docker compose --file docker-compose.ci.yml up --build -d
 [+] Running 9/9
  ⠿ Network voms-testsuite_default           Created     0.1s
  ⠿ Volume "voms-testsuite_cabundle"         Created     0.0s
@@ -98,7 +104,7 @@ $ docker compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash
 Run the testsuite. Some variables will be overridden using the `ROBOT_OPTIONS` environment variable
 
 ```
-$ export ROBOT_OPTIONS="--variable vo1:vo.2 --variable vo1_host:voms-aa.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=*.test.example --variable --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example"
+$ export ROBOT_OPTIONS="--variable vo1:vo.2 --variable vo1_host:voms-aa.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=*.test.example --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example"
 $ docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
 ```
 

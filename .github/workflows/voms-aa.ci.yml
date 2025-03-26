@@ -22,7 +22,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Start compose
-        run: docker compose --file docker-compose.ci.yml up --detach
+        run: |
+          docker compose --file docker-compose.ci.yml up --build trust
+          docker compose --file docker-compose.ci.yml up --detach db voms testsuite vomsaa ngx
         working-directory: compose
         env:
           TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
