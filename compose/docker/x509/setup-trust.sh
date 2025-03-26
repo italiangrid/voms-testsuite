@@ -30,14 +30,15 @@ chmod 644 "${hostcerts_dir}"/star_test_example.cert.pem
 chmod 400 "${hostcerts_dir}"/star_test_example.key.pem
 chmod 600 "${hostcerts_dir}"/star_test_example.p12
 
-# Copy host certificates where expected by the compose
+# Copy host certificates where expected by the compose and set proper ownership
 cp "${hostcerts_dir}"/star_test_example.cert.pem "${hostcerts_dir}"/voms-aa.test.example.cert.pem
 cp "${hostcerts_dir}"/star_test_example.key.pem "${hostcerts_dir}"/voms-aa.test.example.key.pem
 cp "${hostcerts_dir}"/star_test_example.cert.pem "${hostcerts_dir}"/hostcert.pem
 cp "${hostcerts_dir}"/star_test_example.key.pem "${hostcerts_dir}"/hostkey.pem
 cp "${hostcerts_dir}"/star_test_example.cert.pem "${hostcerts_dir}"/vomscert.pem
 cp "${hostcerts_dir}"/star_test_example.key.pem "${hostcerts_dir}"/vomskey.pem
-chown 1000:1000 "${hostcerts_dir}"/voms*.pem
+chown 1000:1000 "${hostcerts_dir}"/vomscert.pem
+chown 1000:1000 "${hostcerts_dir}"/vomskey.pem
 
 for i in $(seq 0 5); do
   make_cert.sh test${i}
