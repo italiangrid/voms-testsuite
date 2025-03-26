@@ -8,8 +8,8 @@ services:
 
   trust:
     build:
-      context: docker
-      dockerfile: Dockerfile.trust
+      context: ../docker/trust
+      dockerfile: Dockerfile
     volumes:
       - trustanchors:/trust-anchors
       - cabundle:/etc/pki

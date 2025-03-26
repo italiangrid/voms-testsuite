@@ -80,7 +80,7 @@ jobs:
         if: ${{ always() }}
         run: |
           docker compose --file docker-compose.ci.yml logs --no-color testsuite > ${ARTIFACTS_PATH}/logs/testsuite.log
-          docker compose --file docker-compose.ci.yml logs --no-color voms > ${ARTIFACTS_PATH}/logs/voms.log
+          docker compose --file docker-compose.ci.yml logs --no-color vomsaa > ${ARTIFACTS_PATH}/logs/voms.log
         working-directory: compose
 
       - name: Stop compose
