@@ -69,11 +69,10 @@ $ docker compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash
 $ docker compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
 ```
 
-Run the testsuite. Some variables will be overridden using the `ROBOT_OPTIONS` environment variable
+Run the testsuite with
 
 ```
-$ export ROBOT_OPTIONS="--variable vo1:vo.0 --variable vo1_host:voms.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=*.test.example --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example"
-$ docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
+$ docker compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh
 ```
 
 #### Tests using local VOMS-AA microservice
