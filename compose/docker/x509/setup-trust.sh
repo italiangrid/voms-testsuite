@@ -24,21 +24,15 @@ export X509_CERT_DIR="${ta_dir}"
 
 make_ca.sh
 
-make_cert.sh star_test_example
-cp igi_test_ca/certs/star_test_example.* "${hostcerts_dir}"
-chmod 644 "${hostcerts_dir}"/star_test_example.cert.pem
-chmod 400 "${hostcerts_dir}"/star_test_example.key.pem
-chmod 600 "${hostcerts_dir}"/star_test_example.p12
+for c in voms-aa_test_example voms_test_example; do
+  make_cert.sh ${c}
+  cp igi_test_ca/certs/${c}.* "${hostcerts_dir}"
+  chmod 644 "${hostcerts_dir}"/${c}.cert.pem
+  chmod 400 "${hostcerts_dir}"/${c}.key.pem
+  chmod 600 "${hostcerts_dir}"/${c}.p12
+done
 
-# Copy host certificates where expected by the compose and set proper ownership
-cp "${hostcerts_dir}"/star_test_example.cert.pem "${hostcerts_dir}"/voms-aa.test.example.cert.pem
-cp "${hostcerts_dir}"/star_test_example.key.pem "${hostcerts_dir}"/voms-aa.test.example.key.pem
-cp "${hostcerts_dir}"/star_test_example.cert.pem "${hostcerts_dir}"/hostcert.pem
-cp "${hostcerts_dir}"/star_test_example.key.pem "${hostcerts_dir}"/hostkey.pem
-cp "${hostcerts_dir}"/star_test_example.cert.pem "${hostcerts_dir}"/vomscert.pem
-cp "${hostcerts_dir}"/star_test_example.key.pem "${hostcerts_dir}"/vomskey.pem
-chown 1000:1000 "${hostcerts_dir}"/vomscert.pem
-chown 1000:1000 "${hostcerts_dir}"/vomskey.pem
+chown 1000:1000 "${hostcerts_dir}"/*
 
 for i in $(seq 0 5); do
   make_cert.sh test${i}

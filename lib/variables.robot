@@ -7,8 +7,8 @@ ${vo1}   vo.0
 ${vo2}   vo.1
 ${vo1_host}  voms.test.example
 ${vo2_host}  voms.test.example
-${vo1_issuer}  /C=IT/O=IGI/CN=*.test.example
-${vo2_issuer}  /C=IT/O=IGI/CN=*.test.example
+${vo1_issuer}  /C=IT/O=IGI/CN=voms.test.example
+${vo2_issuer}  /C=IT/O=IGI/CN=voms.test.example
 ${vo1_legacy_fqan_enabled}   True
 ${vo2_legacy_fqan_enabled}   True
 ${vo1CorePort}  15001

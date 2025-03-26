@@ -13,10 +13,8 @@ yum clean all
 yum -y install voms-mysql-plugin voms-server
 
 # Setup host certificate
-cp /hostcerts/star_test_example.cert.pem /etc/grid-security/vomscert.pem
-cp /hostcerts/star_test_example.key.pem /etc/grid-security/vomskey.pem
-chmod 644 /etc/grid-security/vomscert.pem
-chmod 400 /etc/grid-security/vomskey.pem
+cp /hostcerts/voms_test_example.cert.pem /etc/grid-security/vomscert.pem
+cp /hostcerts/voms_test_example.key.pem /etc/grid-security/vomskey.pem
 chown voms:voms /etc/grid-security/voms*.pem
 
 # Setup VOMS pwd file
