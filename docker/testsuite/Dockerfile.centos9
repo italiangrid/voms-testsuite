@@ -15,7 +15,7 @@ RUN dnf install -y epel-release \
     && curl -s ${VOMS_REPO_URL} > /etc/yum.repos.d/voms.repo \
     && dnf -y update \
     && dnf -y install hostname sudo file which telnet nc jq\
-       voms-clients-cpp voms-clients-java python3-gfal2-util gfal2-all python3-gfal2 davix oidc-agent \
+       voms-clients voms-clients-java python3-gfal2-util gfal2-all python3-gfal2 davix oidc-agent \
        python3-pip python3-devel python3-setuptools \
     && rm -rf /var/cache/dnf \
     && sh /tmp/scripts/provide-user.sh ${USERNAME} ${USER_UID} ${USER_GID} \
