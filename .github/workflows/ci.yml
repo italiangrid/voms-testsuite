@@ -12,6 +12,9 @@ jobs:
       matrix:
         rhel: [7, 9]
         repo: [stable, beta]
+        exclude:
+          - rhel: 7
+            repo: beta
 
     runs-on: ubuntu-latest
 
@@ -44,8 +47,6 @@ jobs:
         rhel: [7, 9]
         repo: [stable, beta]
         exclude:
-          - rhel: 9
-            repo: stable
           - rhel: 7
             repo: beta
 
