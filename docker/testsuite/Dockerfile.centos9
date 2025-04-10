@@ -11,21 +11,21 @@ ENV VOMS_REPO_URL=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${
 
 COPY assets/scripts/*.sh /tmp/scripts/
 
-RUN yum install -y epel-release \
+RUN dnf install -y epel-release \
     && curl -s ${VOMS_REPO_URL} > /etc/yum.repos.d/voms.repo \
-    && curl -s -L https://jenkins-ci.cr.cnaf.infn.it:8443/job/igi-test-ca-repo/job/master/lastSuccessfulBuild/artifact/test-ca.repo > /etc/yum.repos.d/test-ca.repo \
-    && yum -y update \
-    && yum -y install wget hostname tar gcc openssl-devel sudo file make which telnet nc \
-       igi-test-ca voms-clients-java voms-clients gfal2-util gfal2-all gfal2-python3 davix jq \
-       python3 python3-devel python3-setuptools \
-    && rm -rf /var/cache/yum \
+    && dnf -y update \
+    && dnf -y install hostname sudo file which telnet nc jq\
+       voms-clients voms-clients-java python3-gfal2-util gfal2-all python3-gfal2 davix oidc-agent \
+       python3-pip python3-devel python3-setuptools \
+    && rm -rf /var/cache/dnf \
     && sh /tmp/scripts/provide-user.sh ${USERNAME} ${USER_UID} ${USER_GID} \
     && mkdir /home/${USERNAME}/.config /home/${USERNAME}/.globus \
-    && cp /usr/share/igi-test-ca/test0.p12 /home/${USERNAME}/.globus/usercred.p12 \
-    && chmod 600 /home/${USERNAME}/.globus/usercred.p12 \
     && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME} \
-    && bash /tmp/scripts/provide_curl.sh \
-    && bash /tmp/scripts/provide_robotframework.sh \
+    && python3 -m pip install --upgrade pip \
+    && python3 -m pip install --upgrade robotframework \
+    && python3 -m pip install --upgrade robotframework-httplibrary \
+    && python3 -m pip install --upgrade requests \
+    && python3 -m pip install --upgrade pyyaml \
     && rm -rf /tmp/scripts
 
 USER ${USERNAME}

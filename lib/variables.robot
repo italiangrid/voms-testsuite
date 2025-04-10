@@ -1,14 +1,14 @@
 *** Variables ***
 
-${certsDir}   /usr/share/igi-test-ca
+${certsDir}   /usercerts
 ${privateKeyPassword}   pass
 
-${vo1}   test.vo
-${vo2}  test.vo.2
-${vo1_host}  vgrid02.cnaf.infn.it 
-${vo2_host}  vgrid02.cnaf.infn.it
-${vo1_issuer}  /DC=org/DC=terena/DC=tcs/C=IT/ST=Roma/O=Istituto Nazionale di Fisica Nucleare/CN=vgrid02.cnaf.infn.it
-${vo2_issuer}  /DC=org/DC=terena/DC=tcs/C=IT/ST=Roma/O=Istituto Nazionale di Fisica Nucleare/CN=vgrid02.cnaf.infn.it
+${vo1}   vo.0
+${vo2}   vo.1
+${vo1_host}  voms.test.example
+${vo2_host}  voms.test.example
+${vo1_issuer}  /C=IT/O=IGI/CN=voms.test.example
+${vo2_issuer}  /C=IT/O=IGI/CN=voms.test.example
 ${vo1_legacy_fqan_enabled}   True
 ${vo2_legacy_fqan_enabled}   True
 ${vo1CorePort}  15001

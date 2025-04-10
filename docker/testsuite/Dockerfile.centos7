@@ -9,20 +9,18 @@ ARG VOMS_REPO=stable
 
 ENV VOMS_REPO_URL=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${VOMS_REPO}-el${RHEL_VERSION}.repo
 
+COPY CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo
 COPY assets/scripts/*.sh /tmp/scripts/
 
 RUN yum install -y epel-release \
     && curl -s ${VOMS_REPO_URL} > /etc/yum.repos.d/voms.repo \
-    && curl -s -L https://jenkins-ci.cr.cnaf.infn.it:8443/job/igi-test-ca-repo/job/master/lastSuccessfulBuild/artifact/test-ca.repo > /etc/yum.repos.d/test-ca.repo \
     && yum -y update \
     && yum -y install wget hostname tar gcc openssl-devel sudo file make which telnet nc \
-       igi-test-ca voms-clients-java voms-clients gfal2-util gfal2-all gfal2-python davix jq \
+       voms-clients-java voms-clients gfal2-util gfal2-all gfal2-python davix jq \
        python36 python36-devel python36-setuptools \
     && rm -rf /var/cache/yum \
     && sh /tmp/scripts/provide-user.sh ${USERNAME} ${USER_UID} ${USER_GID} \
     && mkdir /home/${USERNAME}/.config /home/${USERNAME}/.globus \
-    && cp /usr/share/igi-test-ca/test0.p12 /home/${USERNAME}/.globus/usercred.p12 \
-    && chmod 600 /home/${USERNAME}/.globus/usercred.p12 \
     && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME} \
     && bash /tmp/scripts/provide_curl.sh \
     && bash /tmp/scripts/provide_robotframework.sh \

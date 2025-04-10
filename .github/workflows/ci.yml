@@ -1,4 +1,4 @@
-name: build images, deploy and run testsuite
+name: Build images, deploy and run testsuite
 
 on:
   push
@@ -6,15 +6,15 @@ on:
 jobs:
 
   build-and-push-testsuite:
-    name: Build & Push testsuite docker image
+    name: Build & Push testsuite
 
     strategy:
       matrix:
         rhel: [7, 9]
         repo: [stable, beta]
         exclude:
-          - rhel: 9
-            repo: stable
+          - rhel: 7
+            repo: beta
 
     runs-on: ubuntu-latest
 
@@ -40,15 +40,15 @@ jobs:
             RHEL_VERSION=${{ matrix.rhel }}
 
   build-and-push-voms:
-    name: Build & Push VOMS core docker image
+    name: Build & Push VOMS core
 
     strategy:
       matrix:
         rhel: [7, 9]
         repo: [stable, beta]
         exclude:
-          - rhel: 9
-            repo: stable
+          - rhel: 7
+            repo: beta
 
     runs-on: ubuntu-latest
     
@@ -73,28 +73,25 @@ jobs:
             VOMS_REPO=${{ matrix.repo }}
             RHEL_VERSION=${{ matrix.rhel }}
 
-  run-testsuite:
-    name: Run VOMS robot testsuite
+  run-testsuite-vomsadmin:
+    name: Run VOMS Admin testsuite
 
     strategy:
       matrix:
-        client: [7-beta, 7-stable, 9-beta]
-        server: [7-beta, 7-stable, 9-beta]
+        client: [7-stable, 9-beta]
+        server: [7-stable, 9-beta]
 
     runs-on: ubuntu-latest
     continue-on-error: true
 
     needs: [build-and-push-testsuite, build-and-push-voms]
 
-    env:
-      ROBOT_OPTIONS: --variable vo1:vo.0 --variable vo1_host:voms.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=*.test.example --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=*.test.example
-
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
     - name: Provide trustanchors
-      run: docker compose --file docker-compose.ci.yml up trust
+      run: docker compose --file docker-compose.ci.yml up --build trust
       working-directory: compose
 
     - name: Start compose
@@ -125,7 +122,7 @@ jobs:
       working-directory: compose
 
     - name: Run testsuite for java clients
-      run: docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
+      run: docker compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh
       working-directory: compose
       continue-on-error: true
 
@@ -139,7 +136,7 @@ jobs:
     - name: Run testsuite for cpp clients
       run: |
         docker compose --file docker-compose.ci.yml exec -T -u root testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
-        docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
+        docker compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
       working-directory: compose
       continue-on-error: true
 
