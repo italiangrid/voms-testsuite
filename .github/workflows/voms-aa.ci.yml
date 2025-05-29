@@ -23,8 +23,8 @@ jobs:
 
       - name: Start compose
         run: |
-          docker compose --file docker-compose.ci.yml up --build trust
-          docker compose --file docker-compose.ci.yml up --detach db voms testsuite vomsaa ngx
+          docker compose --file docker-compose.ci.yml build --no-cache trust
+          docker compose --file docker-compose.ci.yml up --detach trust db voms testsuite vomsaa ngx
         working-directory: compose
         env:
           TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
