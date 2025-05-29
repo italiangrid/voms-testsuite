@@ -9,6 +9,7 @@ jobs:
     strategy:
       matrix:
         client: [7-stable, 9-beta]
+        server: [v1.11.0, v1.12.0.rc3]
 
     runs-on: ubuntu-latest
 
@@ -29,6 +30,7 @@ jobs:
         env:
           TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
           VOMS_IMAGE: italiangrid/voms:centos7-stable
+          VOMS_AA_IMAGE_TAG: ${{ matrix.server }}
 
       - name: Deploy db and voms
         run: |
@@ -92,5 +94,5 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: test-report-and-logs_${{ matrix.client }}_voms-aa
+          name: test-report-and-logs_${{ matrix.client }}_voms-aa_${{ matrix.server }}
           path: ${{ env.ARTIFACTS_PATH }}
