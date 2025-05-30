@@ -2,14 +2,19 @@ name: Run testsuite
 
 on: push
 
+env:
+  SERVER_BETA: v1.12.0.rc3
+  SERVER_STABLE: v1.11.0
+  CLIENT_BETA: 9-beta
+  CLIENT_STABLE: 7-stable
+
 jobs:
   run-testsuite-vomsaa:
-    name: VOMS-AA ${{ matrix.server }}, clients ${{ matrix.client }} ${{ matrix.client-language }}
+    name: VOMS-AA ${{ github.env[matrix.server] }}, clients ${{ github.env[matrix.client] }}
 
     strategy:
       matrix:
-        client: [7-stable, 9-beta]
-        client-language: [cpp, java]
+        client: [CLIENT_BETA, CLIENT_STABLE]
         server: [SERVER_BETA, SERVER_STABLE]
 
     runs-on: ubuntu-latest
@@ -18,8 +23,6 @@ jobs:
 
     env:
       ROBOT_OPTIONS: --variable vo1:vo.2 --variable vo1_host:voms-aa.test.example --variable vo1_issuer:'/C=IT/O=IGI/CN=voms-aa.test.example' --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:'/C=IT/O=IGI/CN=voms.test.example' --exclude issue-723 --exclude issue-724 --exclude issue-726
-      SERVER_BETA: v1.12.0.rc3
-      SERVER_STABLE: v1.11.0
 
     steps:
       - name: Checkout
@@ -31,7 +34,7 @@ jobs:
           docker compose --file docker-compose.ci.yml up --detach trust db voms testsuite vomsaa ngx
         working-directory: compose
         env:
-          TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
+          TS_IMAGE: italiangrid/voms-testsuite:centos${{ env[matrix.client] }}
           VOMS_IMAGE: italiangrid/voms:centos7-stable
           VOMS_AA_IMAGE_TAG: ${{ env[matrix.server] }}
 
@@ -48,10 +51,10 @@ jobs:
           echo ARTIFACTS_PATH: ${ARTIFACTS_PATH}
           # save it in the job environment
           echo "ARTIFACTS_PATH=${ARTIFACTS_PATH}" >> ${GITHUB_ENV}
-          mkdir -p ${ARTIFACTS_PATH}/logs ${ARTIFACTS_PATH}/${{ matrix.client-language }}
+          mkdir -p ${ARTIFACTS_PATH}/logs ${ARTIFACTS_PATH}/java ${ARTIFACTS_PATH}/cpp
 
       - name: Enable legacy OpenSSL crypto policies on EL9
-        if: matrix.client == '9-beta'
+        if: matrix.client == 'CLIENT_BETA'
         run: docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "sudo update-crypto-policies --set LEGACY"
         working-directory: compose
 
@@ -60,17 +63,21 @@ jobs:
         working-directory: compose
         continue-on-error: true
 
+      - name: Collect test report for java clients
+        if: ${{ always() }}
+        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/java
+        working-directory: compose
+
       - name: Run testsuite for cpp clients
-        if: matrix.client-language == 'cpp'
         run: |
           docker compose --file docker-compose.ci.yml exec -T -u root testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
           docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
         working-directory: compose
         continue-on-error: true
 
-      - name: Collect test report
+      - name: Collect test report for cpp clients
         if: ${{ always() }}
-        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/${{ matrix.client-language }}
+        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
         working-directory: compose
 
       - name: Collect logs
@@ -89,5 +96,5 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: test-report-and-logs_${{ matrix.client }}_${{ matrix.client-language }}_voms-aa_${{ env[matrix.server] }}
+          name: test-report-and-logs_${{ matrix.client }}_voms-aa_${{ matrix.server }}
           path: ${{ env.ARTIFACTS_PATH }}
