@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         client: [7-stable, 9-beta]
-        server: [v1.11.0, v1.12.0.rc3]
+        server: [v1.11.0, v1.12.0.rc3, v1.12.0.rc4, v1.12.0.rc5]
 
     runs-on: ubuntu-latest
 
