@@ -3,19 +3,25 @@ name: Run testsuite
 on: push
 
 env:
-  SERVER_BETA: v1.12.0.rc3
-  SERVER_STABLE: v1.11.0
-  CLIENT_BETA: 9-beta
-  CLIENT_STABLE: 7-stable
+  server_beta: v1.12.0.rc3
+  server_stable: v1.11.0
+  client_beta: 9-beta
+  client_stable: 7-stable
 
 jobs:
   run-testsuite-vomsaa:
-    name: VOMS-AA ${{ github.env[matrix.server] }}, clients ${{ github.env[matrix.client] }}
+    name: VOMS-AA ${{ matrix.server }}, clients ${{ matrix.client }}
+
+    outputs:
+      client_beta_server_beta: ${{ steps.tests.outputs.client_beta_server_beta }}
+      client_beta_server_stable: ${{ steps.tests.outputs.client_beta_server_stable }}
+      client_stable_server_beta: ${{ steps.tests.outputs.client_stable_server_beta }}
+      client_stable_server_stable: ${{ steps.tests.outputs.client_stable_server_stable }}
 
     strategy:
       matrix:
-        client: [CLIENT_BETA, CLIENT_STABLE]
-        server: [SERVER_BETA, SERVER_STABLE]
+        client: [client_beta, client_stable]
+        server: [server_beta, server_stable]
 
     runs-on: ubuntu-latest
 
@@ -59,7 +65,13 @@ jobs:
         working-directory: compose
 
       - name: Run testsuite for java clients
-        run: docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
+        run: |
+          docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
+          result=$(cat /tmp/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
+          java_passed_tests=$(echo "${result}" | jq .[0][0].pass)
+          java_failed_tests=$(echo "${result}" | jq .[0][0].fail)
+          echo "JAVA_PASSED_TESTS=${java_passed_tests}" >> "${GITHUB_ENV}"
+          echo "JAVA_FAILED_TESTS=${java_failed_tests}" >> "${GITHUB_ENV}"
         working-directory: compose
         continue-on-error: true
 
@@ -69,9 +81,14 @@ jobs:
         working-directory: compose
 
       - name: Run testsuite for cpp clients
+        id: tests
         run: |
           docker compose --file docker-compose.ci.yml exec -T -u root testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
           docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
+          result=$(cat /tmp/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
+          cpp_passed_tests=$(echo "${result}" | jq .[0][0].pass)
+          cpp_failed_tests=$(echo "${result}" | jq .[0][0].fail)
+          echo "${{ matrix.client }}_${{ matrix.server }}={\"cpp_passed_tests\":\"$cpp_passed_tests\",\"cpp_failed_tests\":\"$cpp_failed_tests\",\"java_passed_tests\":\"$JAVA_PASSED_TESTS\",\"java_failed_tests\":\"$JAVA_FAILED_TESTS\"}" >> "${GITHUB_OUTPUT}
         working-directory: compose
         continue-on-error: true
 
@@ -98,3 +115,9 @@ jobs:
         with:
           name: test-report-and-logs_${{ matrix.client }}_voms-aa_${{ matrix.server }}
           path: ${{ env.ARTIFACTS_PATH }}
+
+  publish-results:
+    runs-on: ubuntu-latest
+    needs: [run-testsuite-vomsaa]
+    steps:
+      - run: echo '${{ toJSON(needs.run-testsuite-vomsaa.outputs) }}'
