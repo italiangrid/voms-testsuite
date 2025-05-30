@@ -4,7 +4,7 @@ on: push
 
 jobs:
   run-testsuite-vomsaa:
-    name: VOMS-AA ${{ matrix.server }}, clients ${{ matrix.client-language }} ${{ matrix.client }}
+    name: VOMS-AA ${{ matrix.server }}, clients ${{ matrix.client }} ${{ matrix.client-language }}
 
     strategy:
       matrix:
