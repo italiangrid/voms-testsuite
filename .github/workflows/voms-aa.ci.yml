@@ -126,12 +126,11 @@ jobs:
 
       - name: Generate summary
         run: |
-          echo "# Test report" >> $GITHUB_STEP_SUMMARY
-          echo "|                          | VOMS AA stable | VOMS AA beta |" >> $GITHUB_STEP_SUMMARY
-          echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
-
           # Init empty cells
-          declare -A table
+          declare -A cpp
+          declare -A java
+          declare -A cpp_client_version
+          declare -A java_client_version
           for file in ${ARTIFACTS_PATH}/**/result-*.json; do
             json=$(cat "$file")
             client=$(echo "$json" | jq -r .client)
@@ -146,9 +145,12 @@ jobs:
             java[$key]=":white_check_mark: Passed $java_passed :x: Failed $java_failed"
           done
 
-          echo "| _VOMS clients cpp stable_  | ${cpp[client_stable_server_stable]:-N/A} | ${cpp[client_stable_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
-          echo "| _VOMS clients java stable_ | ${java[client_stable_server_stable]:-N/A} | ${java[client_stable_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
-          echo "| _VOMS clients cpp beta_    | ${cpp[client_beta_server_stable]:-N/A} | ${cpp[client_beta_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
-          echo "| _VOMS clients java beta_   | ${java[client_beta_server_stable]:-N/A} | ${java[client_beta_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
+          echo "# Test report" >> $GITHUB_STEP_SUMMARY
+          echo "|                          | VOMS AA stable | VOMS AA beta |" >> $GITHUB_STEP_SUMMARY
+          echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
+          echo "| _VOMS clients cpp stable_ ($(echo ${ARTIFACTS_PATH}/result-client_stable_server_stable.json | jq -r .cpp_client_version))  | ${cpp[client_stable_server_stable]:-N/A} | ${cpp[client_stable_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
+          echo "| _VOMS clients java stable_ ($(echo ${ARTIFACTS_PATH}/result-client_stable_server_stable.json | jq -r .java_client_version)) | ${java[client_stable_server_stable]:-N/A} | ${java[client_stable_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
+          echo "| _VOMS clients cpp beta_  ($(echo ${ARTIFACTS_PATH}/result-client_beta_server_stable.json | jq -r .cpp_client_version))  | ${cpp[client_beta_server_stable]:-N/A} | ${cpp[client_beta_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
+          echo "| _VOMS clients java beta_  ($(echo ${ARTIFACTS_PATH}/result-client_beta_server_stable.json | jq -r .java_client_version)) | ${java[client_beta_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
         shell: bash
 
