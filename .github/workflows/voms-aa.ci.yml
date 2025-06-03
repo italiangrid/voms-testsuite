@@ -65,9 +65,16 @@ jobs:
         working-directory: compose
 
       - name: Run testsuite for java clients
+        run: docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
+        working-directory: compose
+        continue-on-error: true
+
+
+      - name: Collect test report for java clients
+        if: ${{ always() }}
         run: |
-          docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh || true
-          result=$(cat /tmp/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
+          docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/java
+          result=$(cat ${ARTIFACTS_PATH}/java/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
           java_passed_tests=$(echo "${result}" | jq .[0][0].pass)
           java_failed_tests=$(echo "${result}" | jq .[0][0].fail)
           echo "JAVA_PASSED_TESTS=${java_passed_tests}" >> "${GITHUB_ENV}"
@@ -76,33 +83,29 @@ jobs:
           echo "Java failed tests: $JAVA_FAILED_TESTS"
         working-directory: compose
 
-      - name: Collect test report for java clients
-        if: ${{ always() }}
-        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/java
-        working-directory: compose
-
       - name: Run testsuite for cpp clients
         id: tests
         run: |
           docker compose --file docker-compose.ci.yml exec -T -u root testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
-          docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy || true
-          result=$(cat /tmp/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
+          docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
+        working-directory: compose
+        continue-on-error: true
+
+      - name: Collect test report for cpp clients
+        if: ${{ always() }}
+        run: |
+          docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
+          result=$(cat ${ARTIFACTS_PATH}/cpp/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
           cpp_passed_tests=$(echo "${result}" | jq .[0][0].pass)
           cpp_failed_tests=$(echo "${result}" | jq .[0][0].fail)
           echo "Java passed tests: $JAVA_PASSED_TESTS"
           echo "Java failed tests: $JAVA_FAILED_TESTS"
           echo "Cpp passed tests: $cpp_passed_tests"
           echo "Cpp failed tests: $cpp_passed_tests"
-          result_json="{\"cpp_passed_tests\":\"$cpp_passed_tests\",\"cpp_failed_tests\":\"$cpp_failed_tests\",\"java_passed_tests\":\"$JAVA_PASSED_TESTS\",\"java_failed_tests\":\"$JAVA_FAILED_TESTS\"}"
-          echo "${result_json}"
-          echo "${result_json}" | jq
+          result_json="{\"cpp_passed_tests\":${cpp_passed_tests},\"cpp_failed_tests\":${cpp_failed_tests},\"java_passed_tests\":${JAVA_PASSED_TESTS},\"java_failed_tests\":${JAVA_FAILED_TESTS}}"
+          echo ${result_json}
+          echo ${result_json} | jq
           echo "${{ matrix.client }}_${{ matrix.server }}=${result_json}" >> "${GITHUB_OUTPUT}
-        working-directory: compose
-        continue-on-error: true
-
-      - name: Collect test report for cpp clients
-        if: ${{ always() }}
-        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
         working-directory: compose
 
       - name: Collect logs
