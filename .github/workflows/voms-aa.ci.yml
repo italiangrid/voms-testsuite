@@ -12,12 +12,6 @@ jobs:
   run_testsuite_vomsaa:
     name: ${{ matrix.server }} (voms-aa), ${{ matrix.client }}
 
-    outputs:
-      client_beta_server_beta: ${{ steps.tests.outputs.client_beta_server_beta }}
-      client_beta_server_stable: ${{ steps.tests.outputs.client_beta_server_stable }}
-      client_stable_server_beta: ${{ steps.tests.outputs.client_stable_server_beta }}
-      client_stable_server_stable: ${{ steps.tests.outputs.client_stable_server_stable }}
-
     strategy:
       matrix:
         client: [client_beta, client_stable]
@@ -84,14 +78,13 @@ jobs:
         working-directory: compose
 
       - name: Run testsuite for cpp clients
-        id: tests
         run: |
           docker compose --file docker-compose.ci.yml exec -T -u root testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
           docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
         working-directory: compose
         continue-on-error: true
 
-      - name: Collect test report for cpp clients
+      - name: Collect test report for cpp clients and summary
         if: ${{ always() }}
         run: |
           docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
@@ -99,9 +92,8 @@ jobs:
           cpp_passed_tests=$(echo "${result}" | jq .[0][0].pass)
           cpp_failed_tests=$(echo "${result}" | jq .[0][0].fail)
           cpp_client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init -version " | grep '^Version:' | awk '{print $2}')
-          result_json="{\"cpp_passed_tests\":${cpp_passed_tests},\"cpp_failed_tests\":${cpp_failed_tests},\"java_passed_tests\":${JAVA_PASSED_TESTS},\"java_failed_tests\":${JAVA_FAILED_TESTS},\"cpp_client_version\":\"${cpp_client_version}\",\"java_client_version\":\"${JAVA_CLIENT_VERSION}\"}"
-          echo ${result_json}
-          echo "${{ matrix.client }}_${{ matrix.server }}=${result_json}" >> "${GITHUB_OUTPUT}"
+          result_json="{\"client\":\"${{ matrix.client }}\",\"server\":\"${{ matrix.server }}\",\"cpp_passed_tests\":${cpp_passed_tests},\"cpp_failed_tests\":${cpp_failed_tests},\"java_passed_tests\":${JAVA_PASSED_TESTS},\"java_failed_tests\":${JAVA_FAILED_TESTS},\"cpp_client_version\":\"${cpp_client_version}\",\"java_client_version\":\"${JAVA_CLIENT_VERSION}\"}"
+          echo "$result_json" > ${ARTIFACTS_PATH}/result-${{ matrix.client }}-${{ matrix.server }}.json
         working-directory: compose
 
       - name: Collect logs
@@ -127,14 +119,33 @@ jobs:
     runs-on: ubuntu-latest
     needs: [run_testsuite_vomsaa]
     steps:
-      - name: publish
+      - name: Download all results
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ env.ARTIFACTS_PATH }}
+
+      - name: Generate summary
         run: |
-          cpp_stable_stable_passed='${{ toJSON(needs.run_testsuite_vomsaa.outputs.client_stable_server_stable.cpp_passed_tests) }}'
-          cpp_stable_stable_failed='${{ toJSON(needs.run_testsuite_vomsaa.outputs.client_stable_server_stable.cpp_failed_tests) }}'
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
           echo "|                          | VOMS AA stable | VOMS AA beta |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
-          echo "| VOMS clients cpp stable  | :white_check_mark: Passed $cpp_stable_stable_passed :x: Failed $cpp_stable_stable_failed | |" >> $GITHUB_STEP_SUMMARY
-          echo "| VOMS clients java stable | |  |" >> $GITHUB_STEP_SUMMARY
-          echo "| VOMS clients cpp beta    | |  |" >> $GITHUB_STEP_SUMMARY
-          echo "| VOMS clients java beta   | |  |" >> $GITHUB_STEP_SUMMARY
+
+          # Init empty cells
+          declare -A table
+          for file in results/**/result-*.json; do
+            json=$(cat "$file")
+            client=$(echo "$json" | jq -r .client)
+            server=$(echo "$json" | jq -r .server)
+            cpp_passed=$(echo "$json" | jq -r .cpp_passed_tests)
+            cpp_failed=$(echo "$json" | jq -r .cpp_failed_tests)
+
+            key="${client}_${server}"
+            table[$key]=":white_check_mark: Passed $cpp_passed :x: Failed $cpp_failed"
+          done
+
+          echo "| _VOMS clients cpp stable_  | ${table[client_stable_server_stable]:-N/A} | ${table[client_stable_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
+          echo "| _VOMS clients java stable_ | ${table[client_stable_server_stable]:-N/A} | ${table[client_stable_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
+          echo "| _VOMS clients cpp beta_    | ${table[client_beta_server_stable]:-N/A} | ${table[client_beta_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
+          echo "| _VOMS clients java beta_   | ${table[client_beta_server_stable]:-N/A} | ${table[client_beta_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
+        shell: bash
+
