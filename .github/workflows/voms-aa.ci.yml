@@ -127,14 +127,14 @@ jobs:
       - name: Download all results
         uses: actions/download-artifact@v4
         with:
-          path: ${{ env.ARTIFACTS_PATH }}
+          path: ${{ env.HOME }}/artifacts
 
       - name: Generate summary
         run: |
           # Init empty cells
           declare -A cpp
           declare -A java
-          for file in ${ARTIFACTS_PATH}/result-*.json; do
+          for file in artifacts/**/result-*.json; do
             json=$(cat "$file")
             client=$(echo "$json" | jq -r .client)
             server=$(echo "$json" | jq -r .server)
