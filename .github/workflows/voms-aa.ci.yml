@@ -84,7 +84,7 @@ jobs:
         working-directory: compose
         continue-on-error: true
 
-      - name: Collect test report for cpp clients and summary
+      - name: Collect test report for cpp clients
         if: ${{ always() }}
         run: |
           docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
@@ -92,7 +92,17 @@ jobs:
           cpp_passed_tests=$(echo "${result}" | jq .[0][0].pass)
           cpp_failed_tests=$(echo "${result}" | jq .[0][0].fail)
           cpp_client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init -version " | grep '^Version:' | awk '{print $2}')
-          result_json="{\"client\":\"${{ matrix.client }}\",\"server\":\"${{ matrix.server }}\",\"cpp_passed_tests\":${cpp_passed_tests},\"cpp_failed_tests\":${cpp_failed_tests},\"java_passed_tests\":${JAVA_PASSED_TESTS},\"java_failed_tests\":${JAVA_FAILED_TESTS},\"cpp_client_version\":\"${cpp_client_version}\",\"java_client_version\":\"${JAVA_CLIENT_VERSION}\"}"
+          echo "CPP_PASSED_TESTS=${cpp_passed_tests}" >> "${GITHUB_ENV}"
+          echo "CPP_FAILED_TESTS=${cpp_failed_tests}" >> "${GITHUB_ENV}"
+          echo "CPP_CLIENT_VERSION=${cpp_client_version}" >> "${GITHUB_ENV}"
+        working-directory: compose
+
+      - name: Collect summary report
+        if: ${{ always() }}
+        run: |
+          server_var="${{ matrix.server }}"
+          server_version="${!server_var}" 
+          result_json="{\"client\":\"${{ matrix.client }}\",\"server\":\"${{ matrix.server }}\",\"cpp_passed_tests\":${CPP_PASSED_TESTS},\"cpp_failed_tests\":${CPP_FAILED_TESTS},\"java_passed_tests\":${JAVA_PASSED_TESTS},\"java_failed_tests\":${JAVA_FAILED_TESTS},\"cpp_client_version\":\"${CPP_CLIENT_VERSION}\",\"java_client_version\":\"${JAVA_CLIENT_VERSION}\",\"vomsaa_version\":\"${server_version}\"}"
           echo "$result_json" > ${ARTIFACTS_PATH}/result-${{ matrix.client }}-${{ matrix.server }}.json
         working-directory: compose
 
@@ -146,7 +156,7 @@ jobs:
           done
 
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
-          echo "|                          | VOMS AA stable | VOMS AA beta |" >> $GITHUB_STEP_SUMMARY
+          echo "|                          | VOMS AA stable ($(echo ${ARTIFACTS_PATH}/result-client_stable_server_stable.json | jq -r .vomsaa_version)) | VOMS AA beta ($(echo ${ARTIFACTS_PATH}/result-client_stable_server_beta.json | jq -r .vomsaa_version)) |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
           echo "| _VOMS clients cpp stable_ ($(echo ${ARTIFACTS_PATH}/result-client_stable_server_stable.json | jq -r .cpp_client_version))  | ${cpp[client_stable_server_stable]:-N/A} | ${cpp[client_stable_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
           echo "| _VOMS clients java stable_ ($(echo ${ARTIFACTS_PATH}/result-client_stable_server_stable.json | jq -r .java_client_version)) | ${java[client_stable_server_stable]:-N/A} | ${java[client_stable_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
