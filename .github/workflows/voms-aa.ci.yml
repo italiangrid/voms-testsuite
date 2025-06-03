@@ -126,11 +126,21 @@ jobs:
     steps:
       - run: |
           results='${{ toJSON(needs.run_testsuite_vomsaa.outputs) }}'
-          echo $results | jq
+          echo $results | jq .
+          results2='${{ fromJSON(needs.run_testsuite_vomsaa.outputs) }}'
+          echo $results2
+          results3='${{ needs.run_testsuite_vomsaa.outputs }}'
+          results4='${{ toJSON(steps.tests.outputs) }}'
+          echo $results4 | jq .
+          results5='${{ fromJSON(steps.tests.outputs) }}'
+          echo $results5
+          results6='${{ steps.tests.outputs }}'
+          echo $results6
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
           echo "|                          | VOMS AA stable | VOMS AA beta |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
-          echo "| VOMS clients cpp stable  | :white_check_mark: Passed $(echo $results .client_stable_server_stable.cpp_passed_tests) :x: Failed $(echo $results .client_stable_server_stable.cpp_failed_tests) | |" >> $GITHUB_STEP_SUMMARY
+          echo "| VOMS clients cpp stable  | :white_check_mark: Passed $(echo $results | jq .client_stable_server_stable.cpp_passed_tests) :x: Failed $(echo $results | jq .client_stable_server_stable.cpp_failed_tests) | |" >> $GITHUB_STEP_SUMMARY
           echo "| VOMS clients java stable | |  |" >> $GITHUB_STEP_SUMMARY
           echo "| VOMS clients cpp beta    | |  |" >> $GITHUB_STEP_SUMMARY
           echo "| VOMS clients java beta   | |  |" >> $GITHUB_STEP_SUMMARY
+        continue-on-error: true
