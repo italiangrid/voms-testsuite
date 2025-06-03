@@ -125,8 +125,8 @@ jobs:
           results='${{ toJSON(needs.run_testsuite_vomsaa.outputs) }}'
           echo $results | jq
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
-          echo "|  | server stable | server beta |" >> $GITHUB_STEP_SUMMARY
-          echo "| client cpp stable | $(echo $results | jq) |  |" >> $GITHUB_STEP_SUMMARY
-          echo "| client java stable | |  |" >> $GITHUB_STEP_SUMMARY
-          echo "| client cpp beta | |  |" >> $GITHUB_STEP_SUMMARY
-          echo "| client java beta | |  |" >> $GITHUB_STEP_SUMMARY
+          echo "| ---------------------------- | VOMS AA stable | VOMS AA beta |" >> $GITHUB_STEP_SUMMARY
+          echo "| __VOMS clients cpp stable__  | $(echo $results | jq) |  |" >> $GITHUB_STEP_SUMMARY
+          echo "| __VOMS clients java stable__ | |  |" >> $GITHUB_STEP_SUMMARY
+          echo "| __VOMS clients cpp beta__    | |  |" >> $GITHUB_STEP_SUMMARY
+          echo "| __VOMS clients java beta__   | |  |" >> $GITHUB_STEP_SUMMARY
