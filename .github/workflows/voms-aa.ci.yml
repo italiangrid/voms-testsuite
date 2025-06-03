@@ -134,7 +134,7 @@ jobs:
           # Init empty cells
           declare -A cpp
           declare -A java
-          for file in ${ARTIFACTS_PATH}/**/result-*.json; do
+          for file in ${ARTIFACTS_PATH}/result-*.json; do
             json=$(cat "$file")
             client=$(echo "$json" | jq -r .client)
             server=$(echo "$json" | jq -r .server)
