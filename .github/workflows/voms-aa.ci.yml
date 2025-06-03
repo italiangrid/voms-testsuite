@@ -74,7 +74,7 @@ jobs:
         if: ${{ always() }}
         run: |
           docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/java
-          result=$(cat ${ARTIFACTS_PATH}/java/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
+          result=$(cat ${ARTIFACTS_PATH}/java/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
           java_passed_tests=$(echo "${result}" | jq .[0][0].pass)
           java_failed_tests=$(echo "${result}" | jq .[0][0].fail)
           echo "JAVA_PASSED_TESTS=${java_passed_tests}" >> "${GITHUB_ENV}"
@@ -95,7 +95,7 @@ jobs:
         if: ${{ always() }}
         run: |
           docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
-          result=$(cat ${ARTIFACTS_PATH}/cpp/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
+          result=$(cat ${ARTIFACTS_PATH}/cpp/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
           cpp_passed_tests=$(echo "${result}" | jq .[0][0].pass)
           cpp_failed_tests=$(echo "${result}" | jq .[0][0].fail)
           echo "Java passed tests: $JAVA_PASSED_TESTS"
