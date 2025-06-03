@@ -88,8 +88,14 @@ jobs:
           result=$(cat /tmp/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
           cpp_passed_tests=$(echo "${result}" | jq .[0][0].pass)
           cpp_failed_tests=$(echo "${result}" | jq .[0][0].fail)
+          echo "Java passed tests: $JAVA_PASSED_TESTS"
+          echo "Java failed tests: $JAVA_FAILED_TESTS"
+          echo "Cpp passed tests: $cpp_passed_tests"
+          echo "Cpp failed tests: $cpp_passed_tests"
           result_json="{\"cpp_passed_tests\":\"$cpp_passed_tests\",\"cpp_failed_tests\":\"$cpp_failed_tests\",\"java_passed_tests\":\"$JAVA_PASSED_TESTS\",\"java_failed_tests\":\"$JAVA_FAILED_TESTS\"}"
-          echo "${{ matrix.client }}_${{ matrix.server }}=$result_json" >> "${GITHUB_OUTPUT}
+          echo "${result_json}"
+          echo "${result_json}" | jq
+          echo "${{ matrix.client }}_${{ matrix.server }}=${result_json}" >> "${GITHUB_OUTPUT}
         working-directory: compose
         continue-on-error: true
 
