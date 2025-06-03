@@ -127,11 +127,11 @@ jobs:
       - name: Download all results
         uses: actions/download-artifact@v4
         with:
-          path: ${{ env.HOME }}/artifacts
+          path: results
 
       - name: Generate summary
         run: |
-          ARTIFACTS_PATH=${HOME}/artifacts
+          ARTIFACTS_PATH=results
           # Init empty cells
           declare -A cpp
           declare -A java
