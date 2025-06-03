@@ -130,7 +130,7 @@ jobs:
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
           echo "|                          | VOMS AA stable | VOMS AA beta |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
-          echo "| VOMS clients cpp stable  | |  |" >> $GITHUB_STEP_SUMMARY
+          echo "| VOMS clients cpp stable  | :white_check_mark: Passed $(echo $results .client_stable_server_stable.cpp_passed_tests) :x: Failed $(echo $results .client_stable_server_stable.cpp_failed_tests) | |" >> $GITHUB_STEP_SUMMARY
           echo "| VOMS clients java stable | |  |" >> $GITHUB_STEP_SUMMARY
           echo "| VOMS clients cpp beta    | |  |" >> $GITHUB_STEP_SUMMARY
           echo "| VOMS clients java beta   | |  |" >> $GITHUB_STEP_SUMMARY
