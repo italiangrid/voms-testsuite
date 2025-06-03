@@ -123,3 +123,9 @@ jobs:
     steps:
       - run: |
           results='${{ toJSON(needs.run-testsuite-vomsaa.outputs) }}'
+          echo "# Test report" >> $GITHUB_STEP_SUMMARY
+          echo "|  | server stable | server beta |" >> $GITHUB_STEP_SUMMARY
+          echo "| client cpp stable | $(echo $result | jq) |  |" >> $GITHUB_STEP_SUMMARY
+          echo "| client java stable | |  |" >> $GITHUB_STEP_SUMMARY
+          echo "| client cpp beta | |  |" >> $GITHUB_STEP_SUMMARY
+          echo "| client java beta | |  |" >> $GITHUB_STEP_SUMMARY
