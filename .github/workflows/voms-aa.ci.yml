@@ -79,8 +79,6 @@ jobs:
           java_failed_tests=$(echo "${result}" | jq .[0][0].fail)
           echo "JAVA_PASSED_TESTS=${java_passed_tests}" >> "${GITHUB_ENV}"
           echo "JAVA_FAILED_TESTS=${java_failed_tests}" >> "${GITHUB_ENV}"
-          echo "Java passed tests: $JAVA_PASSED_TESTS"
-          echo "Java failed tests: $JAVA_FAILED_TESTS"
         working-directory: compose
 
       - name: Run testsuite for cpp clients
@@ -98,13 +96,8 @@ jobs:
           result=$(cat ${ARTIFACTS_PATH}/cpp/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
           cpp_passed_tests=$(echo "${result}" | jq .[0][0].pass)
           cpp_failed_tests=$(echo "${result}" | jq .[0][0].fail)
-          echo "Java passed tests: $JAVA_PASSED_TESTS"
-          echo "Java failed tests: $JAVA_FAILED_TESTS"
-          echo "Cpp passed tests: $cpp_passed_tests"
-          echo "Cpp failed tests: $cpp_passed_tests"
           result_json="{\"cpp_passed_tests\":${cpp_passed_tests},\"cpp_failed_tests\":${cpp_failed_tests},\"java_passed_tests\":${JAVA_PASSED_TESTS},\"java_failed_tests\":${JAVA_FAILED_TESTS}}"
           echo ${result_json}
-          echo ${result_json} | jq
           echo "${{ matrix.client }}_${{ matrix.server }}=${result_json}" >> "${GITHUB_OUTPUT}"
         working-directory: compose
 
@@ -132,12 +125,12 @@ jobs:
     needs: [run_testsuite_vomsaa]
     steps:
       - run: |
-          results='${{ needs.run_testsuite_vomsaa.outputs }}'
+          results='${{ toJSON(needs.run_testsuite_vomsaa.outputs) }}'
           echo $results | jq
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
           echo "|                          | VOMS AA stable | VOMS AA beta |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
-          echo "| VOMS clients cpp stable  | $(echo $results | jq) |  |" >> $GITHUB_STEP_SUMMARY
+          echo "| VOMS clients cpp stable  | |  |" >> $GITHUB_STEP_SUMMARY
           echo "| VOMS clients java stable | |  |" >> $GITHUB_STEP_SUMMARY
           echo "| VOMS clients cpp beta    | |  |" >> $GITHUB_STEP_SUMMARY
           echo "| VOMS clients java beta   | |  |" >> $GITHUB_STEP_SUMMARY
