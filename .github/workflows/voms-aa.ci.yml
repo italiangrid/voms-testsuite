@@ -54,7 +54,7 @@ jobs:
           mkdir -p ${ARTIFACTS_PATH}/logs ${ARTIFACTS_PATH}/java ${ARTIFACTS_PATH}/cpp
 
       - name: Enable legacy OpenSSL crypto policies on EL9
-        if: matrix.client == 'CLIENT_BETA'
+        if: matrix.client == 'client_beta'
         run: docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "sudo update-crypto-policies --set LEGACY"
         working-directory: compose
 
@@ -62,7 +62,6 @@ jobs:
         run: docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
         working-directory: compose
         continue-on-error: true
-
 
       - name: Collect test report for java clients
         if: ${{ always() }}
