@@ -131,10 +131,11 @@ jobs:
 
       - name: Generate summary
         run: |
+          ARTIFACTS_PATH=${HOME}/artifacts
           # Init empty cells
           declare -A cpp
           declare -A java
-          for file in artifacts/**/result-*.json; do
+          for file in ${ARTIFACTS_PATH}/**/result-*.json; do
             json=$(cat "$file")
             client=$(echo "$json" | jq -r .client)
             server=$(echo "$json" | jq -r .server)
