@@ -9,7 +9,7 @@ env:
   client_stable: 7-stable
 
 jobs:
-  run-testsuite-vomsaa:
+  run_testsuite_vomsaa:
     name: ${{ matrix.server }} (voms-aa), ${{ matrix.client }}
 
     outputs:
@@ -119,10 +119,10 @@ jobs:
 
   publish-results:
     runs-on: ubuntu-latest
-    needs: [run-testsuite-vomsaa]
+    needs: [run_testsuite_vomsaa]
     steps:
       - run: |
-          results='${{ toJSON(needs.run-testsuite-vomsaa.outputs) }}'
+          results='${{ toJSON(needs.run_testsuite_vomsaa.outputs) }}'
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
           echo "|  | server stable | server beta |" >> $GITHUB_STEP_SUMMARY
           echo "| client cpp stable | $(echo $result | jq) |  |" >> $GITHUB_STEP_SUMMARY
