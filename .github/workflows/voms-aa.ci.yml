@@ -105,7 +105,7 @@ jobs:
           result_json="{\"cpp_passed_tests\":${cpp_passed_tests},\"cpp_failed_tests\":${cpp_failed_tests},\"java_passed_tests\":${JAVA_PASSED_TESTS},\"java_failed_tests\":${JAVA_FAILED_TESTS}}"
           echo ${result_json}
           echo ${result_json} | jq
-          echo "${{ matrix.client }}_${{ matrix.server }}=${result_json}" >> "${GITHUB_OUTPUT}
+          echo "${{ matrix.client }}_${{ matrix.server }}=${result_json}" >> "${GITHUB_OUTPUT}"
         working-directory: compose
 
       - name: Collect logs
