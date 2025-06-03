@@ -66,15 +66,7 @@ jobs:
 
       - name: Collect test report for java clients
         if: ${{ always() }}
-        run: |
-          docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/java
-          result=$(cat ${ARTIFACTS_PATH}/java/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
-          java_passed_tests=$(echo "${result}" | jq .[0][0].pass)
-          java_failed_tests=$(echo "${result}" | jq .[0][0].fail)
-          java_client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init -version" | awk '{print $3}')
-          echo "JAVA_PASSED_TESTS=${java_passed_tests}" >> "${GITHUB_ENV}"
-          echo "JAVA_FAILED_TESTS=${java_failed_tests}" >> "${GITHUB_ENV}"
-          echo "JAVA_CLIENT_VERSION=${java_client_version}" >> "${GITHUB_ENV}"
+        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/java
         working-directory: compose
 
       - name: Run testsuite for cpp clients
@@ -86,23 +78,26 @@ jobs:
 
       - name: Collect test report for cpp clients
         if: ${{ always() }}
-        run: |
-          docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
-          result=$(cat ${ARTIFACTS_PATH}/cpp/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
-          cpp_passed_tests=$(echo "${result}" | jq .[0][0].pass)
-          cpp_failed_tests=$(echo "${result}" | jq .[0][0].fail)
-          cpp_client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init -version " | grep '^Version:' | awk '{print $2}')
-          echo "CPP_PASSED_TESTS=${cpp_passed_tests}" >> "${GITHUB_ENV}"
-          echo "CPP_FAILED_TESTS=${cpp_failed_tests}" >> "${GITHUB_ENV}"
-          echo "CPP_CLIENT_VERSION=${cpp_client_version}" >> "${GITHUB_ENV}"
+        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
         working-directory: compose
 
       - name: Collect summary report
         if: ${{ always() }}
         run: |
+          cpp_result=$(cat ${ARTIFACTS_PATH}/cpp/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')          
+          cpp_passed_tests=$(echo "${cpp_result}" | jq .[0][0].pass)
+          cpp_failed_tests=$(echo "${cpp_result}" | jq .[0][0].fail)
+          cpp_client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init2 -version " | grep '^Version:' | awk '{print $2}')
+
+          java_result=$(cat ${ARTIFACTS_PATH}/java/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
+          java_passed_tests=$(echo "${java_result}" | jq .[0][0].pass)
+          java_failed_tests=$(echo "${java_result}" | jq .[0][0].fail)
+          java_client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init3 -version" | awk '{print $3}')
+
           server_var="${{ matrix.server }}"
-          server_version="${!server_var}" 
-          result_json="{\"client\":\"${{ matrix.client }}\",\"server\":\"${{ matrix.server }}\",\"cpp_passed_tests\":${CPP_PASSED_TESTS},\"cpp_failed_tests\":${CPP_FAILED_TESTS},\"java_passed_tests\":${JAVA_PASSED_TESTS},\"java_failed_tests\":${JAVA_FAILED_TESTS},\"cpp_client_version\":\"${CPP_CLIENT_VERSION}\",\"java_client_version\":\"${JAVA_CLIENT_VERSION}\",\"vomsaa_version\":\"${server_version}\"}"
+          server_version="${!server_var}"
+
+          result_json="{\"client\":\"${{ matrix.client }}\",\"server\":\"${{ matrix.server }}\",\"cpp_passed_tests\":${cpp_passed_tests},\"cpp_failed_tests\":${cpp_failed_tests},\"java_passed_tests\":${java_passed_tests},\"java_failed_tests\":${java_failed_tests},\"cpp_client_version\":\"${cpp_client_version}\",\"java_client_version\":\"${java_client_version}\",\"vomsaa_version\":\"${server_version}\"}"
           echo "$result_json" > ${ARTIFACTS_PATH}/result-${{ matrix.client }}-${{ matrix.server }}.json
         working-directory: compose
 
@@ -139,8 +134,6 @@ jobs:
           # Init empty cells
           declare -A cpp
           declare -A java
-          declare -A cpp_client_version
-          declare -A java_client_version
           for file in ${ARTIFACTS_PATH}/**/result-*.json; do
             json=$(cat "$file")
             client=$(echo "$json" | jq -r .client)
