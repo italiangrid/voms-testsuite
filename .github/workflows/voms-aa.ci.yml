@@ -77,8 +77,10 @@ jobs:
           result=$(cat ${ARTIFACTS_PATH}/java/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
           java_passed_tests=$(echo "${result}" | jq .[0][0].pass)
           java_failed_tests=$(echo "${result}" | jq .[0][0].fail)
+          java_client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init -version" | awk '{print $3}')
           echo "JAVA_PASSED_TESTS=${java_passed_tests}" >> "${GITHUB_ENV}"
           echo "JAVA_FAILED_TESTS=${java_failed_tests}" >> "${GITHUB_ENV}"
+          echo "JAVA_CLIENT_VERSION=${java_client_version}" >> "${GITHUB_ENV}"
         working-directory: compose
 
       - name: Run testsuite for cpp clients
@@ -96,7 +98,8 @@ jobs:
           result=$(cat ${ARTIFACTS_PATH}/cpp/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
           cpp_passed_tests=$(echo "${result}" | jq .[0][0].pass)
           cpp_failed_tests=$(echo "${result}" | jq .[0][0].fail)
-          result_json="{\"cpp_passed_tests\":${cpp_passed_tests},\"cpp_failed_tests\":${cpp_failed_tests},\"java_passed_tests\":${JAVA_PASSED_TESTS},\"java_failed_tests\":${JAVA_FAILED_TESTS}}"
+          cpp_client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init -version " | grep '^Version:' | awk '{print $2}')
+          result_json="{\"cpp_passed_tests\":${cpp_passed_tests},\"cpp_failed_tests\":${cpp_failed_tests},\"java_passed_tests\":${JAVA_PASSED_TESTS},\"java_failed_tests\":${JAVA_FAILED_TESTS},\"cpp_client_version\":\"${cpp_client_version}\",\"java_client_version\":\"${JAVA_CLIENT_VERSION}\"}"
           echo ${result_json}
           echo "${{ matrix.client }}_${{ matrix.server }}=${result_json}" >> "${GITHUB_OUTPUT}"
         working-directory: compose
