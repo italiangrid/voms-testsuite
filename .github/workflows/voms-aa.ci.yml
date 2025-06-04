@@ -131,29 +131,24 @@ jobs:
       - name: Generate summary
         run: |
           ARTIFACTS_PATH=results
-          # Init empty cells
-          declare -A cpp
-          declare -A java
+
+          declare -A cpp java cpp_ver java_ver vomsaa_ver
           for file in ${ARTIFACTS_PATH}/**/result-*.json; do
             json=$(cat "$file")
-            client=$(echo "$json" | jq -r .client)
-            server=$(echo "$json" | jq -r .server)
-            cpp_passed=$(echo "$json" | jq -r .cpp_passed_tests)
-            cpp_failed=$(echo "$json" | jq -r .cpp_failed_tests)
-            java_passed=$(echo "$json" | jq -r .java_passed_tests)
-            java_failed=$(echo "$json" | jq -r .java_failed_tests)
+            key="$(jq -r .client <<< "$json")_$(jq -r .server <<< "$json")"
 
-            key="${client}_${server}"
-            cpp[$key]=":white_check_mark: Passed $cpp_passed :x: Failed $cpp_failed"
-            java[$key]=":white_check_mark: Passed $java_passed :x: Failed $java_failed"
+            cpp[$key]=":white_check_mark: Passed $(jq -r .cpp_passed_tests <<< "$json") :x: Failed $(jq -r .cpp_failed_tests <<< "$json")"
+            java[$key]=":white_check_mark: Passed $(jq -r .java_passed_tests <<< "$json") :x: Failed $(jq -r .java_failed_tests <<< "$json")"
+            cpp_ver[$(jq -r .client <<< "$json")]="$(jq -r .cpp_client_version <<< "$json")"
+            java_ver[$(jq -r .client <<< "$json")]="$(jq -r .java_client_version <<< "$json")"
+            vomsaa_ver[$(jq -r .server <<< "$json")]="$(jq -r .vomsaa_version <<< "$json")"
           done
 
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
-          echo "|                          | VOMS AA stable ($(cat ${ARTIFACTS_PATH}/**/result-client_stable-server_stable.json | jq -r .vomsaa_version)) | VOMS AA beta ($(cat ${ARTIFACTS_PATH}/**/result-client_stable-server_beta.json | jq -r .vomsaa_version)) |" >> $GITHUB_STEP_SUMMARY
+          echo "|                          | VOMS AA stable (${vomsaa_ver[client_stable_server_stable]}) | VOMS AA beta (${vomsaa_ver[client_stable_server_beta]}) |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
-          echo "| __VOMS clients cpp stable ($(cat ${ARTIFACTS_PATH}/**/result-client_stable-server_stable.json | jq -r .cpp_client_version))__  | ${cpp[client_stable_server_stable]:-N/A} | ${cpp[client_stable_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
-          echo "| __VOMS clients java stable ($(cat ${ARTIFACTS_PATH}/**/result-client_stable-server_stable.json | jq -r .java_client_version))__ | ${java[client_stable_server_stable]:-N/A} | ${java[client_stable_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
-          echo "| __VOMS clients cpp beta ($(cat ${ARTIFACTS_PATH}/**/result-client_beta-server_stable.json | jq -r .cpp_client_version))__ | ${cpp[client_beta_server_stable]:-N/A} | ${cpp[client_beta_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
-          echo "| __VOMS clients java beta ($(cat ${ARTIFACTS_PATH}/**/result-client_beta-server_stable.json | jq -r .java_client_version))__ | ${java[client_beta_server_stable]:-N/A} | ${java[client_beta_server_beta]:-N/A} |" >> $GITHUB_STEP_SUMMARY
+          echo "| __VOMS clients cpp stable (${cpp_ver[client_stable_server_stable]})__  | ${cpp[client_stable_server_stable]} | ${cpp[client_stable_server_beta]} |" >> $GITHUB_STEP_SUMMARY
+          echo "| __VOMS clients java stable (${java_ver[client_stable_server_stable]})__ | ${java[client_stable_server_stable]} | ${java[client_stable_server_beta]} |" >> $GITHUB_STEP_SUMMARY
+          echo "| __VOMS clients cpp beta (${cpp_ver[client_beta_server_stable]})__ | ${cpp[client_beta_server_stable]} | ${cpp[client_beta_server_beta]} |" >> $GITHUB_STEP_SUMMARY
+          echo "| __VOMS clients java beta (${java_ver[client_beta_server_stable]})__ | ${java[client_beta_server_stable]} | ${java[client_beta_server_beta]} |" >> $GITHUB_STEP_SUMMARY
         shell: bash
-
