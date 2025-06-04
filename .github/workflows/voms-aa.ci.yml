@@ -10,12 +10,13 @@ env:
 
 jobs:
   run_testsuite_vomsaa:
-    name: ${{ matrix.server }} (voms-aa), ${{ matrix.client }}
+    name: ${{ matrix.server }} (voms-aa), ${{ matrix.client_lang }} ${{ matrix.client }}
 
     strategy:
       matrix:
-        client: [client_beta, client_stable]
         server: [server_beta, server_stable]
+        client: [client_beta, client_stable]
+        client_lang: [cpp, java]
 
     runs-on: ubuntu-latest
 
@@ -59,16 +60,18 @@ jobs:
         working-directory: compose
 
       - name: Run testsuite for java clients
+        if: matrix.client_lang == 'java'
         run: docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
         working-directory: compose
         continue-on-error: true
 
       - name: Collect test report for java clients
-        if: ${{ always() }}
+        if: matrix.client_lang == 'java'
         run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/java
         working-directory: compose
 
       - name: Run testsuite for cpp clients
+        if: matrix.client_lang == 'cpp'
         run: |
           docker compose --file docker-compose.ci.yml exec -T -u root testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
           docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
@@ -76,28 +79,26 @@ jobs:
         continue-on-error: true
 
       - name: Collect test report for cpp clients
-        if: ${{ always() }}
+        if: matrix.client_lang == 'cpp'
         run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
         working-directory: compose
 
       - name: Collect summary report
         if: ${{ always() }}
         run: |
-          cpp_result=$(cat ${ARTIFACTS_PATH}/cpp/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')          
-          cpp_passed_tests=$(echo "${cpp_result}" | jq .[0][0].pass)
-          cpp_failed_tests=$(echo "${cpp_result}" | jq .[0][0].fail)
-          cpp_client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init2 -version " | grep '^Version:' | awk '{print $2}')
+          result=$(cat ${ARTIFACTS_PATH}/**/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')          
+          
+          passed_tests=$(echo "${result}" | jq .[0][0].pass)
+          failed_tests=$(echo "${result}" | jq .[0][0].fail)
+          if [[ "${{ matrix.client_lang }}" == 'cpp' ]]; then
+            client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init2 -version " | grep '^Version:' | awk '{print $2}')
+          else
+            client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init3 -version" | awk '{print $3}')
+          fi
+          server_version="${{ env[matrix.server] }}"
 
-          java_result=$(cat ${ARTIFACTS_PATH}/java/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
-          java_passed_tests=$(echo "${java_result}" | jq .[0][0].pass)
-          java_failed_tests=$(echo "${java_result}" | jq .[0][0].fail)
-          java_client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init3 -version" | awk '{print $3}')
-
-          server_var="${{ matrix.server }}"
-          server_version="${!server_var}"
-
-          result_json="{\"client\":\"${{ matrix.client }}\",\"server\":\"${{ matrix.server }}\",\"cpp_passed_tests\":${cpp_passed_tests},\"cpp_failed_tests\":${cpp_failed_tests},\"java_passed_tests\":${java_passed_tests},\"java_failed_tests\":${java_failed_tests},\"cpp_client_version\":\"${cpp_client_version}\",\"java_client_version\":\"${java_client_version}\",\"vomsaa_version\":\"${server_version}\"}"
-          echo "$result_json" > ${ARTIFACTS_PATH}/result-${{ matrix.client }}-${{ matrix.server }}.json
+          result_json="{\"passed_tests\":${passed_tests},\"failed_tests\":${failed_tests},\"client_version\":\"${client_version}\",\"vomsaa_version\":\"${server_version}\"}"
+          echo "$result_json" > ${ARTIFACTS_PATH}/result-${{ matrix.client_lang }}-${{ matrix.client }}-${{ matrix.server }}.json
         working-directory: compose
 
       - name: Collect logs
@@ -116,7 +117,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
-          name: test-report-and-logs_${{ matrix.client }}_${{ matrix.server }}
+          name: ${{ matrix.client_lang }}_${{ matrix.client }}_${{ matrix.server }}
           path: ${{ env.ARTIFACTS_PATH }}
 
   publish-results:
@@ -132,23 +133,34 @@ jobs:
         run: |
           ARTIFACTS_PATH=results
 
-          declare -A cpp java cpp_ver java_ver vomsaa_ver
+          declare -A results client_ver vomsaa_ver
           for file in ${ARTIFACTS_PATH}/**/result-*.json; do
-            json=$(cat "$file")
-            key="$(jq -r .client <<< "$json")_$(jq -r .server <<< "$json")"
+            base=$(basename $file)
+            no_ext=${base%.json}
+            no_prefix=${no_ext#result-}
+            IFS='-' read -r language client_version server_version <<< "$no_prefix"
 
-            cpp[$key]=":white_check_mark: Passed $(jq -r .cpp_passed_tests <<< "$json") :x: Failed $(jq -r .cpp_failed_tests <<< "$json")"
-            java[$key]=":white_check_mark: Passed $(jq -r .java_passed_tests <<< "$json") :x: Failed $(jq -r .java_failed_tests <<< "$json")"
-            cpp_ver[$key]="$(jq -r .cpp_client_version <<< "$json")"
-            java_ver[$key]="$(jq -r .java_client_version <<< "$json")"
+            json=$(cat "$file")
+            key="${language}_${client_version}_${server_version}"
+
+            results[$key]=":white_check_mark: Passed $(jq -r .passed_tests <<< "$json") :x: Failed $(jq -r .failed_tests <<< "$json")"
+            client_ver[$key]="$(jq -r .client_version <<< "$json")"
             vomsaa_ver[$key]="$(jq -r .vomsaa_version <<< "$json")"
           done
 
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
-          echo "|                          | VOMS AA stable (${vomsaa_ver[client_stable_server_stable]}) | VOMS AA beta (${vomsaa_ver[client_stable_server_beta]}) |" >> $GITHUB_STEP_SUMMARY
+          echo "|                          | VOMS AA stable (${vomsaa_ver[cpp_client_stable_server_stable]}) | VOMS AA beta (${vomsaa_ver[cpp_client_stable_server_beta]}) |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
-          echo "| __VOMS clients cpp stable (${cpp_ver[client_stable_server_stable]})__  | ${cpp[client_stable_server_stable]} | ${cpp[client_stable_server_beta]} |" >> $GITHUB_STEP_SUMMARY
-          echo "| __VOMS clients java stable (${java_ver[client_stable_server_stable]})__ | ${java[client_stable_server_stable]} | ${java[client_stable_server_beta]} |" >> $GITHUB_STEP_SUMMARY
-          echo "| __VOMS clients cpp beta (${cpp_ver[client_beta_server_stable]})__ | ${cpp[client_beta_server_stable]} | ${cpp[client_beta_server_beta]} |" >> $GITHUB_STEP_SUMMARY
-          echo "| __VOMS clients java beta (${java_ver[client_beta_server_stable]})__ | ${java[client_beta_server_stable]} | ${java[client_beta_server_beta]} |" >> $GITHUB_STEP_SUMMARY
+
+          print_results() {
+            lang=$1
+            client=$2
+            version=${client#client_}
+            echo "| __VOMS clients ${lang} ${version} (${client_ver[${lang}_${client}_server_stable]})__ | ${results[${lang}_${client}_server_stable]} | ${results[${lang}_${client}_server_beta]} |" >> $GITHUB_STEP_SUMMARY
+          }
+
+          print_results cpp client_stable
+          print_results java client_stable
+          print_results cpp client_beta
+          print_results java client_beta
         shell: bash
