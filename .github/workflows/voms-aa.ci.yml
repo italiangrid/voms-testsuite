@@ -139,9 +139,9 @@ jobs:
 
             cpp[$key]=":white_check_mark: Passed $(jq -r .cpp_passed_tests <<< "$json") :x: Failed $(jq -r .cpp_failed_tests <<< "$json")"
             java[$key]=":white_check_mark: Passed $(jq -r .java_passed_tests <<< "$json") :x: Failed $(jq -r .java_failed_tests <<< "$json")"
-            cpp_ver[$(jq -r .client <<< "$json")]="$(jq -r .cpp_client_version <<< "$json")"
-            java_ver[$(jq -r .client <<< "$json")]="$(jq -r .java_client_version <<< "$json")"
-            vomsaa_ver[$(jq -r .server <<< "$json")]="$(jq -r .vomsaa_version <<< "$json")"
+            cpp_ver[$key]="$(jq -r .cpp_client_version <<< "$json")"
+            java_ver[$key]="$(jq -r .java_client_version <<< "$json")"
+            vomsaa_ver[$key]="$(jq -r .vomsaa_version <<< "$json")"
           done
 
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
