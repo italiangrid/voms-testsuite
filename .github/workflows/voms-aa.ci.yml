@@ -50,9 +50,8 @@ jobs:
         run: |
           ARTIFACTS_PATH=${HOME}/artifacts
           echo ARTIFACTS_PATH: ${ARTIFACTS_PATH}
-          # save it in the job environment
           echo "ARTIFACTS_PATH=${ARTIFACTS_PATH}" >> ${GITHUB_ENV}
-          mkdir -p ${ARTIFACTS_PATH}/logs ${ARTIFACTS_PATH}/java ${ARTIFACTS_PATH}/cpp
+          mkdir -p ${ARTIFACTS_PATH}/logs
 
       - name: Enable legacy OpenSSL crypto policies on EL9
         if: matrix.client == 'client_beta'
@@ -67,7 +66,7 @@ jobs:
 
       - name: Collect test report for java clients
         if: matrix.client_lang == 'java'
-        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/java
+        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/
         working-directory: compose
 
       - name: Run testsuite for cpp clients
@@ -80,7 +79,7 @@ jobs:
 
       - name: Collect test report for cpp clients
         if: matrix.client_lang == 'cpp'
-        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/cpp
+        run: docker compose --file docker-compose.ci.yml cp testsuite:/tmp/reports ${ARTIFACTS_PATH}/
         working-directory: compose
 
       - name: Collect summary report
