@@ -10,7 +10,7 @@ env:
 
 jobs:
   run_testsuite_vomsaa:
-    name: ${{ matrix.server }} (voms-aa), ${{ matrix.client_lang }} ${{ matrix.client }}
+    name: VOMS AA ${{ env[matrix.server] }}, ${{ matrix.client_lang }} client ${{ env[matrix.client] }}
 
     strategy:
       matrix:
