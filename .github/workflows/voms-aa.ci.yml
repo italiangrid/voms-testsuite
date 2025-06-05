@@ -85,7 +85,7 @@ jobs:
       - name: Collect summary report
         if: ${{ always() }}
         run: |
-          result=$(cat ${ARTIFACTS_PATH}/**/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')          
+          result=$(cat ${ARTIFACTS_PATH}/reports/report.html | grep '^window.output\["stats"\]' | sed -e 's/window.output\["stats"\] = //' -e 's/;$//')
           
           passed_tests=$(echo "${result}" | jq .[0][0].pass)
           failed_tests=$(echo "${result}" | jq .[0][0].fail)
