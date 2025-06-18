@@ -200,6 +200,33 @@ A user can obtain a role she holds from a VO she belongs to
   Should Contain  ${output}  /${vo1}/G1/Role=R1
   [Teardown]  Stop using certificate
 
+Check that all FQANs start with VO name
+  [Tags]  vomsaa   issue-991
+  [Setup]  Use certificate  test0
+  Create proxy   -voms ${vo1}
+  ${output}  Get proxy info  -fqan
+  Should Contain X Times  ${output}   /${vo1}   4
+  Should Not Contain Any   ${output}   /Analysis   /Production   Analysis   Production
+  [Teardown]  Stop using certificate
+
+A user cannot obtain a FQAN with parent group different by the VO name when requested
+  [Tags]  vomsaa  issue-991
+  [Setup]  Use certificate  test0
+  ${output}   Create proxy   -voms ${vo1}:/Analysis
+  Should Contain  ${output}  User is not authorized to request attribute
+  ${output}   Create proxy   -voms ${vo1}:/Production
+  Should Contain  ${output}  User is not authorized to request attribute
+  [Teardown]  Stop using certificate
+
+A user cannot obtain a FQAN with parent group different by the VO name when requested with -order
+  [Tags]  vomsaa   issue-991
+  [Setup]  Use certificate  test0
+  ${output}   Create proxy   -voms ${vo1} -order /Analysis
+  Should Contain  ${output}  User is not authorized to request attribute
+  ${output}   Create proxy   -voms ${vo1} -order /Production
+  Should Contain  ${output}  User is not authorized to request attribute
+  [Teardown]  Stop using certificate
+
 See if voms-proxy-init --hours works
   [Tags]  legacy
   [Setup]   Use certificate   test0
