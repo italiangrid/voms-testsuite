@@ -107,5 +107,4 @@ $ export ROBOT_OPTIONS="--variable vo1:vo.2 --variable vo1_host:voms-aa.test.exa
 $ docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
 ```
 
-
 [robot-framework]: https://robotframework.org/
