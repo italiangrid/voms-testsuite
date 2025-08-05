@@ -3,7 +3,7 @@ name: Run testsuite
 on: push
 
 env:
-  server_beta: v1.12.1-voms336
+  server_beta: v1.12.2
   server_stable: v1.11.0
   client_beta: 9-beta
   client_stable: 7-stable
