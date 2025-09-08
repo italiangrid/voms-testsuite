@@ -359,3 +359,19 @@ See if voms-proxy-init works using a 600 userkey
   Execute and Check Success   chmod 600 %{HOME}/.globus/userkey.pem
   ${output}   Create proxy
   [Teardown]   Stop using certificate
+
+voms-proxy-init fails validation for malformed LSC
+  [Tags]  voms-api-java-issue-47
+  [Setup]  Use certificate  test0
+  ${output}   Create proxy failure  --voms malformed
+  ${expected}  Set Variable If  ${client_version} == 2  Unable to match certificate chain against file  Malformed LSC file
+  Should Contain  ${output}  ${expected}
+  [Teardown]  Stop using certificate
+
+voms-proxy-init fails validation for malformed LSC when multiple VOs are requested
+  [Tags]  voms-api-java-issue-47
+  [Setup]  Use certificate  test0
+  ${output}   Create proxy failure  --voms ${vo1} --voms malformed
+  ${expected}  Set Variable If  ${client_version} == 2  Unable to match certificate chain against file  Malformed LSC file
+  Should Contain  ${output}  ${expected}
+  [Teardown]  Stop using certificate
