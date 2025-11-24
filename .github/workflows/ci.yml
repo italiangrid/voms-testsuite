@@ -10,11 +10,8 @@ jobs:
 
     strategy:
       matrix:
-        rhel: [7, 9]
+        rhel: [9]
         repo: [stable, beta]
-        exclude:
-          - rhel: 7
-            repo: beta
 
     runs-on: ubuntu-latest
 
@@ -44,11 +41,8 @@ jobs:
 
     strategy:
       matrix:
-        rhel: [7, 9]
+        rhel: [9]
         repo: [stable, beta]
-        exclude:
-          - rhel: 7
-            repo: beta
 
     runs-on: ubuntu-latest
     
@@ -78,7 +72,7 @@ jobs:
 
     strategy:
       matrix:
-        client: [7-stable, 9-beta]
+        client: [9-beta, 9-stable]
         server: [7-stable, 9-beta]
         client_lang: [cpp, java]
 
@@ -119,7 +113,6 @@ jobs:
         mkdir -p ${ARTIFACTS_PATH}/logs
 
     - name: Enable legacy OpenSSL crypto policies on EL9
-      if: matrix.client == '9-beta'
       run: docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "sudo update-crypto-policies --set LEGACY"
       working-directory: compose
 
@@ -223,8 +216,8 @@ jobs:
             echo "| __VOMS clients ${lang} ${repo} ${client_ver[${lang}_${client}_7-stable]} (EL ${el})__ | ${results[${lang}_${client}_7-stable]} | ${results[${lang}_${client}_9-beta]} |" >> $GITHUB_STEP_SUMMARY
           }
 
-          print_results cpp 7-stable
-          print_results java 7-stable
           print_results cpp 9-beta
           print_results java 9-beta
+          print_results cpp 9-stable
+          print_results java 9-stable
         shell: bash
