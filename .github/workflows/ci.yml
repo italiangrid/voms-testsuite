@@ -67,8 +67,8 @@ jobs:
             VOMS_REPO=${{ matrix.repo }}
             RHEL_VERSION=${{ matrix.rhel }}
 
-  run-testsuite-vomsadmin:
-    name: VOMS Admin ${{ matrix.server }}, ${{ matrix.client_lang }} client ${{ matrix.client }}
+  run-testsuite-voms:
+    name: VOMS ${{ matrix.server }}, ${{ matrix.client_lang }} client ${{ matrix.client }}
 
     strategy:
       matrix:
@@ -180,7 +180,7 @@ jobs:
 
   publish-results:
     runs-on: ubuntu-latest
-    needs: [run-testsuite-vomsadmin]
+    needs: [run-testsuite-voms]
     steps:
       - name: Download all results
         uses: actions/download-artifact@v4
@@ -206,7 +206,7 @@ jobs:
           done
 
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
-          echo "|                          | VOMS Admin stable (EL 7) | VOMS Admin beta (EL 9) |" >> $GITHUB_STEP_SUMMARY
+          echo "|                          | VOMS stable (EL 7) | VOMS beta (EL 9) |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
 
           print_results() {
