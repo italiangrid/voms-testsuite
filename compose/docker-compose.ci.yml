@@ -44,6 +44,7 @@ services:
       - trustanchors:/etc/grid-security/certificates
       - ./assets/vomses:/etc/vomses
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
+      - ./assets/vomsdir-malformed:/home/test/vomsdir:ro
       - ./assets/scripts:/scripts
       - usercerts:/usercerts
       - ..:/home/test/voms-testsuite:cached
