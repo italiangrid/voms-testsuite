@@ -3,6 +3,9 @@ Resource   lib/vomslib.robot
 Resource   lib/variables.robot
 Documentation  Generic tests for voms-proxy-init
 
+Suite Setup   Suite Setup Wrapper
+Suite Teardown   Suite Teardown Wrapper
+
 *** Keywords ***
 
 Setup mixed proxy chain
@@ -419,3 +422,9 @@ Modify LSC file with malformed DN   [Arguments]   ${vo}
 
 Restore LSC file with malformed DN   [Arguments]   ${vo}
   Execute and Check Success   sed -i "2{/^[^\\/]/{s/^/\\//}}" ${customVomsdir}/${vo}/*
+
+Suite Setup Wrapper
+  Execute and Check Success   cp -r /etc/grid-security/vomsdir ${customVomsdir}
+
+Suite Teardown Wrapper
+  Execute and Check Success   rm -rf ${customVomsdir}
