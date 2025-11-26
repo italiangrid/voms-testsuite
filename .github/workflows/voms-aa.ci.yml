@@ -23,7 +23,7 @@ jobs:
     continue-on-error: true
 
     env:
-      ROBOT_OPTIONS: --variable vo1:vo.2 --variable vo1_host:voms-aa.test.example --variable vo1_issuer:'/C=IT/O=IGI/CN=voms-aa.test.example' --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:'/C=IT/O=IGI/CN=voms.test.example' --variable vo1_is_voms_aa:True --exclude issue-723 --exclude issue-724 --exclude issue-726
+      ROBOT_OPTIONS: --variable vo1:vo.2 --variable vo1_host:voms-aa.test.example --variable vo1_issuer:'/C=IT/O=IGI/CN=voms-aa.test.example' --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:'/C=IT/O=IGI/CN=voms.test.example' --variable vo1_is_voms_aa:True --exclude issue-723 --exclude issue-724 --exclude issue-726 --exclude old
 
     steps:
       - name: Checkout

@@ -139,11 +139,20 @@ See if voms-proxy-init fails correctly when the key is corrupted
 
 Check the error message if a file cannot be written
   # why cannot it be overwritten like the cpp client does?
+  [Tags]   old
   [Setup]  Use certificate   test0
   ${tmpFile}   Run  mktemp /tmp/voms-testXXX
   Execute and Check Success  chmod 0000 ${tmpFile}
   ${output}  Create Proxy Failure  -out ${tmpFile}
   Should Contain  ${output}  Permission denied
+  [Teardown]  Stop using certificate
+
+Overwritte proxy file when not writable
+  [Setup]  Use certificate   test0
+  ${tmpFile}   Run  mktemp /tmp/voms-testXXX
+  Execute and Check Success  chmod 0000 ${tmpFile}
+  ${output}  Create Proxy  -out ${tmpFile}
+  Should Contain  ${output}  Your proxy is valid until
   [Teardown]  Stop using certificate
 
 A user gets the right message when trying to create a proxy without a certificate
