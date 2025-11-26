@@ -82,7 +82,7 @@ voms-proxy-init can parse p12 certificates
 voms-proxy-init -cert option understands p12 certificates
   [Tags]   rfc
   ${cert}   Get named p12 certificate path   test0
-  ${tmpCert}   Run   mktemp /tmp/voms-p12testXXX
+  ${tmpCert}   Run   mktemp /tmp/voms-p12testXXX.p12
   Execute and Check Success   cp ${cert} ${tmpCert}
   Execute and Check Success   chmod 600 ${tmpCert}
   Create proxy   -cert ${tmpCert}
@@ -259,7 +259,8 @@ See if a target can be added to a proxy
   [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   ${target}  Run   hostname -f
-  ${output}  Create proxy  -voms ${vo1} -target ${target}
+  ${option}  Set Variable If  ${client_version} == 2  --dont-verify-ac  --dont_verify_ac
+  ${output}  Create proxy  -voms ${vo1} -target ${target} ${option}
   Should Not Contain   ${output}  AC target check failed
   [Teardown]  Stop using certificate
 
