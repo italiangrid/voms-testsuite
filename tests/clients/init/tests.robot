@@ -404,8 +404,9 @@ voms-proxy-init succeeds when the requested VO has not a malformed LSC
   [Setup]  Run Keywords   Use certificate   test0
   ...      AND            Set Environment Variable  X509_VOMS_DIR   ${customVomsdir}
   ...      AND            Modify LSC file with malformed DN   ${vo2}
-  ${output}   Create proxy  --voms ${vo1}
-  Should Contain  ${output}  ${expected}
+  Create proxy  --voms ${vo1}
+  ${output}  Get proxy info
+  Should Contain  ${output}  ${vo1}
   [Teardown]  Run Keywords   Stop using certificate
   ...         AND            Remove Environment Variable  X509_VOMS_DIR
   ...         AND            Restore LSC file with malformed DN   ${vo2}

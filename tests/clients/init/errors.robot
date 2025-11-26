@@ -147,7 +147,7 @@ Check the error message if a file cannot be written
   Should Contain  ${output}  Permission denied
   [Teardown]  Stop using certificate
 
-Overwritte proxy file when not writable
+Overwrite proxy file when not writable
   [Setup]  Use certificate   test0
   ${tmpFile}   Run  mktemp /tmp/voms-testXXX
   Execute and Check Success  chmod 0000 ${tmpFile}
