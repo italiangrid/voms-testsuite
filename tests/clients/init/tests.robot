@@ -366,28 +366,55 @@ voms-proxy-init fails validation for malformed LSC
   [Tags]  voms-api-java-issue-47
   [Setup]  Run Keywords   Use certificate   test0
   ...      AND            Set Environment Variable  X509_VOMS_DIR   ${customVomsdir}
+  ...      AND            Modify LSC file with malformed DN   ${vo1}
   ${output}   Create proxy failure  --voms ${vo1}
   ${expected}  Set Variable If  ${client_version} == 2  Unable to match certificate chain against file  Malformed LSC file
   Should Contain  ${output}  ${expected}
   [Teardown]  Run Keywords   Stop using certificate
   ...         AND            Remove Environment Variable  X509_VOMS_DIR
+  ...         AND            Restore LSC file with malformed DN   ${vo1}
 
 voms-proxy-init fails validation for malformed LSC when multiple VOs are requested
   [Tags]  voms-api-java-issue-47
   [Setup]  Run Keywords   Use certificate   test0
   ...      AND            Set Environment Variable  X509_VOMS_DIR   ${customVomsdir}
-  ${output}   Create proxy failure  --voms ${vo1}
+  ...      AND            Modify LSC file with malformed DN   ${vo1}
+  ${output}   Create proxy failure  --voms ${vo1} --voms ${vo2}
   ${expected}  Set Variable If  ${client_version} == 2  Unable to match certificate chain against file  Malformed LSC file
   Should Contain  ${output}  ${expected}
   [Teardown]  Run Keywords   Stop using certificate
   ...         AND            Remove Environment Variable  X509_VOMS_DIR
+  ...         AND            Restore LSC file with malformed DN   ${vo1}
 
 voms-proxy-init --dont_verify_ac succeeds with malformed LSC
   [Tags]   legacy
   [Setup]  Run Keywords   Use certificate   test0
   ...      AND            Set Environment Variable  X509_VOMS_DIR   ${customVomsdir}
+  ...      AND            Modify LSC file with malformed DN   ${vo1}
   ${option}  Set Variable If  ${client_version} == 2  --dont-verify-ac  --dont_verify_ac
-  ${output}  Create Proxy   -debug --voms ${vo1} ${option}
-  Should Not Contain  ${output}  VOMS AC validation for VO malformed succeded
+  Create Proxy   -debug --voms ${vo1} ${option}
+  ${output}  Get proxy info
+  Should Contain  ${output}  ${vo1}
   [Teardown]  Run Keywords   Stop using certificate
   ...         AND            Remove Environment Variable  X509_VOMS_DIR
+  ...         AND            Restore LSC file with malformed DN   ${vo1}
+
+voms-proxy-init succeeds when the requested VO has not a malformed LSC
+  [Tags]  voms-api-java-issue-47
+  [Setup]  Run Keywords   Use certificate   test0
+  ...      AND            Set Environment Variable  X509_VOMS_DIR   ${customVomsdir}
+  ...      AND            Modify LSC file with malformed DN   ${vo2}
+  ${output}   Create proxy  --voms ${vo1}
+  Should Contain  ${output}  ${expected}
+  [Teardown]  Run Keywords   Stop using certificate
+  ...         AND            Remove Environment Variable  X509_VOMS_DIR
+  ...         AND            Restore LSC file with malformed DN   ${vo2}
+
+
+*** Keywords ***
+
+Modify LSC file with malformed DN   [Arguments]   ${vo}
+  Run   sed -i '2{/^\//s/^\///}' vomsdir/${vo}/*
+
+Restore LSC file with malformed DN   [Arguments]   ${vo}
+  Run   sed -i '2 s/^\///' vomsdir/${vo}/*
