@@ -93,6 +93,7 @@ Request for unknown VO should produce meaningful error message
   [Teardown]   Stop using certificate
 
 voms-proxy-init correctly fails on mixed proxy chains
+  [Tags]   java-clients
   [Setup]   Setup mixed proxy chain
   ${output}   Create proxy failure   --noregen
   Should Contain   ${output}   Cannot generate a proxy certificate starting from a mixed type proxy chain.

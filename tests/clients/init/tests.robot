@@ -101,7 +101,7 @@ voms-proxy-init generates proxy with the appropriate file permissions
   [Teardown]   Stop using certificate
 
 voms-proxy-init enforces chain integrity
-  [Tags]   rfc
+  [Tags]   rfc   java-clients
   [Setup]   Use certificate   test0
   Create proxy   -old   
   ${output}   Create proxy   -noregen -rfc
@@ -117,7 +117,7 @@ voms-proxy-init enforces chain integrity
   [Teardown]   Stop using certificate
 
 limited proxies can sign only limited proxies
-  [Tags]   rfc
+  [Tags]   rfc   java-clients
   [Setup]   Use certificate   test0
   Create proxy   -limited -old
   ${output}   Create proxy   -noregen
@@ -264,6 +264,7 @@ See if a target can be added to a proxy
   [Teardown]  Stop using certificate
 
 voms-proxy-init should limit proxy lifetime to be consistent with issuing certificate lifetime
+  [Tags]   java-clients
   [Setup]   Use certificate   test0
   ${output}   Create proxy   --hours  96426
   Should Contain   ${output}   proxy lifetime limited to issuing credential lifetime
@@ -371,7 +372,7 @@ voms-proxy-init fails validation for malformed LSC
 voms-proxy-init fails validation for malformed LSC when multiple VOs are requested
   [Tags]  voms-api-java-issue-47
   [Setup]  Use certificate  test0
-  ${output}   Create proxy failure  --voms ${vo1} --voms ${vo1} -vomsdir /home/test/vomsdir
+  ${output}   Create proxy failure  --voms ${vo1} --voms ${vo2} -vomsdir /home/test/vomsdir
   ${expected}  Set Variable If  ${client_version} == 2  Unable to match certificate chain against file  Malformed LSC file
   Should Contain  ${output}  ${expected}
   [Teardown]  Stop using certificate
