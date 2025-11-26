@@ -51,11 +51,18 @@ Teardown for empty certdir test
 *** Test Cases ***
 
 voms-proxy-init --vomsdir fails with non-existent vomsdir 
-  [Tags]  remote
+  [Tags]  remote   java-clients
+  [Setup]   Use certificate   test0
+  ${output}   Create proxy failure   -voms ${vo1} -vomsdir /unlikely/path
+  Should Contain   ${output}   Invalid vomsdir location: '/unlikely/path' (file not found) 
+  [Teardown]   Stop using certificate
+
+voms-proxy-init with non-existent vomsdir does not verify AC signature
+  [Tags]  remote   cpp-clients
   [Setup]   Run Keywords   Use certificate   test0
   ...       AND            Set Environment Variable  X509_VOMS_DIR   /unlikely/path
   ${output}   Create proxy failure   -voms ${vo1}
-  Should Contain   ${output}   Invalid vomsdir location: '/unlikely/path' (file not found) 
+  Should Contain   ${output}    Cannot verify AC signature!
   [Teardown]   Run Keywords   Stop using certificate
   ...          AND            Remove Environment Variable  X509_VOMS_DIR
 

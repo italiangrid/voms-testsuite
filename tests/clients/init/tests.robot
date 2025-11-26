@@ -233,7 +233,7 @@ See if voms-proxy-init detects fake arguments
   [Teardown]  Stop using certificate
 
 See if requesting a too long proxy fails
-  [Tags]  remote  legacy  issue-724
+  [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} --valid 100:00
   Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to
@@ -249,7 +249,7 @@ Can AC validity be limited?
   [Teardown]  Stop using certificate
 
 See if requesting a too long ac length fails
-  [Tags]  remote  legacy  issue-724
+  [Tags]  remote  legacy
   [Setup]  Use certificate  test0
   ${output}   Create proxy   --voms ${vo1} --vomslife 100:00
   Should Contain  ${output}  The validity of this VOMS AC in your proxy is shortened to
@@ -264,10 +264,10 @@ See if a target can be added to a proxy
   [Teardown]  Stop using certificate
 
 voms-proxy-init should limit proxy lifetime to be consistent with issuing certificate lifetime
-  [Tags]   java-clients
   [Setup]   Use certificate   test0
   ${output}   Create proxy   --hours  96426
-  Should Contain   ${output}   proxy lifetime limited to issuing credential lifetime
+  ${expected}  Set Variable If  ${client_version} == 2  your certificate and proxy will expire  proxy lifetime limited to issuing credential lifetime
+  Should Contain   ${output}    ${expected}
   ${certEndTime}   Get named certificate end date   test0
   ${proxyPath}   Get proxy path
   ${proxyEndTime}   Get certificate end date   ${proxyPath}

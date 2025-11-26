@@ -15,7 +15,7 @@ See if voms-proxy-init --quiet works
 See if voms-proxy-init --limited (gt2) works
   [Setup]  Use certificate  test0
   Create Proxy  --limited
-  ${output}   Get proxy info
+  ${output}   Run   voms-proxy-info3 ${options}
   Should Contain  ${output}  limited proxy
   [Teardown]  Stop using certificate
 
