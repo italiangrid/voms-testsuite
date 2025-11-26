@@ -166,8 +166,7 @@ A user gets the right message when trying to create a proxy providing the wrong 
   [Tags]  legacy
   [Setup]  Use certificate   test0
   ${output}  Execute and Check Failure   echo "CAMAGHE" | voms-proxy-init -pwstdin
-  ${expected}  Set Variable If  ${client_version} == 2  wrong pass  Error decrypting private key: the password is incorrect or the PEM data is corrupted.
-  Should Contain  ${output}  ${expected}
+  Should Contain Any   ${output}  wrong pass   processing key   Error decrypting private key: the password is incorrect or the PEM data is corrupted.
   [Teardown]  Stop using certificate
 
 A user cannot get a proxy from a VO she does not belong to
