@@ -393,7 +393,7 @@ voms-proxy-init --dont_verify_ac succeeds with malformed LSC
   ...      AND            Modify LSC file with malformed DN   ${vo1}
   ${option}  Set Variable If  ${client_version} == 2  --dont-verify-ac  --dont_verify_ac
   Create Proxy   -debug --voms ${vo1} ${option}
-  ${output}  Get proxy info
+  ${output}  Get proxy info   -all
   Should Contain  ${output}  ${vo1}
   [Teardown]  Run Keywords   Stop using certificate
   ...         AND            Remove Environment Variable  X509_VOMS_DIR
@@ -405,7 +405,7 @@ voms-proxy-init succeeds when the requested VO has not a malformed LSC
   ...      AND            Set Environment Variable  X509_VOMS_DIR   ${customVomsdir}
   ...      AND            Modify LSC file with malformed DN   ${vo2}
   Create proxy  --voms ${vo1}
-  ${output}  Get proxy info
+  ${output}  Get proxy info   -all
   Should Contain  ${output}  ${vo1}
   [Teardown]  Run Keywords   Stop using certificate
   ...         AND            Remove Environment Variable  X509_VOMS_DIR
@@ -415,7 +415,7 @@ voms-proxy-init succeeds when the requested VO has not a malformed LSC
 *** Keywords ***
 
 Modify LSC file with malformed DN   [Arguments]   ${vo}
-  Run   sed -i '2{/^\//s/^\///}' vomsdir/${vo}/*
+  Execute and Check Success   sed -i "2{/^\\//s#^/##}" ${customVomsdir}/${vo}/*
 
 Restore LSC file with malformed DN   [Arguments]   ${vo}
-  Run   sed -i '2 s/^[^\/]/\/&/' vomsdir/${vo}/*
+  Execute and Check Success   sed -i "2{/^[^\\/]/{s/^/\\//}}" ${customVomsdir}/${vo}/*
