@@ -2,6 +2,7 @@
 
 ${certsDir}   /usercerts
 ${privateKeyPassword}   pass
+${customVomsdir}   
 
 ${vo1}   vo.0
 ${vo2}   vo.1

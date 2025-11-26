@@ -363,24 +363,30 @@ See if voms-proxy-init works using a 600 userkey
 
 voms-proxy-init fails validation for malformed LSC
   [Tags]  voms-api-java-issue-47
-  [Setup]  Use certificate  test0
-  ${output}   Create proxy failure  --voms ${vo1} -vomsdir /home/test/vomsdir
+  [Setup]  Run Keywords   Use certificate   test0
+  ...      AND            Set Environment Variable  X509_VOMS_DIR   ${customVomsdir}
+  ${output}   Create proxy failure  --voms ${vo1}
   ${expected}  Set Variable If  ${client_version} == 2  Unable to match certificate chain against file  Malformed LSC file
   Should Contain  ${output}  ${expected}
-  [Teardown]  Stop using certificate
+  [Teardown]  Run Keywords   Stop using certificate
+  ...         AND            Remove Environment Variable  X509_VOMS_DIR
 
 voms-proxy-init fails validation for malformed LSC when multiple VOs are requested
   [Tags]  voms-api-java-issue-47
-  [Setup]  Use certificate  test0
-  ${output}   Create proxy failure  --voms ${vo1} --voms ${vo2} -vomsdir /home/test/vomsdir
+  [Setup]  Run Keywords   Use certificate   test0
+  ...      AND            Set Environment Variable  X509_VOMS_DIR   ${customVomsdir}
+  ${output}   Create proxy failure  --voms ${vo1}
   ${expected}  Set Variable If  ${client_version} == 2  Unable to match certificate chain against file  Malformed LSC file
   Should Contain  ${output}  ${expected}
-  [Teardown]  Stop using certificate
+  [Teardown]  Run Keywords   Stop using certificate
+  ...         AND            Remove Environment Variable  X509_VOMS_DIR
 
 voms-proxy-init --dont_verify_ac succeeds with malformed LSC
   [Tags]   legacy
-  [Setup]  Use certificate   test0
+  [Setup]  Run Keywords   Use certificate   test0
+  ...      AND            Set Environment Variable  X509_VOMS_DIR   ${customVomsdir}
   ${option}  Set Variable If  ${client_version} == 2  --dont-verify-ac  --dont_verify_ac
-  ${output}  Create Proxy   -debug --voms ${vo1} -vomsdir /home/test/vomsdir ${option}
+  ${output}  Create Proxy   -debug --voms ${vo1} ${option}
   Should Not Contain  ${output}  VOMS AC validation for VO malformed succeded
-  [Teardown]  Stop using certificate
+  [Teardown]  Run Keywords   Stop using certificate
+  ...         AND            Remove Environment Variable  X509_VOMS_DIR
