@@ -22,9 +22,9 @@ See if voms-proxy-init --limited (gt2) works
 See if voms-proxy-init --bits works
   [Tags]  legacy
   [Setup]  Use certificate  test0
-  Create Proxy  --bits 512
+  Create Proxy  --bits 2048
   ${output}  Get proxy openssl
-  Should Contain  ${output}  Public-Key: (512 bit)
+  Should Contain  ${output}  Public-Key: (2048 bit)
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --conf works

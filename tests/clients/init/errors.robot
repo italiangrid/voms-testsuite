@@ -133,7 +133,7 @@ See if voms-proxy-init fails correctly when the key is corrupted
   Execute and Check Success  cat %{HOME}/.globus/userkey.pem|tr [a-z] [A-Z] > ${tmpKey}
   Execute and Check Success   chmod 400 ${tmpKey}
   ${output}   Create Proxy Failure   --cert %{HOME}/.globus/usercert.pem --key ${tmpKey}
-  ${expected}  Set Variable If  ${client_version} == 2  *wrong tag*  *Can not load the PEM private key*
+  ${expected}  Set Variable If  ${client_version} == 2  *processing key*  *Can not load the PEM private key*
   Should Match   ${output}   ${expected}
   [Teardown]  Stop using certificate
 
