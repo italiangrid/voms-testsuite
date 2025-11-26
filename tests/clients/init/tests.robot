@@ -418,4 +418,4 @@ Modify LSC file with malformed DN   [Arguments]   ${vo}
   Run   sed -i '2{/^\//s/^\///}' vomsdir/${vo}/*
 
 Restore LSC file with malformed DN   [Arguments]   ${vo}
-  Run   sed -i '2 s/^\///' vomsdir/${vo}/*
+  Run   sed -i '2 s/^[^\/]/\/&/' vomsdir/${vo}/*
