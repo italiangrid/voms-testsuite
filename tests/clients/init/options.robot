@@ -15,16 +15,16 @@ See if voms-proxy-init --quiet works
 See if voms-proxy-init --limited (gt2) works
   [Setup]  Use certificate  test0
   Create Proxy  --limited
-  ${output}   Get proxy info
+  ${output}   Run   voms-proxy-info3 ${options}
   Should Contain  ${output}  limited proxy
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --bits works
   [Tags]  legacy
   [Setup]  Use certificate  test0
-  Create Proxy  --bits 512
+  Create Proxy  --bits 2048
   ${output}  Get proxy openssl
-  Should Contain  ${output}  Public-Key: (512 bit)
+  Should Contain  ${output}  Public-Key: (2048 bit)
   [Teardown]  Stop using certificate
 
 See if voms-proxy-init --conf works

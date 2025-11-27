@@ -93,6 +93,7 @@ Request for unknown VO should produce meaningful error message
   [Teardown]   Stop using certificate
 
 voms-proxy-init correctly fails on mixed proxy chains
+  [Tags]   java-clients
   [Setup]   Setup mixed proxy chain
   ${output}   Create proxy failure   --noregen
   Should Contain   ${output}   Cannot generate a proxy certificate starting from a mixed type proxy chain.
@@ -132,17 +133,26 @@ See if voms-proxy-init fails correctly when the key is corrupted
   Execute and Check Success  cat %{HOME}/.globus/userkey.pem|tr [a-z] [A-Z] > ${tmpKey}
   Execute and Check Success   chmod 400 ${tmpKey}
   ${output}   Create Proxy Failure   --cert %{HOME}/.globus/usercert.pem --key ${tmpKey}
-  ${expected}  Set Variable If  ${client_version} == 2  *wrong tag*  *Can not load the PEM private key*
+  ${expected}  Set Variable If  ${client_version} == 2  *processing key*  *Can not load the PEM private key*
   Should Match   ${output}   ${expected}
   [Teardown]  Stop using certificate
 
 Check the error message if a file cannot be written
   # why cannot it be overwritten like the cpp client does?
+  [Tags]   old
   [Setup]  Use certificate   test0
   ${tmpFile}   Run  mktemp /tmp/voms-testXXX
   Execute and Check Success  chmod 0000 ${tmpFile}
   ${output}  Create Proxy Failure  -out ${tmpFile}
   Should Contain  ${output}  Permission denied
+  [Teardown]  Stop using certificate
+
+Overwrite proxy file when not writable
+  [Setup]  Use certificate   test0
+  ${tmpFile}   Run  mktemp /tmp/voms-testXXX
+  Execute and Check Success  chmod 0000 ${tmpFile}
+  ${output}  Create Proxy  -out ${tmpFile}
+  Should Contain  ${output}  Your proxy is valid until
   [Teardown]  Stop using certificate
 
 A user gets the right message when trying to create a proxy without a certificate
@@ -156,8 +166,7 @@ A user gets the right message when trying to create a proxy providing the wrong 
   [Tags]  legacy
   [Setup]  Use certificate   test0
   ${output}  Execute and Check Failure   echo "CAMAGHE" | voms-proxy-init -pwstdin
-  ${expected}  Set Variable If  ${client_version} == 2  wrong pass  Error decrypting private key: the password is incorrect or the PEM data is corrupted.
-  Should Contain  ${output}  ${expected}
+  Should Contain Any   ${output}  wrong pass   processing key   Error decrypting private key: the password is incorrect or the PEM data is corrupted.
   [Teardown]  Stop using certificate
 
 A user cannot get a proxy from a VO she does not belong to

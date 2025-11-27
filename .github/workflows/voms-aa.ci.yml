@@ -3,10 +3,10 @@ name: Run testsuite
 on: push
 
 env:
-  server_beta: v1.12.0
-  server_stable: v1.11.0
+  server_beta: v1.13.2
+  server_stable: v1.13.0
   client_beta: 9-beta
-  client_stable: 7-stable
+  client_stable: 9-stable
 
 jobs:
   run_testsuite_vomsaa:
@@ -23,7 +23,7 @@ jobs:
     continue-on-error: true
 
     env:
-      ROBOT_OPTIONS: --variable vo1:vo.2 --variable vo1_host:voms-aa.test.example --variable vo1_issuer:'/C=IT/O=IGI/CN=voms-aa.test.example' --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:'/C=IT/O=IGI/CN=voms.test.example' --exclude issue-723 --exclude issue-724 --exclude issue-726
+      ROBOT_OPTIONS: --variable vo1:vo.2 --variable vo1_host:voms-aa.test.example --variable vo1_issuer:'/C=IT/O=IGI/CN=voms-aa.test.example' --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:'/C=IT/O=IGI/CN=voms.test.example' --variable vo1_is_voms_aa:True --exclude issue-723 --exclude issue-726 --exclude old
 
     steps:
       - name: Checkout
@@ -54,13 +54,12 @@ jobs:
           mkdir -p ${ARTIFACTS_PATH}/logs
 
       - name: Enable legacy OpenSSL crypto policies on EL9
-        if: matrix.client == 'client_beta'
         run: docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "sudo update-crypto-policies --set LEGACY"
         working-directory: compose
 
       - name: Run testsuite for java clients
         if: matrix.client_lang == 'java'
-        run: docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
+        run: docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --exclude cpp-clients
         working-directory: compose
         continue-on-error: true
 
@@ -73,7 +72,7 @@ jobs:
         if: matrix.client_lang == 'cpp'
         run: |
           docker compose --file docker-compose.ci.yml exec -T -u root testsuite bash -c "update-alternatives --set voms-proxy-init /usr/bin/voms-proxy-init2; update-alternatives --set voms-proxy-info /usr/bin/voms-proxy-info2; update-alternatives --set voms-proxy-destroy /usr/bin/voms-proxy-destroy2"
-          docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --include legacy
+          docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --variable client_version:2 --exclude java-clients
         working-directory: compose
         continue-on-error: true
 
