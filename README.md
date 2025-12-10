@@ -4,9 +4,9 @@ A [Robot-powered][robot-framework] VOMS clients testsuite.
 
 ## Requirements
 
--   A VOMS installation configured according with the [test fixture](./compose/assets/scripts/setup-and-start-voms.sh)
--   `voms_vo_0` and `voms_vo_1` databases populated as per [db dump](./compose/assets/db)
--   The [IGI test-ca](https://github.com/italiangrid/test-ca) package installed & trusted
+- A VOMS installation configured according with the [test fixture](./compose/assets/scripts/setup-and-start-voms.sh)
+- `voms_vo_0` and `voms_vo_1` databases populated as per [db dump](./compose/assets/db)
+- The [IGI test-ca](https://github.com/italiangrid/test-ca) package installed & trusted
 
 ## Running the testsuite
 
@@ -29,7 +29,6 @@ Use the `italiangrid/voms-testsuite` docker image to run the testsuite.
 
 For other parameters, see the [variables file](./lib/variables.robot).
 
-
 ### Using docker compose
 
 A [docker compose](./compose/docker-compose.ci.yml) file collecting all the necessary services can be used to run the testsuite.
@@ -38,7 +37,7 @@ A [docker compose](./compose/docker-compose.ci.yml) file collecting all the nece
 
 Start the trustanchor job with
 
-```
+```shell
 $ cd compose
 $ docker compose --file docker-compose.ci.yml up --build trust
 [+] Building 38.3s (7/9)                                                               docker-container:practical_dewdney
@@ -58,20 +57,20 @@ trust-1 exited with code 0
 
 Start the db, VOMS and testsuite containers
 
-```
+```shell
 $ docker compose --file docker-compose.ci.yml up --detach db voms testsuite
 ```
 
 Populate the VOMS DB with a dbdump for testing and start VOMS
 
-```
+```shell
 $ docker compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
 $ docker compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
 ```
 
 Run the testsuite with
 
-```
+```shell
 $ docker compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci-run-testsuite.sh
 ```
 
@@ -79,7 +78,7 @@ $ docker compose --file docker-compose.ci.yml exec -T testsuite bash /scripts/ci
 
 Start all services with
 
-```
+```shell
 $ cd compose
 $ docker compose --file docker-compose.ci.yml up --build -d
 [+] Running 9/9
@@ -96,16 +95,15 @@ $ docker compose --file docker-compose.ci.yml up --build -d
 
 Populate the VOMS-AA db with a dbdump for testing (it is a shared db with the VOMS one, that will be populated as well)
 
-```
+```shell
 $ docker compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
 ```
 
 Run the testsuite. Some variables will be overridden using the `ROBOT_OPTIONS` environment variable
 
-```
+```shell
 $ export ROBOT_OPTIONS="--variable vo1:vo.2 --variable vo1_host:voms-aa.test.example --variable vo1_issuer:/C=IT/O=IGI/CN=voms-aa.test.example --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:/C=IT/O=IGI/CN=voms.test.example"
 $ docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh
 ```
-
 
 [robot-framework]: https://robotframework.org/
