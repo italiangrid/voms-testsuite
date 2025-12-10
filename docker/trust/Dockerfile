@@ -9,4 +9,4 @@ RUN dnf install -y epel-release && \
 
 ENV PATH=/helper-scripts/x509-scripts/scripts:$PATH
 
-RUN  sh setup-trust.sh
+RUN sh setup-trust.sh
