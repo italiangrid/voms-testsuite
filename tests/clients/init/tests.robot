@@ -207,8 +207,7 @@ See if voms-proxy-init --hours works
   [Tags]  legacy
   [Setup]   Use certificate   test0
   ${output}   Create proxy   -hours 3
-  ${expected}   Set Variable If  ${client_version} == 2  Creating proxy \.+ Done  Created proxy
-  Should Match Regexp  ${output}  ${expected}
+  Should Contain  ${output}  Created proxy
   ${output} =  Get proxy info  --timeleft
   ${result} =  Convert to integer  ${output}
   Should be true  ${result} > 10000
@@ -270,8 +269,7 @@ See if a target can be added to a proxy
 voms-proxy-init should limit proxy lifetime to be consistent with issuing certificate lifetime
   [Setup]   Use certificate   test0
   ${output}   Create proxy   --hours  96426
-  ${expected}  Set Variable If  ${client_version} == 2  your certificate and proxy will expire  proxy lifetime limited to issuing credential lifetime
-  Should Contain   ${output}    ${expected}
+  Should Contain   ${output}   proxy lifetime limited to issuing credential lifetime
   ${certEndTime}   Get named certificate end date   test0
   ${proxyPath}   Get proxy path
   ${proxyEndTime}   Get certificate end date   ${proxyPath}

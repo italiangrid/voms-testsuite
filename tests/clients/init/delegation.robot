@@ -48,8 +48,7 @@ See if voms-proxy-init --noregen works (no attribute fetching)
   [Setup]   Use certificate   test0
   ${output}  Create voms proxy
   ${output}   Create proxy   -noregen -hours 11
-  ${expected}   Set Variable If  ${client_version} == 2  Creating proxy \.\+ Done  Created proxy
-  Should Match Regexp  ${output}  ${expected}
+  Should Contain  ${output}  Created proxy
   ${output} =  Get proxy info  -chain
   ${expected}   Set Variable If  ${client_version} == 2  subject\\s*:\\s/.+/CN=.*/CN=[0-9]+/CN=[0-9]+\n  Subject:\\s+(CN=[0-9]+,){2}CN=.*
   Should Match Regexp  ${output}  ${expected}

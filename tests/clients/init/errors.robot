@@ -25,7 +25,7 @@ Request for non-existing role should fail
   [Setup]   Use certificate   test0
   ${output}   Create proxy failure   -voms ${vo1}:/${vo1}/G1/Role=Berlusconi
   IF  ${client_version} == 2
-    Should Contain   ${output}   None of the contacted servers for ${vo1} were capable\nof returning a valid AC for the user.
+    Should Contain   ${output}   None of the contacted servers for ${vo1} were capable
   ELSE
     Should Contain   ${output}   Remote VOMS server contacted succesfully.
     Should Contain   ${output}   User's request for VOMS attributes could not be fulfilled.
