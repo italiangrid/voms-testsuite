@@ -1,6 +1,8 @@
 volumes:
   trustanchors:
   cabundle:
+  hostcerts:
+  usercerts:
   voms-src:
     driver: local
     driver_opts:
@@ -11,20 +13,17 @@ volumes:
 services:
 
   trust:
-    image: indigoiam/egi-trustanchors:igi-test-ca
-
+    build:
+      context: ../docker/trust
+      dockerfile: Dockerfile
     volumes:
-      - trustanchors:/tmp/certificates
-      - cabundle:/tmp/pki
-
-    environment:
-      FORCE_TRUST_ANCHORS_UPDATE: 1
-      TRUST_ANCHORS_TARGET: /tmp/certificates
-      CA_BUNDLE_TARGET: /tmp/pki
+      - trustanchors:/trust-anchors
+      - cabundle:/etc/pki
+      - hostcerts:/hostcerts
+      - usercerts:/usercerts
 
   db:
     image: mariadb:10.11.2
-    init: true
 
     volumes:
       - ./assets/db:/home/mysql/
@@ -35,62 +34,19 @@ services:
       - MYSQL_USER=user
       - MYSQL_PASSWORD=pwd
 
-  voms-7-stable:
-    image: italiangrid/voms:centos7-stable
-    init: true
-
-    environment:
-      - TZ=Europe/Rome
-      - VOMS_HOST=voms-7-stable.test.example
-
-    volumes:
-      - ..:/voms-testsuite
-      - voms-src:/voms-src:ro
-      - trustanchors:/etc/grid-security/certificates
-
-    command: ["sleep", "infinity"]
-
-    privileged: true
-
-    networks:
-      default:
-        aliases:
-          - voms-7-stable.test.example
-
-  voms-7-beta:
-    image: italiangrid/voms:centos7-beta
-    init: true
-
-    environment:
-      - TZ=Europe/Rome
-      - VOMS_HOST=voms-7-beta.test.example
-
-    volumes:
-      - ..:/voms-testsuite
-      - voms-src:/voms-src:ro
-      - trustanchors:/etc/grid-security/certificates
-
-    command: ["sleep", "infinity"]
-
-    privileged: true
-
-    networks:
-      default:
-        aliases:
-          - voms-7-beta.test.example
-
-  voms-9-beta:
+  voms:
     image: italiangrid/voms:centos9-beta
     init: true
 
     environment:
       - TZ=Europe/Rome
-      - VOMS_HOST=voms-9-beta.test.example
+      - VOMS_HOST=voms.test.example
 
     volumes:
       - ..:/voms-testsuite
       - voms-src:/voms-src:ro
       - trustanchors:/etc/grid-security/certificates
+      - hostcerts:/hostcerts
 
     command: ["sleep", "infinity"]
 
@@ -99,39 +55,9 @@ services:
     networks:
       default:
         aliases:
-          - voms-9-beta.test.example
+          - voms.test.example
 
-  testsuite-7-stable:
-    image: italiangrid/voms-testsuite:centos7-stable
-    init: true
-
-    environment:
-      - TZ=Europe/Rome
-      - ROBOT_ARGS
-
-    volumes:
-      - ..:/voms-testsuite
-      - voms-src:/voms-src:ro
-      - trustanchors:/etc/grid-security/certificates
-
-    command: ["sleep", "infinity"]
-
-  testsuite-7-beta:
-    image: italiangrid/voms-testsuite:centos7-beta
-    init: true
-
-    environment:
-      - TZ=Europe/Rome
-      - ROBOT_ARGS
-
-    volumes:
-      - ..:/voms-testsuite
-      - voms-src:/voms-src:ro
-      - trustanchors:/etc/grid-security/certificates
-
-    command: ["sleep", "infinity"]
-
-  testsuite-9-beta:
+  testsuite:
     image: italiangrid/voms-testsuite:centos9-beta
     init: true
 
@@ -143,5 +69,6 @@ services:
       - ..:/voms-testsuite
       - voms-src:/voms-src:ro
       - trustanchors:/etc/grid-security/certificates
+      - usercerts:/usercerts
 
     command: ["sleep", "infinity"]
