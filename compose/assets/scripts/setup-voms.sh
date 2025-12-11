@@ -10,7 +10,7 @@ VO_1_NAME=${VO_1_NAME:-vo.1}
 ASSETS="/voms-testsuite/compose/assets"
 
 yum -y install voms-mysql-plugin voms-server
-echo -e "VOMS version:\n\n$(rpm -q voms)"
+echo "VOMS version: $(rpm -q voms)"
 
 source /etc/sysconfig/voms
 VOMS_USER=${VOMS_USER:-voms}
@@ -20,8 +20,8 @@ echo ${VOMS_USER} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${VOMS_USER}
 chmod 0440 /etc/sudoers.d/${VOMS_USER}
 
 # Setup host certificate
-cp /usr/share/igi-test-ca/star.test.example.cert.pem /etc/grid-security/vomscert.pem
-cp /usr/share/igi-test-ca/star.test.example.key.pem /etc/grid-security/vomskey.pem
+cp /hostcerts/voms_test_example.cert.pem /etc/grid-security/vomscert.pem
+cp /hostcerts/voms_test_example.key.pem /etc/grid-security/vomskey.pem
 chmod 644 /etc/grid-security/vomscert.pem
 chmod 400 /etc/grid-security/vomskey.pem
 chown voms:voms /etc/grid-security/voms*.pem
@@ -29,7 +29,7 @@ chown voms:voms /etc/grid-security/voms*.pem
 for vo in ${VO_0_NAME} ${VO_1_NAME}; do
 
   mkdir -p /etc/voms/${vo}
-  sed -e "s/voms.test.example/${VOMS_HOST}/" ${ASSETS}/conf/${vo}.conf > /etc/voms/${vo}/voms.conf
+  cp ${ASSETS}/conf/${vo}.conf /etc/voms/${vo}/voms.conf
   echo "pwd" > /etc/voms/${vo}/voms.pass
   chmod 640 /etc/voms/${vo}/voms.pass
   chown ${VOMS_USER}:${VOMS_USER} /etc/voms/${vo}/voms.pass
