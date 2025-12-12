@@ -35,7 +35,7 @@ services:
       - MYSQL_PASSWORD=pwd
 
   voms:
-    image: italiangrid/voms:centos9-beta
+    image: italiangrid/voms:centos9-stable
     init: true
 
     environment:
@@ -58,7 +58,7 @@ services:
           - voms.test.example
 
   testsuite:
-    image: italiangrid/voms-testsuite:centos9-beta
+    image: italiangrid/voms-testsuite:centos9-stable
     init: true
 
     environment:
