@@ -1,5 +1,6 @@
 import unittest
 from datetime import datetime,timedelta,time
+import os, glob
 
 
 openssl_date_format = "%b %d %H:%M:%S %Y %Z" 
@@ -43,6 +44,36 @@ class VOMSLibrary:
 		else:
 			return 1
 
+	def parse_vomses_files(self, vomses: list = ["/etc/vomses", "~/.glite/vomses"]) -> dict:
+		"""Read the files in /etc/vomses and in ~/.glite/vomses, returning a dictionary with the following items:
+		vo: [hosts]"""
+
+		vomses_files = []
+		for voms in vomses:
+			voms_path = os.path.expanduser(voms)
+			if os.path.isfile(voms_path):
+				vomses_files.append(voms_path)
+			elif os.path.isdir(voms_path):
+				vomses_files.extend(glob.glob(os.path.join(voms_path,"*")))
+		vomses = {}
+		
+		for vomses_file in vomses_files:
+			try:
+				with open(vomses_file) as f:
+					for line in f.readlines():
+						# ignore commented lines
+						line = line.split("#")[0].strip()
+						if line:
+							# extract the first 5 mandatory fields and ignore further optional ones
+							alias, host, port, cn, vo = line.split('"')[1:10:2]
+							vo = vo.strip()
+							if vo not in vomses:
+								vomses[vo] = []
+							vomses[vo].append(host.strip()+":"+port.strip())
+			except Exception:
+				pass
+		
+		return vomses	
 
 
 class DatesTest(unittest.TestCase):
@@ -73,6 +104,15 @@ class DatesTest(unittest.TestCase):
 		self.assertEqual(1, l.date_difference_in_seconds("Sep 15 13:04:06 2013 GMT","Sep 15 13:04:07 2013 GMT"))
 		self.assertEqual(1, l.date_difference_in_seconds("Sep 15 13:04:09 2013 GMT","Sep 15 13:04:08 2013 GMT"))
 		self.assertEqual(0, l.date_difference_in_seconds("Sep 15 13:04:08 2013 GMT","Sep 15 13:04:08 2013 GMT"))
+
+class VomsesTest(unittest.TestCase):
+	def testParseVomses(self):
+		l = VOMSLibrary()
+		vomses = l.parse_vomses_files(["../compose/assets/vomses"])
+		self.assertIsInstance(vomses, dict)
+		self.assertDictEqual(vomses, {"test.vo": ["voms-dev.cloud.cnaf.infn.it:15004"],
+									  "vo.0": ["voms.test.example:15000"],
+									  "vo.1": ["voms.test.example:15001"]})
 
 if __name__ == '__main__':
 	unittest.main()	
