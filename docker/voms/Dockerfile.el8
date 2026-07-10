@@ -1,4 +1,4 @@
-FROM almalinux:9
+FROM almalinux:8
 
 ARG USERNAME=test
 ARG USER_UID=1000

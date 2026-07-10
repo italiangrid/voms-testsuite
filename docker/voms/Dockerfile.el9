@@ -1,0 +1,21 @@
+FROM almalinux:9
+
+ARG USERNAME=test
+ARG USER_UID=1000
+ARG USER_GID=${USER_UID}
+
+ARG RHEL_VERSION=9
+ARG VOMS_REPO=stable
+
+ENV VOMS_REPO_URL=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${VOMS_REPO}-el${RHEL_VERSION}.repo
+
+COPY assets/scripts/*.sh /tmp/scripts/
+
+RUN dnf -y install epel-release dnf-plugins-core \
+  && dnf config-manager --add-repo ${VOMS_REPO_URL} \
+  && dnf update -y \
+  && dnf install -y which wget sudo file util-linux-user \
+  && dnf clean all \
+  && rm -rf /var/cache/dnf \
+  && sh /tmp/scripts/provide-user.sh ${USERNAME} ${USER_UID} ${USER_GID} \
+  && update-crypto-policies --set LEGACY
