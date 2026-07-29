@@ -84,7 +84,7 @@ jobs:
     needs: [build-and-push-testsuite, build-and-push-voms]
 
     env:
-      ROBOT_OPTIONS: --exclude old --exclude issue-723 --exclude issue-726
+      ROBOT_OPTIONS: --exclude issue-723 --exclude issue-726
 
     steps:
     - name: Checkout
