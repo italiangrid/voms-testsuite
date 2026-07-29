@@ -11,15 +11,12 @@ ENV VOMS_REPO_URL=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${
 
 COPY assets/scripts/*.sh /tmp/scripts/
 
-RUN dnf install -y dnf-plugins-core \
-    && dnf config-manager --set-enabled powertools \
-    && dnf install -y epel-release \
-    && curl -s ${VOMS_REPO_URL} > /etc/yum.repos.d/voms.repo \
+RUN dnf -y install epel-release dnf-plugins-core \
+    && dnf config-manager --add-repo ${VOMS_REPO_URL} \
     && dnf -y update \
-    && dnf -y install hostname sudo file which telnet nc jq\
-       voms-clients voms-clients-java python3-gfal2-util gfal2-all python3-gfal2 davix oidc-agent \
+    && dnf -y install sudo file which telnet nc jq \
+       voms-clients voms-clients-java \
        python3-pip python3-devel python3-setuptools \
-    && rm -rf /var/cache/dnf \
     && sh /tmp/scripts/provide-user.sh ${USERNAME} ${USER_UID} ${USER_GID} \
     && mkdir /home/${USERNAME}/.config /home/${USERNAME}/.globus \
     && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME} \
