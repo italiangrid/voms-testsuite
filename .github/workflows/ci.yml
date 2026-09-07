@@ -1,7 +1,8 @@
 name: Build images, deploy and run testsuite
 
 on:
-  push
+  push:
+  workflow_dispatch:
 
 jobs:
 

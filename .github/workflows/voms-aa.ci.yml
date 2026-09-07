@@ -1,6 +1,8 @@
 name: Run testsuite
 
-on: push
+on:
+  push:
+  workflow_dispatch:
 
 env:
   server_beta: v1.13.2
