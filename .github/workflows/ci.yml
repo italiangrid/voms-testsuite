@@ -32,9 +32,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: docker/testsuite
-          file: ./docker/testsuite/Dockerfile.centos${{ matrix.rhel }}
+          file: ./docker/testsuite/Dockerfile.el${{ matrix.rhel }}
           push: true
-          tags: italiangrid/voms-testsuite:centos${{ matrix.rhel }}-${{ matrix.repo }}
+          tags: italiangrid/voms-testsuite:el${{ matrix.rhel }}-${{ matrix.repo }}
           build-args: |
             VOMS_REPO=${{ matrix.repo }}
             RHEL_VERSION=${{ matrix.rhel }}
@@ -63,9 +63,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: docker/voms
-          file: ./docker/voms/Dockerfile.centos${{ matrix.rhel }}
+          file: ./docker/voms/Dockerfile.el${{ matrix.rhel }}
           push: true
-          tags: italiangrid/voms:centos${{ matrix.rhel }}-${{ matrix.repo }}
+          tags: italiangrid/voms:el${{ matrix.rhel }}-${{ matrix.repo }}
           build-args: |
             VOMS_REPO=${{ matrix.repo }}
             RHEL_VERSION=${{ matrix.rhel }}
@@ -101,8 +101,8 @@ jobs:
       run: docker compose --file docker-compose.ci.yml up --detach db voms testsuite
       working-directory: compose
       env:
-        TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
-        VOMS_IMAGE: italiangrid/voms:centos${{ matrix.server }}
+        TS_IMAGE: italiangrid/voms-testsuite:el${{ matrix.client }}
+        VOMS_IMAGE: italiangrid/voms:el${{ matrix.server }}
 
     - name: Deploy db and voms
       run: |

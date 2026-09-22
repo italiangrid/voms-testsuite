@@ -37,8 +37,8 @@ jobs:
           docker compose --file docker-compose.ci.yml up --detach trust db voms testsuite vomsaa ngx
         working-directory: compose
         env:
-          TS_IMAGE: italiangrid/voms-testsuite:centos${{ env[matrix.client] }}
-          VOMS_IMAGE: italiangrid/voms:centos7-stable
+          TS_IMAGE: italiangrid/voms-testsuite:el${{ env[matrix.client] }}
+          VOMS_IMAGE: italiangrid/voms:el-stable
           VOMS_AA_IMAGE_TAG: ${{ env[matrix.server] }}
 
       - name: Deploy db and voms
