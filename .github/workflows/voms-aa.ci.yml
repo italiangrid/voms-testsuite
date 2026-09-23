@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
 
 env:
-  server_beta: v1.15.0-rc1
-  server_stable: v1.14.4
+  server_beta: v1.13.2
+  server_stable: v1.13.0
   client_beta: 9-beta
   client_stable: 9-stable
 
