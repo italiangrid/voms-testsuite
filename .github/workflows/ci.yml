@@ -2,8 +2,6 @@ name: Build images, deploy and run testsuite
 
 on:
   push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
