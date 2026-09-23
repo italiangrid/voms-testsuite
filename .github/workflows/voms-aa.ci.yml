@@ -38,7 +38,7 @@ jobs:
         working-directory: compose
         env:
           TS_IMAGE: italiangrid/voms-testsuite:el${{ env[matrix.client] }}
-          VOMS_IMAGE: italiangrid/voms:el-stable
+          VOMS_IMAGE: italiangrid/voms:el9-stable
           VOMS_AA_IMAGE_TAG: ${{ env[matrix.server] }}
 
       - name: Deploy db and voms
