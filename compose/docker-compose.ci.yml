@@ -17,7 +17,7 @@ services:
       - usercerts:/usercerts
 
   db:
-    image: mariadb:10.11.2
+    image: mysql:8.0.27
     container_name: db
 
     volumes:
@@ -114,8 +114,15 @@ services:
     environment:
       TZ: Europe/Rome
       JAVA_OPTS: -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=mysql-test
+      IAM_DB_HOST: db
       IAM_DB_NAME: voms_vo_2
       IAM_DB_USERNAME: user
+      VOMS_AA_TLS_CERTIFICATE_PATH: /etc/grid-security/voms/voms-aa_test_example.cert.pem
+      VOMS_AA_TLS_PRIVATE_KEY_PATH: /etc/grid-security/voms/voms-aa_test_example.key.pem
+      VOMS_AA_BINDING_ADDRESS: voms-aa.test.example
+      VOMS_AA_PORT: 443
+      VOMS_AA_VONAME: vo.2
+      VOMS_AA_USE_LEGACY_FQAN_ENCODING: true
     
     depends_on:
       - db
