@@ -56,10 +56,6 @@ jobs:
           echo "ARTIFACTS_PATH=${ARTIFACTS_PATH}" >> ${GITHUB_ENV}
           mkdir -p ${ARTIFACTS_PATH}/logs
 
-      - name: Enable legacy OpenSSL crypto policies on EL9
-        run: docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "sudo update-crypto-policies --set LEGACY"
-        working-directory: compose
-
       - name: Run testsuite for java clients
         if: matrix.client_lang == 'java'
         run: docker compose --file docker-compose.ci.yml exec -T -e ROBOT_OPTIONS="${ROBOT_OPTIONS}" testsuite bash /scripts/ci-run-testsuite.sh --exclude cpp-clients
