@@ -45,6 +45,7 @@ jobs:
         run: |
           docker compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
           docker compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
+          docker compose -f docker-compose.ci.yml exec -T testsuite bash /scripts/wait-for-it.sh -h voms-aa.test.example -p 443 -t 20 -- echo "VOMS-AA started successfully!"
         working-directory: compose
 
       - name: Create artifacts dir
