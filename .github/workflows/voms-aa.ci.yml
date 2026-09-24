@@ -37,6 +37,7 @@ jobs:
           docker compose --file docker-compose.ci.yml up --detach trust db testsuite vomsaa ngx
         working-directory: compose
         env:
+          DB_IMAGE: mysql:8
           TS_IMAGE: italiangrid/voms-testsuite:el${{ env[matrix.client] }}
           VOMS_IMAGE: italiangrid/voms:el9-stable
           VOMS_AA_IMAGE_TAG: ${{ env[matrix.server] }}

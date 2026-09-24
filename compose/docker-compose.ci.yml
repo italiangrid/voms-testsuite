@@ -17,7 +17,7 @@ services:
       - usercerts:/usercerts
 
   db:
-    image: mariadb:10.11.2
+    image: ${DB_IMAGE}
     container_name: db
 
     volumes:
