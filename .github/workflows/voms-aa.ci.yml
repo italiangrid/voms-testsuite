@@ -25,7 +25,7 @@ jobs:
     continue-on-error: true
 
     env:
-      ROBOT_OPTIONS: --variable vo1:vo.2 --variable vo1_host:voms-aa.test.example --variable vo1_issuer:'/C=IT/O=IGI/CN=voms-aa.test.example' --variable vo2:vo.1 --variable vo2_host:voms.test.example --variable vo2_issuer:'/C=IT/O=IGI/CN=voms.test.example' --variable vo1_is_voms_aa:True --exclude issue-723 --exclude issue-726
+      ROBOT_OPTIONS: --variable vo1:vo.2 --variable vo1_host:voms-aa.test.example --variable vo1_issuer:'/C=IT/O=IGI/CN=voms-aa.test.example' --variable vo1_is_voms_aa:True --exclude issue-723 --exclude issue-726 --exclude multi-vo
 
     steps:
       - name: Checkout
@@ -34,17 +34,16 @@ jobs:
       - name: Start compose
         run: |
           docker compose --file docker-compose.ci.yml build --no-cache trust
-          docker compose --file docker-compose.ci.yml up --detach trust db voms testsuite vomsaa ngx
+          docker compose --file docker-compose.ci.yml up --detach trust db testsuite vomsaa ngx
         working-directory: compose
         env:
           TS_IMAGE: italiangrid/voms-testsuite:el${{ env[matrix.client] }}
           VOMS_IMAGE: italiangrid/voms:el9-stable
           VOMS_AA_IMAGE_TAG: ${{ env[matrix.server] }}
 
-      - name: Deploy db and voms
+      - name: Deploy db
         run: |
-          docker compose --file docker-compose.ci.yml exec -T --workdir /scripts db bash /scripts/populate-db.sh
-          docker compose --file docker-compose.ci.yml exec -T --workdir /scripts voms bash /scripts/setup-and-start-voms.sh
+          docker compose --file docker-compose.ci.yml exec -e SKIP_VOMS_DB_DUMP=true -T --workdir /scripts db bash /scripts/populate-db.sh
           docker compose -f docker-compose.ci.yml exec -T testsuite bash /scripts/wait-for-it.sh -h vomsaa -p 8080 -t 20 -- echo "VOMS-AA started successfully!"
         working-directory: compose
 
@@ -102,7 +101,7 @@ jobs:
         if: ${{ always() }}
         run: |
           docker compose --file docker-compose.ci.yml logs --no-color testsuite > ${ARTIFACTS_PATH}/logs/testsuite.log
-          docker compose --file docker-compose.ci.yml logs --no-color vomsaa > ${ARTIFACTS_PATH}/logs/voms.log
+          docker compose --file docker-compose.ci.yml logs --no-color vomsaa > ${ARTIFACTS_PATH}/logs/vomsaa.log
         working-directory: compose
 
       - name: Stop compose

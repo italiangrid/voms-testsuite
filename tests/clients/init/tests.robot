@@ -62,7 +62,7 @@ See if multiple -voms work as expected
   [Teardown]  Stop using certificate
 
 See if request for multiple VOs work as expected
-  [Tags]  remote  legacy
+  [Tags]  remote  legacy   multi-vo
   [Documentation]   ACs for multiple VOs should be included in the proxy in the same order as they are requested
   [Setup]   Use certificate   test0
   Create proxy   --voms ${vo2} --voms ${vo1} 
