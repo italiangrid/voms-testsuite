@@ -6,6 +6,9 @@ A [Robot-powered][robot-framework] VOMS clients testsuite.
 
 - A VOMS installation configured according with the [test fixture](./compose/assets/scripts/setup-and-start-voms.sh)
 - The `voms_vo_0`, `voms_vo_1` and `voms_vo_2` databases populated as per [DB dump](./compose/assets/db). The first two are used by the VOMS server, the latter by VOMS-AA
+- Basically, the db setup is the following:
+  - a user with a linked X.509 certificate DN/issuer equal to `CN=test0,O=IGI,C=IT`/`CN=Test CA,O=IGI,C=IT` is member of the `vo.2`, `vo.2/G1`, `vo.2/G2`, `vo.2/G2/G3` groups and has roles `vo.2/R1`, `vo.2/G1/R1` and `vo.2/G2/R1` (i.e. IAM optional groups)
+  - a user with linked X.509 certificate DN/issuer equal to `CN=test2,O=IGI,C=IT`/`CN=Test CA,O=IGI,C=IT` is disabled/suspended.
 
 ## Testsuite parameters
 
