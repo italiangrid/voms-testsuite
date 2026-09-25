@@ -20,7 +20,7 @@ load_db_dump(){
 
 }
 
-/scripts/wait-for-it.sh -h db -p 3306 -t 5 -- echo "db is up and running"
+/scripts/wait-for-it.sh -h db -p 3306 -t 30 -- echo "db is up and running"
 
 if [[ -z "${SKIP_VOMS_DB_DUMP}" ]]; then
   for i in $(seq 0 1); do

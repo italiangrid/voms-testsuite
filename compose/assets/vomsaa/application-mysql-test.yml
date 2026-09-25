@@ -21,6 +21,8 @@ spring:
     min-evictable-idle-time-millis: ${IAM_DB_MIN_EVICTABLE_IDLE_TIME_MILLIS:60000}
   
   flyway:
+    enabled: false
+    table: schema_version
     locations:
       - classpath:db/migration/mysql
       - classpath:db/migration/prod

@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
 
 env:
-  server_beta: v1.13.2
-  server_stable: v1.13.0
+  server_beta: develop
+  server_stable: v1.14.4
   client_beta: 9-beta
   client_stable: 9-stable
 
@@ -37,7 +37,7 @@ jobs:
           docker compose --file docker-compose.ci.yml up --detach trust db testsuite vomsaa ngx
         working-directory: compose
         env:
-          DB_IMAGE: mysql:8
+          DB_IMAGE: mysql:8.0.27
           TS_IMAGE: italiangrid/voms-testsuite:el${{ env[matrix.client] }}
           VOMS_IMAGE: italiangrid/voms:el9-stable
           VOMS_AA_IMAGE_TAG: ${{ env[matrix.server] }}
