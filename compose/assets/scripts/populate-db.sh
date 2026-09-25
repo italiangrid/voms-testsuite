@@ -26,9 +26,9 @@ if [[ -z "${SKIP_VOMS_DB_DUMP}" ]]; then
   for i in $(seq 0 1); do
     load_db_dump $i
   done
+else
+  load_db_dump 2
 fi
-
-load_db_dump 2
 
 mysql -p${MYSQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON *.* TO 'user'@'%'"
 
