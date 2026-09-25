@@ -23,10 +23,11 @@ load_db_dump(){
 /scripts/wait-for-it.sh -h db -p 3306 -t 30 -- echo "db is up and running"
 
 if [[ -z "${SKIP_VOMS_DB_DUMP}" ]]; then
-  for i in $(seq 0 1); do
-    load_db_dump $i
-  done
+  # Legacy VOMS db dump for vo.0 and vo.1
+  load_db_dump 0
+  load_db_dump 1
 else
+  # VOMS-AA db dump for vo.2
   load_db_dump 2
 fi
 
