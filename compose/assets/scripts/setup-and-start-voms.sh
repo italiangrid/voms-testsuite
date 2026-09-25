@@ -9,21 +9,18 @@ VOMS_USER=${VOMS_USER:-voms}
 
 SCRIPTS_PREFIX=${SCRIPTS_PREFIX:-/scripts}
 
-yum clean all
-yum -y install voms-mysql-plugin voms-server
-
 # Setup host certificate
 cp /hostcerts/voms_test_example.cert.pem /etc/grid-security/vomscert.pem
 cp /hostcerts/voms_test_example.key.pem /etc/grid-security/vomskey.pem
-chown voms:voms /etc/grid-security/voms*.pem
+chown ${VOMS_USER}:${VOMS_USER} /etc/grid-security/voms*.pem
 
 # Setup VOMS pwd file
 echo "pwd" > /etc/voms/${VO_0_NAME}/voms.pass
 echo "pwd" > /etc/voms/${VO_1_NAME}/voms.pass
 chmod 640 /etc/voms/${VO_0_NAME}/voms.pass
 chmod 640 /etc/voms/${VO_1_NAME}/voms.pass
-chown voms:voms /etc/voms/${VO_0_NAME}/voms.pass
-chown voms:voms /etc/voms/${VO_1_NAME}/voms.pass
+chown ${VOMS_USER}:${VOMS_USER} /etc/voms/${VO_0_NAME}/voms.pass
+chown ${VOMS_USER}:${VOMS_USER} /etc/voms/${VO_1_NAME}/voms.pass
 
 # Add voms user to the sudoers
 echo ${VOMS_USER} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${VOMS_USER}
@@ -31,7 +28,7 @@ chmod 0440 /etc/sudoers.d/${VOMS_USER}
 
 echo -e "VOMS version:\n\n$(rpm -q voms)"
 
-source /etc/sysconfig/voms
+[ -r /etc/sysconfig/voms ] && source /etc/sysconfig/voms
 
 su voms -s /bin/bash -c "voms --conf /etc/voms/${VO_0_NAME}/voms.conf"
 su voms -s /bin/bash -c "voms --conf /etc/voms/${VO_1_NAME}/voms.conf"

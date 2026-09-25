@@ -17,7 +17,7 @@ services:
       - usercerts:/usercerts
 
   db:
-    image: mariadb:10.11.2
+    image: ${DB_IMAGE}
     container_name: db
 
     volumes:
@@ -41,19 +41,21 @@ services:
       - ROBOT_ARGS
 
     volumes:
+      - ..:/home/test/voms-testsuite
       - trustanchors:/etc/grid-security/certificates
       - ./assets/vomses:/etc/vomses
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts
       - usercerts:/usercerts
-      - ..:/home/test/voms-testsuite:cached
 
     command: ["sleep", "infinity"]
 
   voms:
     image: ${VOMS_IMAGE}
+    init: true
 
     environment:
+      TZ: Europe/Rome
       VOMS_HOSTNAME: voms.test.example
 
     volumes:

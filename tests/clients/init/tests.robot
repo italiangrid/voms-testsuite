@@ -62,7 +62,7 @@ See if multiple -voms work as expected
   [Teardown]  Stop using certificate
 
 See if request for multiple VOs work as expected
-  [Tags]  remote  legacy
+  [Tags]  remote  legacy   multi-vo
   [Documentation]   ACs for multiple VOs should be included in the proxy in the same order as they are requested
   [Setup]   Use certificate   test0
   Create proxy   --voms ${vo2} --voms ${vo1} 
@@ -262,7 +262,7 @@ See if a target can be added to a proxy
   [Setup]  Use certificate  test0
   ${target}  Run   hostname -f
   ${option}  Set Variable If  ${client_version} == 2  --dont-verify-ac  --dont_verify_ac
-  ${output}  Create proxy  -voms ${vo1} -target ${target} ${option}
+  ${output}  Create proxy  -voms ${vo2} -target ${target} ${option}
   Should Not Contain   ${output}  AC target check failed
   [Teardown]  Stop using certificate
 

@@ -14,6 +14,8 @@ echo "VOMS version: $(rpm -q voms)"
 
 source /etc/sysconfig/voms
 VOMS_USER=${VOMS_USER:-voms}
+getent passwd ${VOMS_USER} 2> /dev/null \
+  || useradd -r -U -d /etc/voms -s /sbin/nologin -c "VOMS server account" ${VOMS_USER}
 
 # Add voms user to the sudoers
 echo ${VOMS_USER} ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/${VOMS_USER}
