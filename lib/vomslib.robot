@@ -213,3 +213,7 @@ Myproxy destroy  [Arguments]   @{params}
   ${output}  Execute and Check Success   myproxy-destroy -s ${myproxy_server} ${options}
   RETURN  ${output}
 
+Get Vomses  [Arguments]   ${vo}=${vo1}
+  ${vomses}=  Parse Vomses Files
+  ${output}=  Get From Dictionary  ${vomses}  ${vo}  Create List
+  RETURN  ${output}

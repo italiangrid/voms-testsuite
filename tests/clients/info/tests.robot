@@ -59,7 +59,8 @@ See if a voms proxy has the right attributes
   ${expected}=  Set Variable If  ${vo1_legacy_fqan_enabled} == True  attribute\\s+:\\s+/${vo1}/G1/Role=NULL/Capability=NULL   attribute\\s+:\\s+/${vo1}/G1
   Should Match Regexp  ${output}  ${expected}
   Should Match Regexp  ${output}  timeleft\\s+:\\s+\\d+:\\d+:\\d+
-  Should Match Regexp  ${output}  uri\\s+:\\s+${vo1_host}:\\d+
+  ${vomses_hosts} =  Get Vomses
+  Should Contain Any  ${output}  @{vomses_hosts}
   [Teardown]  Stop using certificate
 
 Check if the option '-exists -valid' works
@@ -166,7 +167,8 @@ See if voms --uri works
   [Tags]   remote  legacy
   Create voms proxy
   ${output} =  Get proxy info  -uri
-  Should Match Regexp  ${output}  ${vo1_host}:\\d+
+  ${vomses_hosts} =  Get Vomses
+  Should Contain  ${vomses_hosts}  ${output}
   [Teardown]  Stop using certificate
 
 See if voms --serial works
