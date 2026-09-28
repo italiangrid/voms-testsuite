@@ -145,7 +145,7 @@ jobs:
             vomsaa_ver[$key]="$(jq -r .vomsaa_version <<< "$json")"
           done
 
-          echo "# Test report" >> $GITHUB_STEP_SUMMARY
+          echo "# Test report" > $GITHUB_STEP_SUMMARY
           echo "|                          | VOMS AA stable (${vomsaa_ver[cpp_client_stable_server_stable]}) | VOMS AA beta (${vomsaa_ver[cpp_client_stable_server_beta]}) |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
 
