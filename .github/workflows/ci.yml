@@ -93,14 +93,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v6
 
-    - name: Provide trustanchors
+    - name: Start compose
       run: |
         docker compose --file docker-compose.ci.yml build --no-cache trust
-        docker compose --file docker-compose.ci.yml up --detach trust
-      working-directory: compose
-
-    - name: Start compose
-      run: docker compose --file docker-compose.ci.yml up --detach db voms testsuite
+        docker compose --file docker-compose.ci.yml up --detach trust db voms testsuite
       working-directory: compose
       env:
         TS_IMAGE: italiangrid/voms-testsuite:el${{ matrix.client }}
@@ -202,7 +198,7 @@ jobs:
             base=$(basename $file)
             no_ext=${base%.json}
             no_prefix=${no_ext#result_}
-            IFS='_' read -r language client_version client_platform server_version server_platform <<< "$no_prefix"
+            IFS='_' read -r language client_platform server_platform <<< "$no_prefix"
 
             json=$(cat "$file")
             # key example: cpp_9-stable_9-beta
