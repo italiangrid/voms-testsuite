@@ -8,11 +8,10 @@ spring:
     url: jdbc:mysql://db:3306/voms_vo_2?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: user
     password: pwd
-    max-active: 100
-    max-idle:  5
-    validation-query: SELECT 1
-    time-between-eviction-runs-millis: 5000
-    min-evictable-idle-time-millis: 60000
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 8
+      connection-test-query: SELECT 1
   
   flyway:
     enabled: true
