@@ -210,7 +210,7 @@ jobs:
           done
 
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
-          echo "|                          | VOMS EL9 stable (${server_ver[cpp_9-stable_9-stable]}) | VOMS EL9 beta (${server_ver[cpp_9-stable_9-beta]}) |" >> $GITHUB_STEP_SUMMARY
+          echo "|                          | VOMS server EL9 stable (${server_ver[cpp_9-stable_9-stable]}) | VOMS server EL9 beta (${server_ver[cpp_9-stable_9-beta]}) |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
 
           print_results() {
