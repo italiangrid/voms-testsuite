@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set +ex
 
 MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-pwd}
 

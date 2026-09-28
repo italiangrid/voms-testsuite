@@ -115,9 +115,7 @@ services:
     
     environment:
       TZ: Europe/Rome
-      JAVA_OPTS: -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=mysql-test,flyway-repair
-      IAM_DB_NAME: voms_vo_2
-      IAM_DB_USERNAME: user
+      JAVA_OPTS: -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=ts,flyway-repair
     
     depends_on:
       - db
