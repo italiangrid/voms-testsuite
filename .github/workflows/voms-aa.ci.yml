@@ -88,7 +88,7 @@ jobs:
           passed_tests=$(echo "${result}" | jq .[0][0].pass)
           failed_tests=$(echo "${result}" | jq .[0][0].fail)
           if [[ "${{ matrix.client_lang }}" == 'cpp' ]]; then
-            client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init2 -version " | grep '^Version:' | awk '{print $2}')
+            client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init2 -version" | grep '^Version:' | awk '{print $2}')
           else
             client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init3 -version" | awk '{print $3}')
           fi
@@ -145,7 +145,7 @@ jobs:
             vomsaa_ver[$key]="$(jq -r .vomsaa_version <<< "$json")"
           done
 
-          echo "# Test report" > $GITHUB_STEP_SUMMARY
+          echo "# Test report" >> $GITHUB_STEP_SUMMARY
           echo "|                          | VOMS AA stable (${vomsaa_ver[cpp_client_stable_server_stable]}) | VOMS AA beta (${vomsaa_ver[cpp_client_stable_server_beta]}) |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
 

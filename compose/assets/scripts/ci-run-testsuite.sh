@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set +ex
 
 echo -e "voms-clients version:\n\n$(voms-proxy-init -version)"
 
