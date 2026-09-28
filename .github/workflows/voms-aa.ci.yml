@@ -138,6 +138,7 @@ jobs:
             IFS='-' read -r language client_version server_version <<< "$no_prefix"
 
             json=$(cat "$file")
+            # key example: cpp_client_stable_server_beta
             key="${language}_${client_version}_${server_version}"
 
             results[$key]=":white_check_mark: Passed $(jq -r .passed_tests <<< "$json") :x: Failed $(jq -r .failed_tests <<< "$json")"

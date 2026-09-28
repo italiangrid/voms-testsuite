@@ -161,7 +161,7 @@ jobs:
         server_version=$(docker compose --file docker-compose.ci.yml exec -T voms bash -c "rpm -q voms | cut -d- -f2")
 
         result_json="{\"passed_tests\":${passed_tests},\"failed_tests\":${failed_tests},\"client_version\":\"${client_version}\",\"client_platform\":\"${{ matrix.client }}\",\"server_version\":\"${server_version}\",\"server_platform\":\"${{ matrix.server }}\"}"
-        echo "$result_json" > ${ARTIFACTS_PATH}/result-${{ matrix.client_lang }}-${{ matrix.client }}-${{ matrix.server }}.json
+        echo "$result_json" > ${ARTIFACTS_PATH}/result_${{ matrix.client_lang }}_${{ matrix.client }}_${{ matrix.server }}.json
       working-directory: compose
 
     - name: Collect logs
@@ -194,16 +194,18 @@ jobs:
 
       - name: Generate summary
         run: |
+          set -ex
           ARTIFACTS_PATH=results
 
           declare -A results client_ver server_ver
-          for file in ${ARTIFACTS_PATH}/**/result-*.json; do
+          for file in ${ARTIFACTS_PATH}/**/result_*.json; do
             base=$(basename $file)
             no_ext=${base%.json}
-            no_prefix=${no_ext#result-}
+            no_prefix=${no_ext#result_}
             IFS='_' read -r language client_version client_platform server_version server_platform <<< "$no_prefix"
 
             json=$(cat "$file")
+            # key example: cpp_9-stable_9-beta
             key="${language}_${client_platform}_${server_platform}"
 
             results[$key]=":white_check_mark: Passed $(jq -r .passed_tests <<< "$json") :x: Failed $(jq -r .failed_tests <<< "$json")"
