@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Start compose
         run: |
@@ -112,7 +112,7 @@ jobs:
 
       - name: Upload artifacts
         if: ${{ always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.client_lang }}_${{ matrix.client }}_${{ matrix.server }}
           path: ${{ env.ARTIFACTS_PATH }}
@@ -122,7 +122,7 @@ jobs:
     needs: [run_testsuite_vomsaa]
     steps:
       - name: Download all results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: results
 
