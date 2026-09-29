@@ -376,7 +376,7 @@ voms-proxy-init fails validation for malformed LSC
   ...         AND            Restore LSC file with malformed DN   ${vo1}
 
 voms-proxy-init fails validation for malformed LSC when multiple VOs are requested
-  [Tags]  voms-api-java-issue-47
+  [Tags]  voms-api-java-issue-47   multi-vo
   [Setup]  Run Keywords   Use certificate   test0
   ...      AND            Set Environment Variable  X509_VOMS_DIR   ${customVomsdir}
   ...      AND            Modify LSC file with malformed DN   ${vo1}
@@ -412,6 +412,39 @@ voms-proxy-init succeeds when the requested VO has not a malformed LSC
   ...         AND            Remove Environment Variable  X509_VOMS_DIR
   ...         AND            Restore LSC file with malformed DN   ${vo2}
 
+voms-proxy-init succeeds with an EC user certificate key
+  [Tags]  legacy
+  [Setup]  Use certificate  test6
+  ${output}  Create proxy failure  -voms ${vo1}
+  ${subject}  Get certificate subject RFC2253 compliant
+  ${issuer}  Get certificate issuer RFC2253 compliant
+  ${expected}   Set Variable If   ${vo1_is_voms_aa}  User unknown to this VO: '${subject}' (issued by '${issuer}')
+  ...             ${vo1}: User unknown to this VO.
+  Should Contain   ${output}  ${expected}
+  [Teardown]  Stop using certificate
+
+voms-proxy-init succeeds with an EC CA certificate key
+  [Tags]  legacy
+  [Setup]  Use certificate  test7
+  ${output}  Create proxy failure  -voms ${vo1}
+  ${subject}  Get certificate subject RFC2253 compliant
+  ${issuer}  Get certificate issuer RFC2253 compliant
+  ${expected}   Set Variable If   ${vo1_is_voms_aa}  User unknown to this VO: '${subject}' (issued by '${issuer}')
+  ...             ${vo1}: User unknown to this VO.
+  Should Contain   ${output}  ${expected}
+  [Teardown]  Stop using certificate
+
+voms-proxy-init succeeds with an EC CA and user certificate key
+  [Tags]  legacy
+  [Setup]  Use certificate  test8
+  ${output}  Create proxy failure  -voms ${vo1}
+  ${subject}  Get certificate subject RFC2253 compliant
+  ${issuer}  Get certificate issuer RFC2253 compliant
+  ${expected}   Set Variable If   ${vo1_is_voms_aa}  User unknown to this VO: '${subject}' (issued by '${issuer}')
+  ...             ${vo1}: User unknown to this VO.
+  Should Contain   ${output}  ${expected}
+  [Teardown]  Stop using certificate
+
 
 *** Keywords ***
 
@@ -420,6 +453,16 @@ Modify LSC file with malformed DN   [Arguments]   ${vo}
 
 Restore LSC file with malformed DN   [Arguments]   ${vo}
   Execute and Check Success   sed -i "2{/^[^\\/]/{s/^/\\//}}" ${customVomsdir}/${vo}/*
+
+Get certificate subject RFC2253 compliant
+  ${subject}   Execute and Check Success
+  ...            openssl x509 -in ~/.globus/usercert.pem -noout -subject -nameopt RFC2253 | sed 's/^subject=//'
+  RETURN   ${subject}
+
+Get certificate issuer RFC2253 compliant
+  ${issuer}  Execute and Check Success
+  ...          openssl x509 -in ~/.globus/usercert.pem -noout -issuer -nameopt RFC2253 | sed 's/^issuer=//'
+  RETURN   ${issuer}
 
 Suite Setup Wrapper
   Execute and Check Success   cp -r /etc/grid-security/vomsdir ${customVomsdir}
