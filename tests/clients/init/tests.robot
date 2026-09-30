@@ -412,7 +412,7 @@ voms-proxy-init succeeds when the requested VO has not a malformed LSC
   ...         AND            Remove Environment Variable  X509_VOMS_DIR
   ...         AND            Restore LSC file with malformed DN   ${vo2}
 
-voms-proxy-init succeeds with an EC user certificate key
+voms-proxy-init succeeds with an EC user certificate signed by an RSA CA certificate
   [Tags]  legacy
   [Setup]  Use certificate  test6
   ${output}  Create proxy failure  -voms ${vo1}
@@ -423,7 +423,7 @@ voms-proxy-init succeeds with an EC user certificate key
   Should Contain   ${output}  ${expected}
   [Teardown]  Stop using certificate
 
-voms-proxy-init succeeds with an EC CA certificate key
+voms-proxy-init succeeds with an RSA user certificate signed by an EC CA certificate
   [Tags]  legacy
   [Setup]  Use certificate  test7
   ${output}  Create proxy failure  -voms ${vo1}
@@ -434,7 +434,7 @@ voms-proxy-init succeeds with an EC CA certificate key
   Should Contain   ${output}  ${expected}
   [Teardown]  Stop using certificate
 
-voms-proxy-init succeeds with an EC CA and user certificate key
+voms-proxy-init succeeds with an EC user certificate signed by an EC CA certificate
   [Tags]  legacy
   [Setup]  Use certificate  test8
   ${output}  Create proxy failure  -voms ${vo1}
