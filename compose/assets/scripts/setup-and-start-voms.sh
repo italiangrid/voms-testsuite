@@ -12,6 +12,8 @@ SCRIPTS_PREFIX=${SCRIPTS_PREFIX:-/scripts}
 # Setup host certificate
 cp /hostcerts/voms_test_example.cert.pem /etc/grid-security/vomscert.pem
 cp /hostcerts/voms_test_example.key.pem /etc/grid-security/vomskey.pem
+cp /hostcerts/voms_test_example_ec.cert.pem /etc/grid-security/vomscert_ec.pem
+cp /hostcerts/voms_test_example_ec.key.pem /etc/grid-security/vomskey_ec.pem
 chown ${VOMS_USER}:${VOMS_USER} /etc/grid-security/voms*.pem
 
 # Setup VOMS pwd file

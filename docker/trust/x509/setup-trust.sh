@@ -24,7 +24,7 @@ export X509_CERT_DIR="${ta_dir}"
 
 make_ca.sh
 
-for c in voms-aa_test_example voms_test_example; do
+for c in voms-aa_test_example voms_test_example voms_test_example_ec; do
   make_cert.sh ${c}
   cp igi_test_ca/certs/${c}.* "${hostcerts_dir}"
   chmod 644 "${hostcerts_dir}"/${c}.cert.pem
