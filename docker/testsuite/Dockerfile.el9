@@ -1,0 +1,31 @@
+FROM almalinux:9
+
+ARG USERNAME=test
+ARG USER_UID=1000
+ARG USER_GID=${USER_UID}
+
+ARG RHEL_VERSION=9
+ARG VOMS_REPO=stable
+
+ENV VOMS_REPO_URL=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${VOMS_REPO}-el${RHEL_VERSION}.repo
+
+COPY assets/scripts/*.sh /tmp/scripts/
+
+RUN dnf -y install epel-release dnf-plugins-core \
+    && dnf config-manager --add-repo ${VOMS_REPO_URL} \
+    && dnf -y update \
+    && dnf -y install sudo file which telnet nc jq \
+       voms-clients voms-clients-java \
+       python3-pip python3-devel python3-setuptools \
+    && sh /tmp/scripts/provide-user.sh ${USERNAME} ${USER_UID} ${USER_GID} \
+    && mkdir /home/${USERNAME}/.config /home/${USERNAME}/.globus \
+    && chown -R ${USERNAME}:${USERNAME} /home/${USERNAME} \
+    && python3 -m pip install --upgrade pip \
+    && python3 -m pip install --upgrade robotframework \
+    && python3 -m pip install --upgrade robotframework-httplibrary \
+    && python3 -m pip install --upgrade requests \
+    && python3 -m pip install --upgrade pyyaml \
+    && rm -rf /tmp/scripts
+
+USER ${USERNAME}
+WORKDIR /home/${USERNAME}

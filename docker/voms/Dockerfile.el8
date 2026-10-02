@@ -1,0 +1,17 @@
+FROM almalinux:8
+
+ARG RHEL_VERSION=8
+ARG VOMS_REPO=stable
+
+ENV VOMS_REPO_URL=https://italiangrid.github.io/voms-repo/repofiles/rhel/voms-${VOMS_REPO}-el${RHEL_VERSION}.repo
+
+RUN dnf -y install epel-release dnf-plugins-core \
+  && dnf config-manager --add-repo ${VOMS_REPO_URL} \
+  && dnf -y update \
+  && dnf -y install which wget sudo file util-linux-user voms-mysql-plugin voms-server \
+  && dnf clean all \
+  && (getent passwd voms 2> /dev/null \
+      || useradd -r -U -d /etc/voms -s /sbin/nologin -c "VOMS server account" voms) # if voms-server doesn't create the voms user \
+  && echo voms ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/voms \
+  && chmod 0440 /etc/sudoers.d/voms \
+  && update-crypto-policies --set LEGACY
