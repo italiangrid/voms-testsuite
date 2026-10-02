@@ -7,21 +7,24 @@ fi
 
 VOMS_HOST=${VOMS_HOST:-voms.test.example}
 DEV_USER=${DEV_USER:-test}
-SCRIPTS="/voms-testsuite/compose/assets/scripts"
+VOMS_USER=${VOMS_USER:-voms}
+SCRIPTS="/scripts"
+
+docker compose -f compose/docker-compose.dev.yml pull
 
 docker compose -f compose/docker-compose.dev.yml build --no-cache trust
 docker compose -f compose/docker-compose.dev.yml up -d
 
-docker compose -f compose/docker-compose.dev.yml exec -T db bash /scripts/populate-db.sh
+docker compose -f compose/docker-compose.dev.yml exec -T db bash ${SCRIPTS}/populate-db.sh
 
 uid=$(id -u)
 gid=$(id -g)
-docker compose -f compose/docker-compose.dev.yml exec -T testsuite sudo groupmod -g ${gid} ${DEV_USER}
-docker compose -f compose/docker-compose.dev.yml exec -T testsuite sudo usermod -u ${uid} ${DEV_USER}
-docker compose -f compose/docker-compose.dev.yml exec -T voms groupmod -g ${gid} ${DEV_USER}
-docker compose -f compose/docker-compose.dev.yml exec -T voms usermod -u ${uid} ${DEV_USER}
 
-docker compose -f compose/docker-compose.dev.yml exec -u root -e VOMS_HOST=${VOMS_HOST} -T testsuite bash -c "sudo ${SCRIPTS}/setup-testsuite.sh"
+docker compose -f compose/docker-compose.dev.yml exec -u root -T testsuite groupmod -g ${gid} ${DEV_USER}
+docker compose -f compose/docker-compose.dev.yml exec -u root -T testsuite usermod -u ${uid} ${DEV_USER}
+docker compose -f compose/docker-compose.dev.yml exec -u root -T testsuite ${SCRIPTS}/setup-testsuite.sh
 
+docker compose -f compose/docker-compose.dev.yml exec -T voms groupmod -g ${gid} ${VOMS_USER}
+docker compose -f compose/docker-compose.dev.yml exec -T voms usermod -u ${uid} ${VOMS_USER}
 docker compose -f compose/docker-compose.dev.yml exec -T voms bash ${SCRIPTS}/setup-voms.sh
-docker compose -f compose/docker-compose.dev.yml exec -T voms bash ${SCRIPTS}/start-voms.sh
+docker compose -f compose/docker-compose.dev.yml exec -u voms -T voms bash ${SCRIPTS}/start-voms.sh
