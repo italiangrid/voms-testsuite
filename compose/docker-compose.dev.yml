@@ -34,21 +34,47 @@ services:
       - MYSQL_USER=user
       - MYSQL_PASSWORD=pwd
 
-  voms:
-    image: italiangrid/voms:centos9-stable
+  testsuite:
+    image: ${TS_IMAGE}
     init: true
 
     environment:
       - TZ=Europe/Rome
-      - VOMS_HOST=voms.test.example
+      - ROBOT_OPTIONS
 
     volumes:
-      - ..:/voms-testsuite
       - voms-src:/voms-src:ro
+      - ..:/home/test/voms-testsuite
       - trustanchors:/etc/grid-security/certificates
-      - hostcerts:/hostcerts
+      - ./assets/vomses:/etc/vomses
+      - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
+      - ./assets/scripts:/scripts
+      - usercerts:/usercerts
 
     command: ["sleep", "infinity"]
+
+  voms:
+    image: ${VOMS_IMAGE}
+    init: true
+
+    environment:
+      TZ: Europe/Rome
+      VOMS_HOST: voms.test.example
+
+    volumes:
+      - voms-src:/voms-src:ro
+      - hostcerts:/hostcerts
+      - trustanchors:/etc/grid-security/certificates
+      - ./assets/scripts:/scripts
+      - ./assets/vomsdir/:/etc/grid-security/vomsdir
+      - ./assets/conf/vo.0.conf:/etc/voms/vo.0/voms.conf
+      - ./assets/conf/vo.1.conf:/etc/voms/vo.1/voms.conf
+
+    command: ["sleep", "infinity"]
+
+    ports:
+      - "15000:15000"
+      - "15001:15001"
 
     privileged: true
 
@@ -57,18 +83,3 @@ services:
         aliases:
           - voms.test.example
 
-  testsuite:
-    image: italiangrid/voms-testsuite:centos9-stable
-    init: true
-
-    environment:
-      - TZ=Europe/Rome
-      - ROBOT_ARGS
-
-    volumes:
-      - ..:/voms-testsuite
-      - voms-src:/voms-src:ro
-      - trustanchors:/etc/grid-security/certificates
-      - usercerts:/usercerts
-
-    command: ["sleep", "infinity"]

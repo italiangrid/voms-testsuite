@@ -18,21 +18,23 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Login to DockerHub
-        uses: docker/login-action@v3 
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build & Push image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
+        env:
+          DOCKER_BUILD_SUMMARY: false
         with:
           context: docker/testsuite
-          file: ./docker/testsuite/Dockerfile.centos${{ matrix.rhel }}
+          file: ./docker/testsuite/Dockerfile.el${{ matrix.rhel }}
           push: true
-          tags: italiangrid/voms-testsuite:centos${{ matrix.rhel }}-${{ matrix.repo }}
+          tags: italiangrid/voms-testsuite:el${{ matrix.rhel }}-${{ matrix.repo }}
           build-args: |
             VOMS_REPO=${{ matrix.repo }}
             RHEL_VERSION=${{ matrix.rhel }}
@@ -49,21 +51,23 @@ jobs:
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Login to DockerHub
-        uses: docker/login-action@v3 
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build & Push image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
+        env:
+          DOCKER_BUILD_SUMMARY: false
         with:
           context: docker/voms
-          file: ./docker/voms/Dockerfile.centos${{ matrix.rhel }}
+          file: ./docker/voms/Dockerfile.el${{ matrix.rhel }}
           push: true
-          tags: italiangrid/voms:centos${{ matrix.rhel }}-${{ matrix.repo }}
+          tags: italiangrid/voms:el${{ matrix.rhel }}-${{ matrix.repo }}
           build-args: |
             VOMS_REPO=${{ matrix.repo }}
             RHEL_VERSION=${{ matrix.rhel }}
@@ -74,7 +78,7 @@ jobs:
     strategy:
       matrix:
         client: [9-beta, 9-stable]
-        server: [7-stable, 9-beta]
+        server: [9-stable, 9-beta]
         client_lang: [cpp, java]
 
     runs-on: ubuntu-latest
@@ -83,24 +87,20 @@ jobs:
     needs: [build-and-push-testsuite, build-and-push-voms]
 
     env:
-      ROBOT_OPTIONS: --exclude old --exclude issue-723 --exclude issue-726
+      ROBOT_OPTIONS: --exclude issue-723 --exclude issue-726
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Provide trustanchors
-      run: |
-        docker compose --file docker-compose.ci.yml build --no-cache trust
-        docker compose --file docker-compose.ci.yml up --detach trust
-      working-directory: compose
+      uses: actions/checkout@v6
 
     - name: Start compose
-      run: docker compose --file docker-compose.ci.yml up --detach db voms testsuite
+      run: |
+        docker compose --file docker-compose.ci.yml build --no-cache trust
+        docker compose --file docker-compose.ci.yml up --detach trust db voms testsuite
       working-directory: compose
       env:
-        TS_IMAGE: italiangrid/voms-testsuite:centos${{ matrix.client }}
-        VOMS_IMAGE: italiangrid/voms:centos${{ matrix.server }}
+        TS_IMAGE: italiangrid/voms-testsuite:el${{ matrix.client }}
+        VOMS_IMAGE: italiangrid/voms:el${{ matrix.server }}
 
     - name: Deploy db and voms
       run: |
@@ -115,10 +115,6 @@ jobs:
         echo ARTIFACTS_PATH: ${ARTIFACTS_PATH}
         echo "ARTIFACTS_PATH=${ARTIFACTS_PATH}" >> ${GITHUB_ENV}
         mkdir -p ${ARTIFACTS_PATH}/logs
-
-    - name: Enable legacy OpenSSL crypto policies on EL9
-      run: docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "sudo update-crypto-policies --set LEGACY"
-      working-directory: compose
 
     - name: Run testsuite for java clients
       if: matrix.client_lang == 'java'
@@ -154,12 +150,13 @@ jobs:
         passed_tests=$(echo "${result}" | jq .[0][0].pass)
         failed_tests=$(echo "${result}" | jq .[0][0].fail)
         if [[ "${{ matrix.client_lang }}" == 'cpp' ]]; then
-          client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init2 -version " | grep '^Version:' | awk '{print $2}')
+          client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init2 -version" | grep '^Version:' | awk '{print $2}')
         else
           client_version=$(docker compose --file docker-compose.ci.yml exec -T testsuite bash -c "voms-proxy-init3 -version" | awk '{print $3}')
         fi
+        server_version=$(docker compose --file docker-compose.ci.yml exec -T voms bash -c "rpm -q voms | cut -d- -f2")
 
-        result_json="{\"passed_tests\":${passed_tests},\"failed_tests\":${failed_tests},\"client_version\":\"${client_version}\",\"client\":\"${{ matrix.client }}\",\"server\":\"${{ matrix.server }}\"}"
+        result_json="{\"passed_tests\":${passed_tests},\"failed_tests\":${failed_tests},\"client_version\":\"${client_version}\",\"client_platform\":\"${{ matrix.client }}\",\"server_version\":\"${server_version}\",\"server_platform\":\"${{ matrix.server }}\"}"
         echo "$result_json" > ${ARTIFACTS_PATH}/result_${{ matrix.client_lang }}_${{ matrix.client }}_${{ matrix.server }}.json
       working-directory: compose
 
@@ -177,7 +174,7 @@ jobs:
 
     - name: Upload artifacts
       if: ${{ always() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: ${{ matrix.client_lang}}_${{ matrix.client}}_${{ matrix.server }}
         path: ${{ env.ARTIFACTS_PATH }}
@@ -187,41 +184,44 @@ jobs:
     needs: [run-testsuite-voms]
     steps:
       - name: Download all results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: results
 
       - name: Generate summary
         run: |
+          set -ex
           ARTIFACTS_PATH=results
 
-          declare -A results client_ver
+          declare -A results client_ver server_ver
           for file in ${ARTIFACTS_PATH}/**/result_*.json; do
             base=$(basename $file)
             no_ext=${base%.json}
             no_prefix=${no_ext#result_}
-            IFS='_' read -r language client_version server_version <<< "$no_prefix"
+            IFS='_' read -r language client_platform server_platform <<< "$no_prefix"
 
             json=$(cat "$file")
-            key="${language}_${client_version}_${server_version}"
+            # key example: cpp_9-stable_9-beta
+            key="${language}_${client_platform}_${server_platform}"
 
             results[$key]=":white_check_mark: Passed $(jq -r .passed_tests <<< "$json") :x: Failed $(jq -r .failed_tests <<< "$json")"
             client_ver[$key]="$(jq -r .client_version <<< "$json")"
+            server_ver[$key]="$(jq -r .server_version <<< "$json")"
           done
 
           echo "# Test report" >> $GITHUB_STEP_SUMMARY
-          echo "|                          | VOMS stable (EL 7) | VOMS beta (EL 9) |" >> $GITHUB_STEP_SUMMARY
+          echo "|                          | VOMS server EL9 stable (${server_ver[cpp_9-stable_9-stable]}) | VOMS server EL9 beta (${server_ver[cpp_9-stable_9-beta]}) |" >> $GITHUB_STEP_SUMMARY
           echo "| ------------------------ | -------------- | ------------ |" >> $GITHUB_STEP_SUMMARY
 
           print_results() {
             lang=$1
             client=$2
             IFS='-' read -r el repo <<< "$client"
-            echo "| __VOMS clients ${lang} ${repo} ${client_ver[${lang}_${client}_7-stable]} (EL ${el})__ | ${results[${lang}_${client}_7-stable]} | ${results[${lang}_${client}_9-beta]} |" >> $GITHUB_STEP_SUMMARY
+            echo "| __VOMS clients ${lang} EL${el} ${repo} (${client_ver[${lang}_${client}_9-stable]})__ | ${results[${lang}_${client}_9-stable]} | ${results[${lang}_${client}_9-beta]} |" >> $GITHUB_STEP_SUMMARY
           }
 
-          print_results cpp 9-beta
-          print_results java 9-beta
           print_results cpp 9-stable
           print_results java 9-stable
+          print_results cpp 9-beta
+          print_results java 9-beta
         shell: bash

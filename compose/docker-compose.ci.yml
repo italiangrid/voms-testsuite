@@ -17,7 +17,7 @@ services:
       - usercerts:/usercerts
 
   db:
-    image: mariadb:10.11.2
+    image: ${DB_IMAGE}
     container_name: db
 
     volumes:
@@ -41,19 +41,21 @@ services:
       - ROBOT_ARGS
 
     volumes:
+      - ..:/home/test/voms-testsuite
       - trustanchors:/etc/grid-security/certificates
       - ./assets/vomses:/etc/vomses
       - ./assets/vomsdir:/etc/grid-security/vomsdir:ro
       - ./assets/scripts:/scripts
       - usercerts:/usercerts
-      - ..:/home/test/voms-testsuite:cached
 
     command: ["sleep", "infinity"]
 
   voms:
     image: ${VOMS_IMAGE}
+    init: true
 
     environment:
+      TZ: Europe/Rome
       VOMS_HOSTNAME: voms.test.example
 
     volumes:
@@ -113,9 +115,7 @@ services:
     
     environment:
       TZ: Europe/Rome
-      JAVA_OPTS: -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=mysql-test
-      IAM_DB_NAME: voms_vo_2
-      IAM_DB_USERNAME: user
+      JAVA_OPTS: -Djava.security.egd=file:/dev/./urandom -Dspring.profiles.active=ts,flyway-repair
     
     depends_on:
       - db

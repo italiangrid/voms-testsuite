@@ -1,0 +1,32 @@
+server:
+  address: 0.0.0.0
+  port: 8080
+  forward-headers-strategy: native
+
+spring:
+  datasource:
+    url: jdbc:mysql://db:3306/voms_vo_2?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: user
+    password: pwd
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 8
+      connection-test-query: SELECT 1
+  
+  flyway:
+    enabled: true
+    table: schema_version
+    locations:
+      - classpath:db/migration/mysql
+      - classpath:db/migration/prod
+      
+voms:
+  tls:
+    certificate-path: /etc/grid-security/voms/voms-aa_test_example.cert.pem
+    private-key-path: /etc/grid-security/voms/voms-aa_test_example.key.pem
+  aa:
+    host: voms-aa.test.example
+    port: 443
+    vo-name: vo.2
+    optional-group-label: voms.role
+    use-legacy-fqan-encoding: true
